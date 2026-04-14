@@ -6,10 +6,8 @@ public class PlayerController : NetworkBehaviour
 {
 
     //private PlayerInputController inputController;
-    private float speed = 15f;
-    private NetworkVariable<Vector2> _input = new NetworkVariable<Vector2>(Vector2.zero,
-    NetworkVariableReadPermission.Everyone,
-    NetworkVariableWritePermission.Owner);
+    private float _speed = 15f;
+    private Vector2 _input = Vector2.zero;
 
     private void Awake()
     {
@@ -19,23 +17,24 @@ public class PlayerController : NetworkBehaviour
 
     private void Update()
     {
-        if (IsServer)
+        if (IsOwner)
         {
             Vector3 positionChange = new Vector3(
-                _input.Value.x,
+                _input.x,
                 0,
-                _input.Value.y);
+                _input.y);
 
-            transform.position += positionChange * Time.deltaTime * speed;
+            transform.position += positionChange * Time.deltaTime * _speed;
+
         }
-
     }
+
 
     private void OnMove(InputValue inputValue)
     {
         if (IsOwner)
         {
-            _input.Value = inputValue.Get<Vector2>().normalized;
+            _input = inputValue.Get<Vector2>().normalized;
         }
 
     }

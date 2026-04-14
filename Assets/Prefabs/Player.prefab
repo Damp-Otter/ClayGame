@@ -241,7 +241,7 @@ GameObject:
   - component: {fileID: 5472468431487231287}
   - component: {fileID: 6383410974755588978}
   - component: {fileID: 3602848125746483189}
-  - component: {fileID: 4697557072001845473}
+  - component: {fileID: 776697295743771720}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -357,7 +357,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d68222125c73d1c418674886f7a57fc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
---- !u!114 &4697557072001845473
+--- !u!114 &776697295743771720
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -366,9 +366,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 9022935115196233313}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Script: {fileID: 11500000, guid: 8bfb9ce9df6a0b141aa60abeabda6774, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkTransform
+  m_EditorClassIdentifier: Assembly-CSharp::ClientNetworkTransform
   ShowTopMostFoldoutHeaderGroup: 1
   NetworkTransformExpanded: 0
   AutoOwnerAuthorityTickOffset: 1
@@ -390,9 +390,9 @@ MonoBehaviour:
   SyncRotAngleX: 1
   SyncRotAngleY: 1
   SyncRotAngleZ: 1
-  SyncScaleX: 0
-  SyncScaleY: 0
-  SyncScaleZ: 0
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
   PositionThreshold: 0.001
   RotAngleThreshold: 0.01
   ScaleThreshold: 0.01
