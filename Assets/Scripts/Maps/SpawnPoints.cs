@@ -24,6 +24,7 @@ public class SpawnPoints : MonoBehaviour
     public Transform GetPointInOrder()
     {
         int point = _lastIndex;
+        _lastIndex++;
         if (_lastIndex >= _points.Length)
         {
             _lastIndex = 0;
