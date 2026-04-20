@@ -40,6 +40,7 @@ public class PlayerController : NetworkBehaviour
 
         if (IsOwner)
         {
+            Debug.Log("Given camera priority");
             cinCamera.Priority = 1;
         }
         else
@@ -52,10 +53,12 @@ public class PlayerController : NetworkBehaviour
 
     private void Update()
     {
-        if (IsLocalPlayer)
+        if (IsOwner)
         {
+            Debug.Log("A local player exists");
             if (_playerControl.Player.Move.inProgress)
             {
+                Debug.Log("Moving");
                 Vector2 moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
                 Vector3 movement = moveInput.x * _cameraTransform.right + moveInput.y * _cameraTransform.forward;
                 movement.y = 0f;
@@ -65,6 +68,7 @@ public class PlayerController : NetworkBehaviour
 
             if (_playerControl.Player.Look.inProgress)
             {
+                Debug.Log("Looking");
                 Vector2 lookInput = _playerControl.Player.Look.ReadValue<Vector2>();
                 transform.RotateAround(transform.position, transform.up, lookInput.x * Time.deltaTime * _turnSpeed);
 
