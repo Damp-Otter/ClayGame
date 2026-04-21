@@ -43,5 +43,4 @@ public class ConnectionManager : MonoBehaviour
         _connectionType = Type.Client;
     }
 
-
 }

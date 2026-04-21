@@ -29,7 +29,6 @@ public class MainMenu : MonoBehaviour
 
     private void OnServerClicked()
     {
-
         ConnectionManager.singleton.InitializeAsServer(5678);
         SceneManager.LoadScene(1);
 
