@@ -1,3 +1,5 @@
+using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,10 +11,15 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
 
-    [SerializeField] private Button serverButton = null;
-    [SerializeField] private Button clientButton = null;
+    [SerializeField] private GameObject _mainScreen;
+    [SerializeField] private GameObject _joinScreen;
+    [SerializeField] private Button _hostButton = null;
+    [SerializeField] private Button _clientButton = null;
 
-    private void Start()
+    [SerializeField] private Button _submitCodeButton;
+    [SerializeField] private TextMeshProUGUI _codeText;
+
+    private void OnEnable()
     {
 
         #if !UNITY_EDITOR && UNITY_SERVER
@@ -21,26 +28,56 @@ public class MainMenu : MonoBehaviour
         #endif
 
 
-        serverButton.onClick.AddListener(OnServerClicked);
-        clientButton.onClick.AddListener(OnClientClicked);
+        _hostButton.onClick.AddListener(OnServerClicked);
+        _clientButton.onClick.AddListener(OnClientClicked);
+        _submitCodeButton.onClick.AddListener(OnJoinClicked);
 
     }
 
 
-    private void OnServerClicked()
+    private void OnDisable()
     {
-        ConnectionManager.singleton.InitializeAsServer(5678);
-        SceneManager.LoadScene(1);
+        _hostButton.onClick.RemoveListener(OnServerClicked);
+        _clientButton.onClick.RemoveListener(OnClientClicked);
+        _submitCodeButton.onClick.RemoveListener(OnJoinClicked);
+    }
+
+
+    private async void OnServerClicked()
+    {
+
+        bool succeeded = await GameLobbyManager.singleton.CreateLobby();
+        if (succeeded)
+        {
+            await SceneManager.LoadSceneAsync("Lobby");
+        }
+        //ConnectionManager.singleton.InitializeAsServer(5678);
+        //SceneManager.LoadScene(2);
 
     }
 
 
     private void OnClientClicked()
     {
+        _mainScreen.SetActive(false);
+        _joinScreen.SetActive(true);
+        //ConnectionManager.singleton.InitializeAsClient("127.0.0.1", 5678);
+        //SceneManager.LoadScene(2);
 
-        ConnectionManager.singleton.InitializeAsClient("127.0.0.1", 5678);
-        SceneManager.LoadScene(1);
+    }
 
+    private async void OnJoinClicked()
+    {
+        string code = _codeText.text;
+        code = code.Substring(0, code.Length - 1);
+        Debug.Log(code);
+
+        bool succeeded = await GameLobbyManager.singleton.JoinLobby(code);
+        Debug.Log(succeeded);
+        if (succeeded)
+        {
+            await SceneManager.LoadSceneAsync("Lobby");
+        }
     }
 
 }

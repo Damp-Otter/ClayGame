@@ -32,22 +32,16 @@ public class DoorController : NetworkBehaviour
     private void OnSwitchChanged(SwitchController switchController, bool isActive)
     {
         _activeSwitches[switchController] = isActive;
-        bool anySwitchOn = false;
 
-        foreach (var doorSwitch in _switches)
+        if(isActive)
         {
-            if (_activeSwitches[doorSwitch])
-            {
-                Debug.Log("Opening door");
-                anySwitchOn = true;
-                _animatorController.SetTrigger("OpenDoor");
-            }
+            Debug.Log("Opening door");
+            _animatorController.SetTrigger("OpenDoor");
         }
-
-        if (anySwitchOn == false)
-        {
+        else {
             Debug.Log("Closing door");
             _animatorController.SetTrigger("CloseDoor");
         }
+
     }
 }

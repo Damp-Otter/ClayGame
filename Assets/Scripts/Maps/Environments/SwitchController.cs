@@ -44,7 +44,7 @@ public class SwitchController : NetworkBehaviour
     }
 
 
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
     private void OnSwitchChangedServerRpc(bool isActive)
     {
         _isActive.Value = isActive;

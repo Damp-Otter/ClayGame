@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using Unity.Netcode;
 using Unity.Cinemachine;
 using System;
+using UnityEngine.SceneManagement;
 
 
 [RequireComponent (typeof (CharacterController))]
@@ -30,7 +31,10 @@ public class PlayerController : NetworkBehaviour
         _playerControl = new PlayerControl();
         _playerControl.Enable();
 
-        Cursor.lockState = CursorLockMode.Locked;
+        if(SceneManager.GetActiveScene() != SceneManager.GetSceneByName("Lobby"))
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
     }
 
 
