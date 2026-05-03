@@ -7,7 +7,7 @@ public class LobbyPlayerData
 
     private string _id; public string id { get { return _id; } }
     private string _gamertag; public string gamertag { get { return _gamertag; } }
-    private bool _isReady; public bool isReady { get { return _isReady; } }
+    private bool _isReady; public bool isReady { get { return _isReady; } set { _isReady = value;  } }
 
     public void Initialize(string id, string gamertag)
     {
@@ -17,7 +17,7 @@ public class LobbyPlayerData
 
     public void Initialize(Dictionary<string, PlayerDataObject> playerData)
     {
-
+        UpdateState(playerData);
     }
 
     public void UpdateState(Dictionary<string, PlayerDataObject> playerData)
@@ -32,7 +32,7 @@ public class LobbyPlayerData
         }
         if (playerData.ContainsKey("IsReady"))
         {
-            _isReady = playerData["Id"].Value == "True";
+            bool.TryParse(playerData["IsReady"].Value, out _isReady);
         }
     }
 
