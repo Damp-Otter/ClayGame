@@ -13,7 +13,7 @@ using Unity.VisualScripting;
 
 namespace Game
 {
-    public class LobbyManager : GameLobbyManager
+    public class LobbyManager : MonoBehaviour
     {
         private static LobbyManager _singleton; public static LobbyManager singleton { get { return _singleton; } }
 
@@ -141,7 +141,7 @@ namespace Game
         }
 
 
-        public override string GetLobbyCode()
+        public string GetLobbyCode()
         {
             return _lobby?.LobbyCode;
         }
@@ -236,6 +236,15 @@ namespace Game
 
             return true;
 
+        }
+
+        public void StopLobbyUpdates()
+        {
+            if (_refreshLobbyCoroutine != null)
+            {
+                StopCoroutine(_refreshLobbyCoroutine);
+                _refreshLobbyCoroutine = null;
+            }
         }
 
     }

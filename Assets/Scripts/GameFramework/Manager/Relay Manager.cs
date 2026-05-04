@@ -3,19 +3,26 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Unity.Netcode;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class RelayManager : MonoBehaviour
 {
     private static RelayManager _singleton; public static RelayManager singleton { get { return _singleton; } }
 
-    private string _joinCode; 
-    private string _ip;
-    private int _port; 
+    private string _joinCode; public string joinCode { get { return _joinCode; } }
+    private string _ip; public string ip { get { return _ip; } }
+    private int _port; public int port { get { return _port; } }
+    private bool _isHost; public bool isHost { get { return _isHost; } }
     private byte[] _connectionData; public byte[] connectionData { get { return _connectionData; } }
+    private byte[] _hostConnectionData; public byte[] hostConnectionData { get { return _hostConnectionData; } }
+    private byte[] _key; public byte[] key { get { return _key; } }
     private Guid _allocationId; public Guid allocationId { get { return _allocationId; } }
+    private byte[] _allocationByteId; public byte[] allocationByteId { get { return _allocationByteId; } }
+
 
 
     private void Awake()
@@ -43,8 +50,13 @@ public class RelayManager : MonoBehaviour
         _port = dtlsEndpoint.Port;
 
         _allocationId = allocation.AllocationId;
+        _allocationByteId = allocation.AllocationIdBytes;
+
         _connectionData = allocation.ConnectionData;
 
+        _key = allocation.Key;
+
+        _isHost = true;
 
         return _joinCode;
     }
@@ -60,7 +72,12 @@ public class RelayManager : MonoBehaviour
         _port = dtlsEndpoint.Port;
 
         _allocationId = allocation.AllocationId;
+        _allocationByteId = allocation.AllocationIdBytes;
+
         _connectionData = allocation.ConnectionData;
+        _hostConnectionData = allocation.HostConnectionData;
+
+        _key = allocation.Key;
 
         return true;
     }

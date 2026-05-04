@@ -10,6 +10,8 @@ using Unity.Services.Lobbies.Models;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 
 namespace Game
 {
@@ -21,6 +23,7 @@ namespace Game
         private List<LobbyPlayerData> _lobbyPlayerDatas = new List<LobbyPlayerData>();
         private LobbyPlayerData _localLobbyPlayerData;
         private LobbyData _lobbyData;
+        private bool _isTransitioning = false;
 
         public bool isHost => _localLobbyPlayerData.id == LobbyManager.singleton.GetHostId();
 
@@ -80,7 +83,7 @@ namespace Game
             return succeeded;
         }
 
-        private void OnLobbyUpdated(Lobby lobby)
+        private async void OnLobbyUpdated(Lobby lobby)
         {
             List<Dictionary<string, PlayerDataObject>> playerData = LobbyManager.singleton.GetPlayersData();
             _lobbyPlayerDatas.Clear();
@@ -114,6 +117,17 @@ namespace Game
                 Events.LobbyEvents.OnLobbyReady?.Invoke();
             }
 
+            if(_lobbyData.joinRelayCode != default && !_isTransitioning && !isHost)
+            {
+                _isTransitioning = true;
+
+                LobbyEvents.OnLobbyUpdated -= OnLobbyUpdated;
+                LobbyManager.singleton.StopLobbyUpdates();
+
+                await JoinRelayServer(_lobbyData.joinRelayCode);
+                await SceneManager.LoadSceneAsync(_lobbyData.sceneName);
+            }
+
         }
 
         internal List<LobbyPlayerData> GetPlayers()
@@ -132,23 +146,34 @@ namespace Game
             return _lobbyData.mapIndex;
         }
 
-        internal async Task<bool> SetSelectedMap(int currentMapIndex)
+        internal async Task<bool> SetSelectedMap(int currentMapIndex, string sceneName)
         {
             _lobbyData.mapIndex = currentMapIndex;
+            _lobbyData.sceneName = sceneName;
 
             return await LobbyManager.singleton.UpdateLobbyData(_lobbyData.Serialize());
         }
 
 
 //----------------------------------------------------------------------------------
+// Relay Service and starting / joining game
+//----------------------------------------------------------------------------------
 
-        internal async Task StartGame(string sceneName)
+        internal async Task<bool> StartGame()
         {
-            Debug.Log($"RelayManager singleton: {RelayManager.singleton}");
+            string joinRelayCode;
+            try
+            {
+                joinRelayCode = await RelayManager.singleton.CreateRelay(MAX_PLAYERS);
+                _isTransitioning = true;
+            }
+            catch (Exception)
+            {
+                Debug.LogError("Failed to start relay server");
+                return false;
+            }
 
-            string joinRelayCode = await RelayManager.singleton.CreateRelay(MAX_PLAYERS);
-
-            _lobbyData.SetJoinRelayCode(joinRelayCode);
+            _lobbyData.joinRelayCode = joinRelayCode;
             await LobbyManager.singleton.UpdateLobbyData(_lobbyData.Serialize());
 
             string allocationId = RelayManager.singleton.allocationId.ToString();
@@ -156,7 +181,31 @@ namespace Game
 
             await LobbyManager.singleton.UpdatePlayerData(_localLobbyPlayerData.id, _localLobbyPlayerData.Serialize(), allocationId, connectionData);
 
-            await SceneManager.LoadSceneAsync(sceneName);
+            await SceneManager.LoadSceneAsync(_lobbyData.sceneName);
+
+            return true;
         }
+
+        private async Task<bool> JoinRelayServer(string joinRelayCode)
+        {
+            try
+            {
+                _isTransitioning = true;
+                await RelayManager.singleton.JoinRelay(joinRelayCode);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed to join relay server {e}");
+                return false;
+            }
+
+            string allocationId = RelayManager.singleton.allocationId.ToString();
+            string connectionData = RelayManager.singleton.connectionData.ToString();
+
+            await LobbyManager.singleton.UpdatePlayerData(_localLobbyPlayerData.id, _localLobbyPlayerData.Serialize(), allocationId, connectionData);
+
+            return true;
+        }
+
     }
 }

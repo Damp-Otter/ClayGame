@@ -10,12 +10,12 @@ namespace GameFramework.Data
 {
 	public class LobbyData
 	{
-		private int _mapIndex;
-        private string _joinRelayCode;
+		private int _mapIndex; public int mapIndex { get { return _mapIndex; } set { _mapIndex = value; } }
+        private string _joinRelayCode; public string joinRelayCode { get { return _joinRelayCode; } set { _joinRelayCode = value; } }
+        private string _sceneName; public string sceneName { get { return _sceneName; } set { _sceneName = value; } }
 
-        public int mapIndex { get { return _mapIndex; } set { _mapIndex = value; } }
 
-		public void Initialize(int mapIndex) 
+        public void Initialize(int mapIndex) 
 		{
 			_mapIndex = mapIndex;
 		}
@@ -37,6 +37,11 @@ namespace GameFramework.Data
 				_joinRelayCode = lobbyData["joinRelayCode"].Value;
             }
 
+            if (lobbyData.ContainsKey("sceneName"))
+            {
+                _sceneName = lobbyData["sceneName"].Value;
+            }
+
         }
 
 		public Dictionary<string, string> Serialize()
@@ -44,13 +49,9 @@ namespace GameFramework.Data
 			return new Dictionary<string, string>
 			{
 				{"mapIndex", mapIndex.ToString()},
-				{"joinRelayCode", _joinRelayCode}
+				{"joinRelayCode", _joinRelayCode},
+				{"sceneName", _sceneName }
 			};
 		}
-
-        public void SetJoinRelayCode(string code)
-        {
-			_joinRelayCode = code;
-        }
     }
 }

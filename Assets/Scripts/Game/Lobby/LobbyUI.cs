@@ -57,13 +57,15 @@ namespace Game
         }
 
 
-        private void Start()
+        private async void Start()
         {
             _lobbyCodeText.text = $"Lobby code: {GameLobbyManager.singleton.GetLobbyCode()}";
 
             _startButton.image.color = Color.softRed;
             _startText.fontSize = 50;
             _startText.text = "WAITING FOR PLAYERS";
+
+            await GameLobbyManager.singleton.SetSelectedMap(_currentMapIndex, _mapSelectionData.maps[_currentMapIndex].sceneName);
 
             if (!GameLobbyManager.singleton.isHost)
             {
@@ -87,7 +89,7 @@ namespace Game
 
         private async void OnStartPressed()
         {
-            await GameLobbyManager.singleton.StartGame(_mapSelectionData.maps[_currentMapIndex].sceneName);
+            await GameLobbyManager.singleton.StartGame();
         }
 
 
@@ -102,7 +104,7 @@ namespace Game
             UpdateMap();
             _waitingForLobbySync = true;
 
-            await GameLobbyManager.singleton.SetSelectedMap(_currentMapIndex);
+            await GameLobbyManager.singleton.SetSelectedMap(_currentMapIndex, _mapSelectionData.maps[_currentMapIndex].sceneName);
         }
 
 
@@ -116,7 +118,7 @@ namespace Game
 
             UpdateMap();
 
-            await GameLobbyManager.singleton.SetSelectedMap(_currentMapIndex);
+            await GameLobbyManager.singleton.SetSelectedMap(_currentMapIndex, _mapSelectionData.maps[_currentMapIndex].sceneName);
         }
 
 

@@ -52,8 +52,6 @@ namespace Game
             {
                 await SceneManager.LoadSceneAsync("Lobby");
             }
-            //ConnectionManager.singleton.InitializeAsServer(5678);
-            //SceneManager.LoadScene(2);
 
         }
 
@@ -62,9 +60,6 @@ namespace Game
         {
             _mainScreen.SetActive(false);
             _joinScreen.SetActive(true);
-            //ConnectionManager.singleton.InitializeAsClient("127.0.0.1", 5678);
-            //SceneManager.LoadScene(2);
-
         }
 
         private async void OnJoinClicked()

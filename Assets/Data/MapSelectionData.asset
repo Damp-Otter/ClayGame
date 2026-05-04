@@ -17,3 +17,5 @@ MonoBehaviour:
     sceneName: DoorsMap
   - mapName: Basic
     sceneName: BasicMap
+  - mapName: Third
+    sceneName: ThirdMap

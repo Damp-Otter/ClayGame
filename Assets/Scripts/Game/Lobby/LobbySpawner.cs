@@ -1,7 +1,8 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using Game.Events;
+﻿using Game.Events;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace Game
 {
@@ -13,6 +14,7 @@ namespace Game
         private void OnEnable()
         {
             LobbyEvents.OnLobbyUpdated += OnLobbyUpdated;
+            OnLobbyUpdated();
         }
 
         private void OnDisable()
@@ -24,7 +26,7 @@ namespace Game
         {
             List<LobbyPlayerData> playerDatas = GameLobbyManager.singleton.GetPlayers();
 
-            for(int i = 0; i < playerDatas.Count; i++)
+            for(int i = 0; i < playerDatas.Count && i < _players.Count; i++)
             {
                 LobbyPlayerData data = playerDatas[i];
                 _players[i].SetData(data);

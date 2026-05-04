@@ -23,5 +23,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BasicMap.unity
     guid: ff502548c3cc1a645b0130ae02d3ed5e
+  - enabled: 1
+    path: Assets/Scenes/ThirdMap.unity
+    guid: d692260e8a9eda2428ee3d5e03718bec
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
