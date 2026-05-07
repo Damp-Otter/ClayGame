@@ -9,8 +9,12 @@ namespace GameFramework.Networking.Movement
     public class NetworkMovementComponent : NetworkBehaviour
     {
 
+//-------------------------------------------------------------------------------------------
+// In game variables
+//-------------------------------------------------------------------------------------------
+
         [SerializeField] private float _speed = 15f;
-        [SerializeField] private float _turnSpeed = 15f;
+        [SerializeField] private float _turnSpeed = 5f;
         [SerializeField] private Vector2 _minMaxRotationX;
 
         [SerializeField] private GameObject _camera;
@@ -22,6 +26,10 @@ namespace GameFramework.Networking.Movement
 
         [SerializeField] private CharacterController _characterController;
         [SerializeField] private PlayerControl _playerControl;
+
+//-------------------------------------------------------------------------------------------
+// Networking variables
+//-------------------------------------------------------------------------------------------
 
         [SerializeField] private int _tick = 0;
         private float _tickRate = 1f / 60f; // This is 60fps

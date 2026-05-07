@@ -6,18 +6,19 @@ using static Assets.Scripts.Game.Maps.Environments.ButtonController;
 
 namespace Game
 {
-	public class DamageController : NetworkBehaviour
-	{
+    public class DamageController : NetworkBehaviour
+    {
+        [SerializeField] private PlayerData _playerData;
 
-        public delegate void DamageTaken(DamageController damageController);
-        public event DamageTaken OnDamageTaken;
-
-        public void TakeDamage()
+        public void TakeDamage(float damage)
         {
-            if (IsServer)
-            {
-                OnDamageTaken.Invoke(this);
-            }
+            if (!IsServer)
+                return;
+
+            _playerData.Health.Value -= damage;
+
+            _playerData.Health.Value = Mathf.Clamp(_playerData.Health.Value, 0, _playerData.maxHealth);
+
         }
     }
 }
