@@ -22,6 +22,7 @@ namespace Game
         private Coroutine _refreshLobbyCoroutine;
         private float _heartBeatInterval = 6f;
         private float _refreshInterval = 1f;
+        private
 
 
         void Start()
@@ -40,7 +41,6 @@ namespace Game
 
         public async Task<bool> CreateLobby(int maxPlayers, bool isPrivate, Dictionary<string, string> playerData, Dictionary<string, string> lobbyData)
         {
-
             Dictionary<string, PlayerDataObject> serializedPlayerData = SerializePlayerData(playerData);
             Player player = new Player(AuthenticationService.Instance.PlayerId, null, serializedPlayerData);
 
@@ -64,10 +64,39 @@ namespace Game
 
             Debug.Log($"Lobby created with ID: {_lobby.Id}");
 
+            LobbyEvents.OnLobbyUpdated?.Invoke(_lobby);
+
             _heartbeatCoroutine = StartCoroutine(HeartbeatLobbyCoroutine(_lobby.Id, _heartBeatInterval));
             _refreshLobbyCoroutine = StartCoroutine(RefreshLobbyCoroutine(_lobby.Id, _refreshInterval));
 
             return true;
+        }
+
+
+        public async Task<bool> JoinLobby(string code, Dictionary<string, string> playerData)
+        {
+            JoinLobbyByCodeOptions options = new JoinLobbyByCodeOptions();
+            Player player = new Player(AuthenticationService.Instance.PlayerId, null, SerializePlayerData(playerData));
+
+            options.Player = player;
+
+            bool succeeded;
+            try
+            {
+                _lobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code, options);
+                succeeded = true;
+            }
+            catch (Exception)
+            {
+                succeeded = false;
+                Debug.LogError("Failed to join lobby");
+            }
+
+            LobbyEvents.OnLobbyUpdated?.Invoke(_lobby);
+
+            StartCoroutine(RefreshLobbyCoroutine(_lobby.Id, _refreshInterval));
+
+            return succeeded;
         }
 
 
@@ -150,31 +179,6 @@ namespace Game
         internal string GetHostId()
         {
             return _lobby.HostId;
-        }
-
-
-        public async Task<bool> JoinLobby(string code, Dictionary<string, string> playerData)
-        {
-            JoinLobbyByCodeOptions options = new JoinLobbyByCodeOptions();
-            Player player = new Player(AuthenticationService.Instance.PlayerId, null, SerializePlayerData(playerData));
-
-            options.Player = player;
-
-            bool succeeded;
-            try
-            {
-                _lobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code, options);
-                succeeded = true;
-            }
-            catch (Exception)
-            {
-                succeeded = false;
-                Debug.LogError("Failed to join lobby");
-            }
-
-            StartCoroutine(RefreshLobbyCoroutine(_lobby.Id, _refreshInterval));
-
-            return succeeded;
         }
 
 

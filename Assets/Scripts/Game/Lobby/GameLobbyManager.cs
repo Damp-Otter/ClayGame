@@ -1,6 +1,5 @@
 using GameFramework.Data;
 using GameFramework.Events;
-using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -52,11 +51,11 @@ namespace Game
         }
 
 
+        // Changes to make: Server instantly loads the player, then in update lobby, set correct players
         public async Task<bool> CreateLobby()
         {
             _localLobbyPlayerData = new LobbyPlayerData();
             _localLobbyPlayerData.Initialize(AuthenticationService.Instance.PlayerId, "HostPlayer");
-
 
             _lobbyData = new LobbyData();
             _lobbyData.Initialize(0);

@@ -695,12 +695,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1769836936609529961}
-  - component: {fileID: 7265879912158866163}
   - component: {fileID: 5213022741164063580}
   - component: {fileID: 5472468431487231287}
   - component: {fileID: 6383410974755588978}
-  - component: {fileID: 776697295743771720}
   - component: {fileID: 4608678053767457708}
+  - component: {fileID: 1847520459098462107}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -726,18 +725,6 @@ Transform:
   - {fileID: 9040449604096213129}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7265879912158866163
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9022935115196233313}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2562ec6bd89fe9d45bf5e985c147ca07, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
 --- !u!114 &5213022741164063580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -780,7 +767,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2110011503
+  GlobalObjectIdHash: 4166730196
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -806,56 +793,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   ShowTopMostFoldoutHeaderGroup: 1
-  _speed: 15
   _turnSpeed: 15
   _minMaxRotationX: {x: 90, y: -90}
   _cameraTransform: {fileID: 6512458857595056362}
---- !u!114 &776697295743771720
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9022935115196233313}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8bfb9ce9df6a0b141aa60abeabda6774, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ClientNetworkTransform
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 0
-  AutoOwnerAuthorityTickOffset: 1
-  PositionInterpolationType: 0
-  RotationInterpolationType: 0
-  ScaleInterpolationType: 0
-  PositionLerpSmoothing: 1
-  PositionMaxInterpolationTime: 0.1
-  RotationLerpSmoothing: 1
-  RotationMaxInterpolationTime: 0.1
-  ScaleLerpSmoothing: 1
-  ScaleMaxInterpolationTime: 0.1
-  AuthorityMode: 0
-  TickSyncChildren: 0
-  UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
-  SlerpPosition: 0
+  _playerMovement: {fileID: 1847520459098462107}
+  _shootRange: 50
+  _shootingPlayer:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!143 &4608678053767457708
 CharacterController:
   m_ObjectHideFlags: 0
@@ -881,3 +826,29 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1847520459098462107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9022935115196233313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9e794918cbc49c48b6932113c848080, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameFramework.Networking.Movement.NetworkMovementComponent
+  ShowTopMostFoldoutHeaderGroup: 1
+  _speed: 10
+  _turnSpeed: 15
+  _minMaxRotationX: {x: 0, y: 0}
+  _camera: {fileID: 1900523856431895115}
+  _cameraTransform: {fileID: 8547045617142458059}
+  _meshFilter: {fileID: 4577543285940467884}
+  _color: {r: 0.5943396, g: 0.035242666, b: 0, a: 0.8784314}
+  _characterController: {fileID: 4608678053767457708}
+  _tick: 0
+  serverTransformState:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0

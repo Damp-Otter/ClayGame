@@ -29,7 +29,7 @@ namespace Game
 #endif
 
 
-            _hostButton.onClick.AddListener(OnServerClicked);
+            _hostButton.onClick.AddListener(OnHostClicked);
             _clientButton.onClick.AddListener(OnClientClicked);
             _submitCodeButton.onClick.AddListener(OnJoinClicked);
 
@@ -38,13 +38,13 @@ namespace Game
 
         private void OnDisable()
         {
-            _hostButton.onClick.RemoveListener(OnServerClicked);
+            _hostButton.onClick.RemoveListener(OnHostClicked);
             _clientButton.onClick.RemoveListener(OnClientClicked);
             _submitCodeButton.onClick.RemoveListener(OnJoinClicked);
         }
 
 
-        private async void OnServerClicked()
+        private async void OnHostClicked()
         {
 
             bool succeeded = await GameLobbyManager.singleton.CreateLobby();

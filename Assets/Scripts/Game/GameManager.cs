@@ -10,6 +10,9 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
 
+        // Because the game manager is in the actual game scenes, this runs when the players join
+
+        // Guard in case they join twice
         if (NetworkManager.Singleton.IsClient || NetworkManager.Singleton.IsServer)
             return;
 

@@ -25,8 +25,8 @@ public class PlayerTerminal : NetworkBehaviour
         ulong id = rpcParams.Receive.SenderClientId;
         var playerPrefab = NetworkManager.Singleton.NetworkConfig.Prefabs.NetworkPrefabsLists[0].PrefabList[0].Prefab;
         Transform spawnPoint = SpawnPoints.singleton.GetPointInOrder();
-        var player = Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);    
-        player.GetComponent<NetworkObject>().SpawnWithOwnership(id, true);
+        var player = Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
+        player.GetComponent<NetworkObject>().SpawnAsPlayerObject(id, true);
     }
 
 }

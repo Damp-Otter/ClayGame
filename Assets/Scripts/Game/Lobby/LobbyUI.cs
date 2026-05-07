@@ -89,6 +89,8 @@ namespace Game
 
         private async void OnStartPressed()
         {
+            _startButton.enabled = false;
+
             await GameLobbyManager.singleton.StartGame();
         }
 

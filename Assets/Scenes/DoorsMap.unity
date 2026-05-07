@@ -1353,6 +1353,116 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b179cd84a7c8c4544a602f8497b77ed6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwitchController
+--- !u!1001 &1619243955
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1917721794}
+    m_Modifications:
+    - target: {fileID: 4914923475283573267, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 264171558
+      objectReference: {fileID: 0}
+    - target: {fileID: 4914923475283573267, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4914923475283573267, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 268083150
+      objectReference: {fileID: 0}
+    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8251543501159044568, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      propertyPath: m_Name
+      value: Door
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8251543501159044568, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1619243959}
+  m_SourcePrefab: {fileID: 100100000, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+--- !u!4 &1619243956 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+  m_PrefabInstance: {fileID: 1619243955}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1619243957 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8251543501159044568, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+  m_PrefabInstance: {fileID: 1619243955}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1619243958 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2231700929571834066, guid: 81b547694ce256c4288add8cc223b607, type: 3}
+  m_PrefabInstance: {fileID: 1619243955}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619243957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkAnimator
+--- !u!114 &1619243959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619243957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b233eae3d61a05f41b24b0d2fca400d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Assets.Scripts.Game.Maps.Environments.DoorSwitch
+  ShowTopMostFoldoutHeaderGroup: 1
+  _animatorController: {fileID: 1619243958}
+  _switches:
+  - {fileID: 1108488547}
+  - {fileID: 1556413446}
 --- !u!1 &1714184117
 GameObject:
   m_ObjectHideFlags: 0
@@ -1676,7 +1786,7 @@ Transform:
   - {fileID: 416638150}
   - {fileID: 1749665444}
   - {fileID: 386834060}
-  - {fileID: 205510937305123344}
+  - {fileID: 1619243956}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2125396496
@@ -1799,198 +1909,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1001 &205510937305123343
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1917721794}
-    m_Modifications:
-    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8251543501159044568, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      propertyPath: m_Name
-      value: Door
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8251543501159044568, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 205510937305123347}
-    - targetCorrespondingSourceObject: {fileID: 8251543501159044568, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 205510937305123348}
-    - targetCorrespondingSourceObject: {fileID: 8251543501159044568, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 205510937305123346}
-    - targetCorrespondingSourceObject: {fileID: 8251543501159044568, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 205510937305123349}
-  m_SourcePrefab: {fileID: 100100000, guid: 81b547694ce256c4288add8cc223b607, type: 3}
---- !u!4 &205510937305123344 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5851407833405349815, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-  m_PrefabInstance: {fileID: 205510937305123343}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &205510937305123345 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8251543501159044568, guid: 81b547694ce256c4288add8cc223b607, type: 3}
-  m_PrefabInstance: {fileID: 205510937305123343}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &205510937305123346
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 205510937305123345}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkAnimator
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkAnimatorExpanded: 0
-  AuthorityMode: 0
-  m_Animator: {fileID: 205510937305123347}
-  TransitionStateInfoList:
-  - IsCrossFadeExit: 0
-    Layer: 0
-    OriginatingState: -1822937705
-    DestinationState: 71445658
-    TransitionDuration: 0.25
-    TriggerNameHash: 207596745
-    TransitionIndex: 0
-  - IsCrossFadeExit: 0
-    Layer: 0
-    OriginatingState: -759124288
-    DestinationState: 71445658
-    TransitionDuration: 0.020716995
-    TriggerNameHash: 207596745
-    TransitionIndex: 0
-  - IsCrossFadeExit: 0
-    Layer: 0
-    OriginatingState: 71445658
-    DestinationState: -759124288
-    TransitionDuration: 0.020606376
-    TriggerNameHash: 744161737
-    TransitionIndex: 0
-  AnimatorParameterEntries:
-    ParameterEntries:
-    - name: OpenDoor
-      NameHash: 207596745
-      Synchronize: 1
-      ParameterType: 9
-    - name: CloseDoor
-      NameHash: 744161737
-      Synchronize: 1
-      ParameterType: 9
-  AnimatorParametersExpanded: 0
---- !u!95 &205510937305123347
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 205510937305123345}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: f97b5d014f5475d4db28d33ce46c6251, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!114 &205510937305123348
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 205510937305123345}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2721553328
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 0
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
---- !u!114 &205510937305123349
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 205510937305123345}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b8102aeeafb0ec45be64fbe500316ce, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DoorController
-  ShowTopMostFoldoutHeaderGroup: 1
-  _switches:
-  - {fileID: 1108488547}
-  - {fileID: 1556413446}
-  _animatorController: {fileID: 205510937305123346}
 --- !u!1001 &8688076903362860749
 PrefabInstance:
   m_ObjectHideFlags: 0
