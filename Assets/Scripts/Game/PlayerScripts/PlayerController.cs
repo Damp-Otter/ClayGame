@@ -71,10 +71,17 @@ namespace Game
             Vector2 moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
             Vector2 lookInput = _playerControl.Player.Look.ReadValue<Vector2>();
 
+            if (!_playerData.jumping && _playerControl.Player.Jump.inProgress)
+            {
+                Debug.Log("Jumping from player controller");
+                _playerData.jumping = true;
+            }
+
             if (IsClient && IsLocalPlayer)
             {
                 RotateCamera(lookInput);
-                _playerMovement.ProcessLocalPlayerMovement(moveInput, lookInput);
+
+                _playerMovement.ProcessLocalPlayerMovement(moveInput, lookInput, _playerData.jumping);
             }
             else
             {
