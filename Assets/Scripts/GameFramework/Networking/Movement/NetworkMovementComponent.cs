@@ -147,7 +147,7 @@ namespace GameFramework.Networking.Movement
         }
 
 
-        public void ProcessLocalPlayerMovement(Vector2 moveInput, Vector2 lookInput, bool jumping)
+        public void ProcessLocalPlayerMovement(Vector2 moveInput, Vector2 lookInput)
         {
             _tickDeltaTime += Time.deltaTime;
             if (_tickDeltaTime > _tickRate)

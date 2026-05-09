@@ -67,27 +67,20 @@ namespace Game
 
 
         private void Update()
-        { 
+        {
             Vector2 moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
             Vector2 lookInput = _playerControl.Player.Look.ReadValue<Vector2>();
 
-            if (!_playerData.jumping && _playerControl.Player.Jump.inProgress)
-            {
-                Debug.Log("Jumping from player controller");
-                _playerData.jumping = true;
-            }
+            bool jump = HandleJumping();
 
-            if (IsClient && IsLocalPlayer)
-            {
-                RotateCamera(lookInput);
+            HandleMovement(moveInput, lookInput);
 
-                _playerMovement.ProcessLocalPlayerMovement(moveInput, lookInput, _playerData.jumping);
-            }
-            else
-            {
-                _playerMovement.ProcessSimulatedPlayerMovement();
-            }
+            HandleShoot();
 
+        }
+
+        private void HandleShoot()
+        {
             if (IsLocalPlayer && _playerControl.Player.Shoot.inProgress)
             {
                 _playerData.cooledDown = _playerData.CheckCooldown();
@@ -100,6 +93,34 @@ namespace Game
             }
         }
 
+        private void HandleMovement(Vector2 moveInput, Vector2 lookInput)
+        {
+            if (IsClient && IsLocalPlayer)
+            {
+                RotateCamera(lookInput);
+
+                _playerMovement.ProcessLocalPlayerMovement(moveInput, lookInput);
+            }
+            else
+            {
+                _playerMovement.ProcessSimulatedPlayerMovement();
+            }
+        }
+
+        private bool HandleJumping()
+        {
+            if (!_playerData.jumping && _playerControl.Player.Jump.inProgress)
+            {
+                Debug.Log("Jumping from player controller");
+                _playerData.jumping = true;
+                return true;
+            }
+            if (_characterController.isGrounded)
+            {
+                _playerData.jumping = false;
+            }
+            return false;
+        }
 
         private void RotateCamera(Vector2 lookInput)
         {
