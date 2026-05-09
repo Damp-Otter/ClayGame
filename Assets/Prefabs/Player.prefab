@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8561173152618177996}
   - component: {fileID: 3883908934184675473}
   - component: {fileID: 568957491119429223}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Damage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 5413503932056158600}
   - component: {fileID: 4026080715061507995}
   - component: {fileID: 300921454532524155}
-  m_Layer: 5
+  m_Layer: 3
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -226,7 +226,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6512458857595056362}
   - component: {fileID: 1123055641796000660}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CinemachineCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -304,7 +304,7 @@ GameObject:
   - component: {fileID: 4225775336953478121}
   - component: {fileID: 1345032467400469953}
   - component: {fileID: 233633708040176547}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -472,7 +472,7 @@ GameObject:
   - component: {fileID: 5378187228520773189}
   - component: {fileID: 7408438417790955690}
   - component: {fileID: 1981553054809067253}
-  m_Layer: 5
+  m_Layer: 3
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -545,7 +545,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8547045617142458059}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CameraSocket
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -581,7 +581,7 @@ GameObject:
   - component: {fileID: 383368121532517935}
   - component: {fileID: 768195495866085890}
   - component: {fileID: 5406094916383336214}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Health
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -692,7 +692,7 @@ GameObject:
   - component: {fileID: 9040449604096213129}
   - component: {fileID: 8165012125134591848}
   - component: {fileID: 860293338422356914}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Gamertag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -874,7 +874,7 @@ GameObject:
   - component: {fileID: 265574337124951054}
   - component: {fileID: 8541885974239656384}
   - component: {fileID: 1815394195789446875}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Eyes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -986,7 +986,7 @@ GameObject:
   - component: {fileID: 4577543285940467884}
   - component: {fileID: 5358431541487568748}
   - component: {fileID: 5551769119294077004}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1100,7 +1100,7 @@ GameObject:
   - component: {fileID: 4037624740677104323}
   - component: {fileID: 9142585419217687264}
   - component: {fileID: 3306781723051480608}
-  m_Layer: 5
+  m_Layer: 3
   m_Name: Image (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1173,7 +1173,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8113135277996440533}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: HP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1214,7 +1214,7 @@ GameObject:
   - component: {fileID: 3395214499453647912}
   - component: {fileID: 4043723815786047568}
   - component: {fileID: 5589392225519212910}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1309,9 +1309,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   ShowTopMostFoldoutHeaderGroup: 1
-  _turnSpeed: 15
+  _lookSensitivity: 0.2
   _playerData: {fileID: 5589392225519212910}
-  _minMaxRotationX: {x: 90, y: -90}
+  _minMaxRotationX: {x: 89, y: -89}
   _cameraTransform: {fileID: 6512458857595056362}
   _playerMovement: {fileID: 1847520459098462107}
   _shootingPlayer:
@@ -1358,8 +1358,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameFramework.Networking.Movement.NetworkMovementComponent
   ShowTopMostFoldoutHeaderGroup: 1
   _speed: 10
-  _turnSpeed: 15
+  _rotationSpeed: 0.2
   _minMaxRotationX: {x: 0, y: 0}
+  _gravity: -25
+  _jumpHeight: 2
   _camera: {fileID: 1900523856431895115}
   _cameraTransform: {fileID: 8547045617142458059}
   _meshFilter: {fileID: 4577543285940467884}

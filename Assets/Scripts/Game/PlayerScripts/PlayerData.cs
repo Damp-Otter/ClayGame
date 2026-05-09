@@ -14,7 +14,6 @@ public class PlayerData : NetworkBehaviour
 
 
     private bool _cooledDown = true; public bool cooledDown { get { return _cooledDown; } set { _cooledDown = value; } }
-    private bool _jumping = true; public bool jumping { get { return _jumping; } set { _jumping = value; } }
 
     public bool CheckCooldown()
     {

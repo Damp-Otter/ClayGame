@@ -16,7 +16,7 @@ namespace Game
     public class PlayerController : NetworkBehaviour
     {
 
-        [SerializeField] private float _turnSpeed = 5f;
+        [SerializeField] private float _lookSensitivity = 0.2f;
 
         [SerializeField] private PlayerData _playerData;
 
@@ -73,7 +73,7 @@ namespace Game
 
             bool jump = HandleJumping();
 
-            HandleMovement(moveInput, lookInput);
+            HandleMovement(moveInput, lookInput, jump);
 
             HandleShoot();
 
@@ -93,13 +93,13 @@ namespace Game
             }
         }
 
-        private void HandleMovement(Vector2 moveInput, Vector2 lookInput)
+        private void HandleMovement(Vector2 moveInput, Vector2 lookInput, bool jumpPressed)
         {
             if (IsClient && IsLocalPlayer)
             {
                 RotateCamera(lookInput);
 
-                _playerMovement.ProcessLocalPlayerMovement(moveInput, lookInput);
+                _playerMovement.ProcessLocalPlayerMovement(moveInput, lookInput, jumpPressed);
             }
             else
             {
@@ -109,15 +109,10 @@ namespace Game
 
         private bool HandleJumping()
         {
-            if (!_playerData.jumping && _playerControl.Player.Jump.inProgress)
+            if (_playerControl.Player.Jump.triggered)
             {
                 Debug.Log("Jumping from player controller");
-                _playerData.jumping = true;
                 return true;
-            }
-            if (_characterController.isGrounded)
-            {
-                _playerData.jumping = false;
             }
             return false;
         }
@@ -125,12 +120,12 @@ namespace Game
         private void RotateCamera(Vector2 lookInput)
         {
             _cameraAngle = Vector3.SignedAngle(transform.forward, _cameraTransform.forward, _cameraTransform.right);
-            float cameraRotateAmount = lookInput.y * _turnSpeed * Time.deltaTime;
+            float cameraRotateAmount = lookInput.y * _lookSensitivity * Time.deltaTime;
             float newCameraAngle = _cameraAngle - cameraRotateAmount;
 
             if (newCameraAngle < _minMaxRotationX.x && newCameraAngle > _minMaxRotationX.y)
             {
-                _cameraTransform.RotateAround(_cameraTransform.position, _cameraTransform.right, -lookInput.y * Time.deltaTime * _turnSpeed);
+                _cameraTransform.RotateAround(_cameraTransform.position, _cameraTransform.right, -lookInput.y * _lookSensitivity);
             }
         }
 

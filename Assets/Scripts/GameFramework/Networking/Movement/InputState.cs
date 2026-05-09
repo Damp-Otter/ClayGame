@@ -9,6 +9,7 @@ namespace GameFramework.Networking.Movement
 		public int tick;
 		public Vector2 movementInput;
 		public Vector2 lookInput;
+		public bool jumpPressed;
 
 	}
 }

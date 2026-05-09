@@ -11,12 +11,10 @@ namespace GameFramework.Networking.Movement
         public int tick;
         public Vector3 position;
         public Quaternion rotation;
+        public float verticalVelocity;
         public bool hasStartedMoving;
-        public float yaw;
 
-        public void NetworkSerialize<T>(
-            BufferSerializer<T> serializer)
-            where T : IReaderWriter
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
             if (serializer.IsReader)
             {
@@ -25,6 +23,7 @@ namespace GameFramework.Networking.Movement
                 reader.ReadValueSafe(out tick);
                 reader.ReadValueSafe(out position);
                 reader.ReadValueSafe(out rotation);
+                reader.ReadValueSafe(out verticalVelocity);
                 reader.ReadValueSafe(out hasStartedMoving);
             }
             else
@@ -34,6 +33,7 @@ namespace GameFramework.Networking.Movement
                 writer.WriteValueSafe(tick);
                 writer.WriteValueSafe(position);
                 writer.WriteValueSafe(rotation);
+                writer.WriteValueSafe(verticalVelocity);
                 writer.WriteValueSafe(hasStartedMoving);
             }
         }

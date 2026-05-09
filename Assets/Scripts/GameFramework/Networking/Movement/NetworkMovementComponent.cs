@@ -14,8 +14,12 @@ namespace GameFramework.Networking.Movement
 //-------------------------------------------------------------------------------------------
 
         [SerializeField] private float _speed = 15f;
-        [SerializeField] private float _turnSpeed = 5f;
+        [SerializeField] private float _rotationSpeed = 0f;
         [SerializeField] private Vector2 _minMaxRotationX;
+
+        [SerializeField] private float _gravity = -25f;
+        [SerializeField] private float _jumpHeight = 2f;
+        private float _verticalVelocity;
 
         [SerializeField] private GameObject _camera;
         [SerializeField] private Transform _cameraTransform;
@@ -42,6 +46,7 @@ namespace GameFramework.Networking.Movement
         // Latest transform on the server
         public NetworkVariable<TransformState> serverTransformState = new NetworkVariable<TransformState>();
         public TransformState _previousTransformState;
+
 
         private void OnEnable()
         {
@@ -114,7 +119,7 @@ namespace GameFramework.Networking.Movement
                 }
 
                 RotatePlayer(inputState.lookInput);
-                MovePlayer(inputState.movementInput);
+                MovePlayer(inputState.movementInput, inputState.jumpPressed);
 
                 TransformState replayedState =
                     new TransformState()
@@ -122,6 +127,7 @@ namespace GameFramework.Networking.Movement
                         tick = replayTick,
                         position = transform.position,
                         rotation = transform.rotation,
+                        verticalVelocity = _verticalVelocity,
                         hasStartedMoving = true
                     };
 
@@ -138,6 +144,7 @@ namespace GameFramework.Networking.Movement
             _cameraTransform.localRotation = Quaternion.Euler(_cameraPitch, 0f, 0f);
             transform.position = state.position;
             transform.rotation = state.rotation;
+            _verticalVelocity = state.verticalVelocity;
             _characterController.enabled = true;
 
             // Reset state in array of states
@@ -147,29 +154,30 @@ namespace GameFramework.Networking.Movement
         }
 
 
-        public void ProcessLocalPlayerMovement(Vector2 moveInput, Vector2 lookInput)
+        public void ProcessLocalPlayerMovement(Vector2 moveInput, Vector2 lookInput, bool jumpPressed)
         {
             _tickDeltaTime += Time.deltaTime;
-            if (_tickDeltaTime > _tickRate)
+            while (_tickDeltaTime >= _tickRate)
             {
                 int bufferIndex = _tick % BUFFER_SIZE;
 
                 if (!IsServer)
                 {
-                    MovePlayerServerRpc(_tick, moveInput, lookInput);
+                    MovePlayerServerRpc(_tick, moveInput, lookInput, jumpPressed);
                     RotatePlayer(lookInput);
-                    MovePlayer(moveInput);
+                    MovePlayer(moveInput, jumpPressed);
                 }
                 else
                 {
                     RotatePlayer(lookInput);
-                    MovePlayer(moveInput);
+                    MovePlayer(moveInput, jumpPressed);
 
                     TransformState state = new TransformState()
                     {
                         tick = _tick,
                         position = transform.position,
                         rotation = transform.rotation,
+                        verticalVelocity = _verticalVelocity,
                         hasStartedMoving = true
                     };
 
@@ -181,7 +189,8 @@ namespace GameFramework.Networking.Movement
                 {
                     tick = _tick,
                     movementInput = moveInput,
-                    lookInput = lookInput
+                    lookInput = lookInput,
+                    jumpPressed = jumpPressed
                 };
 
                 TransformState transformState = new TransformState()
@@ -189,6 +198,7 @@ namespace GameFramework.Networking.Movement
                     tick = _tick,
                     position = transform.position,
                     rotation = transform.rotation,
+                    verticalVelocity = _verticalVelocity,
                     hasStartedMoving = true
                 };
 
@@ -204,7 +214,7 @@ namespace GameFramework.Networking.Movement
         public void ProcessSimulatedPlayerMovement()
         {
             _tickDeltaTime += Time.deltaTime;
-            if (_tickDeltaTime > _tickRate)
+            while (_tickDeltaTime >= _tickRate)
             {
                 if (serverTransformState.Value.hasStartedMoving)
                 {
@@ -220,20 +230,29 @@ namespace GameFramework.Networking.Movement
         }
 
 
-        private void MovePlayer(Vector2 movementInput)
+        private void MovePlayer(Vector2 movementInput, bool jumpPressed)
         {
-            Vector3 movement =
-                movementInput.x * transform.right +
-                movementInput.y * transform.forward;
-            movement.y = 0f;
 
-            // Gravity is here!? Seems odd but okay
-            if (!_characterController.isGrounded)
+            // This is to stick to the ground
+            if(_characterController.isGrounded && _verticalVelocity < 0f)
             {
-                movement.y = Physics.gravity.y;
+                _verticalVelocity = -2f;
             }
 
-            _characterController.Move(movement * _tickRate * _speed);
+            // Actually moving up with jump
+            if(_characterController.isGrounded && jumpPressed)
+            {
+                _verticalVelocity = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
+            }
+
+            _verticalVelocity += _gravity * _tickRate;
+
+            Vector3 movement = movementInput.x * transform.right + movementInput.y * transform.forward;
+            movement.Normalize();
+            movement *= _speed;
+            movement.y = _verticalVelocity;
+
+            _characterController.Move(movement * _tickRate);
         }
 
 
@@ -241,21 +260,22 @@ namespace GameFramework.Networking.Movement
         {
             transform.Rotate(
                 Vector3.up,
-                lookInput.x * _tickRate * _turnSpeed);
+                lookInput.x * _rotationSpeed);
         }
 
 
         [ServerRpc]
-        private void MovePlayerServerRpc(int tick, Vector2 moveInput, Vector2 lookInput)
+        private void MovePlayerServerRpc(int tick, Vector2 moveInput, Vector2 lookInput, bool jumpPressed)
         {
             RotatePlayer(lookInput);
-            MovePlayer(moveInput);
+            MovePlayer(moveInput, jumpPressed);
 
             TransformState state = new TransformState()
             {
                 tick = tick,
                 position = transform.position,
                 rotation = transform.rotation,
+                verticalVelocity = _verticalVelocity,
                 hasStartedMoving = true
             };
 
