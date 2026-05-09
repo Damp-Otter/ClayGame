@@ -9,10 +9,9 @@ public class PlayerData : NetworkBehaviour
     
     public NetworkVariable<float> Health = new NetworkVariable<float>(100);
     private float _maxHealth = 100; public float maxHealth { get { return _maxHealth; } set { _maxHealth = value; } }
-    private float _shootRange = 50;  public float shootRange { get { return _shootRange; } set { _shootRange = value; } }
-    private float _damage = 10; public float damage { get { return _damage; } set { _damage = value; } }
-
-
+    private float _shootRange = 1000f;  public float shootRange { get { return _shootRange; } set { _shootRange = value; } }
+    private float _damage = 25; public float damage { get { return _damage; } set { _damage = value; } }
+    private bool _isGrounded = false; public bool isGrounded { get { return _isGrounded; } set { _isGrounded = value; } }
     private bool _cooledDown = true; public bool cooledDown { get { return _cooledDown; } set { _cooledDown = value; } }
 
     public bool CheckCooldown()

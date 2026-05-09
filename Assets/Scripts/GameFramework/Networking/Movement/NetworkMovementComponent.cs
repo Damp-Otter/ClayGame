@@ -27,13 +27,15 @@ namespace GameFramework.Networking.Movement
 
         [SerializeField] private MeshFilter _meshFilter;
         [SerializeField] private Color _color;
+        [SerializeField] private GameObject _body;
 
         [SerializeField] private CharacterController _characterController;
         [SerializeField] private PlayerControl _playerControl;
+        [SerializeField] private PlayerData _playerData;
 
-//-------------------------------------------------------------------------------------------
-// Networking variables
-//-------------------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------------------
+        // Networking variables
+        //-------------------------------------------------------------------------------------------
 
         [SerializeField] private int _tick = 0;
         private float _tickRate = 1f / 60f; // This is 60fps
@@ -163,12 +165,14 @@ namespace GameFramework.Networking.Movement
 
                 if (!IsServer)
                 {
+                    _playerData.isGrounded = CheckGrounded();
                     MovePlayerServerRpc(_tick, moveInput, lookInput, jumpPressed);
                     RotatePlayer(lookInput);
                     MovePlayer(moveInput, jumpPressed);
                 }
                 else
                 {
+                    _playerData.isGrounded = CheckGrounded();
                     RotatePlayer(lookInput);
                     MovePlayer(moveInput, jumpPressed);
 
@@ -210,6 +214,16 @@ namespace GameFramework.Networking.Movement
             }
         }
 
+        private bool CheckGrounded()
+        {
+            RaycastHit hit;
+
+            if (Physics.SphereCast(_body.transform.position, 0.2f, -_body.transform.up, out hit, 1.1f))
+            {
+                return true;
+            }
+            return false;
+        }
 
         public void ProcessSimulatedPlayerMovement()
         {
@@ -220,6 +234,7 @@ namespace GameFramework.Networking.Movement
                 {
                     transform.position = serverTransformState.Value.position;
                     transform.rotation = serverTransformState.Value.rotation;
+                    _verticalVelocity = serverTransformState.Value.verticalVelocity;
 
                     _cameraTransform.localRotation = Quaternion.Euler(_cameraPitch, 0f, 0f);
                 }
@@ -234,14 +249,16 @@ namespace GameFramework.Networking.Movement
         {
 
             // This is to stick to the ground
-            if(_characterController.isGrounded && _verticalVelocity < 0f)
+            if(_playerData.isGrounded && _verticalVelocity < 0f)
             {
+                Debug.Log("On ground");
                 _verticalVelocity = -2f;
             }
 
             // Actually moving up with jump
-            if(_characterController.isGrounded && jumpPressed)
+            if(_playerData.isGrounded && jumpPressed)
             {
+                Debug.Log("Starting jump");
                 _verticalVelocity = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
             }
 
@@ -267,6 +284,7 @@ namespace GameFramework.Networking.Movement
         [ServerRpc]
         private void MovePlayerServerRpc(int tick, Vector2 moveInput, Vector2 lookInput, bool jumpPressed)
         {
+            _playerData.isGrounded = CheckGrounded();
             RotatePlayer(lookInput);
             MovePlayer(moveInput, jumpPressed);
 

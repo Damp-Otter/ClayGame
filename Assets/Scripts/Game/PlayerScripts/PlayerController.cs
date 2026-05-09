@@ -109,9 +109,8 @@ namespace Game
 
         private bool HandleJumping()
         {
-            if (_playerControl.Player.Jump.triggered)
+            if (_playerControl.Player.Jump.inProgress && _playerData.isGrounded)
             {
-                Debug.Log("Jumping from player controller");
                 return true;
             }
             return false;
