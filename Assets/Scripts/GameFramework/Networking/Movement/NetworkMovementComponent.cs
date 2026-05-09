@@ -13,7 +13,7 @@ namespace GameFramework.Networking.Movement
 // In game variables
 //-------------------------------------------------------------------------------------------
 
-        [SerializeField] private float _speed = 15f;
+        [SerializeField] private float _speed = 7f;
         [SerializeField] private float _rotationSpeed = 0f;
         [SerializeField] private Vector2 _minMaxRotationX;
 

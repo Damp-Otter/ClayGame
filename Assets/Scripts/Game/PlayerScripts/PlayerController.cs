@@ -16,7 +16,7 @@ namespace Game
     public class PlayerController : NetworkBehaviour
     {
 
-        [SerializeField] private float _lookSensitivity = 0.2f;
+        private float _lookSensitivity = 15f;
 
         [SerializeField] private PlayerData _playerData;
 
