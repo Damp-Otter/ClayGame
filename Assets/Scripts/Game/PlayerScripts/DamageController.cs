@@ -17,7 +17,7 @@ namespace Game
 
             _playerData.Health.Value -= damage;
 
-            _playerData.Health.Value = Mathf.Clamp(_playerData.Health.Value, 0, _playerData.maxHealth);
+            _playerData.Health.Value = Mathf.Clamp(_playerData.Health.Value, 0, _playerData.characterData.maxHealth);
 
         }
     }

@@ -10,9 +10,13 @@ namespace GameFramework.Data
 {
 	public class LobbyData
 	{
-		private int _mapIndex; public int mapIndex { get { return _mapIndex; } set { _mapIndex = value; } }
+
         private string _joinRelayCode; public string joinRelayCode { get { return _joinRelayCode; } set { _joinRelayCode = value; } }
+
+        private int _mapIndex; public int mapIndex { get { return _mapIndex; } set { _mapIndex = value; } }
         private string _sceneName; public string sceneName { get { return _sceneName; } set { _sceneName = value; } }
+       
+
 
 
         public void Initialize(int mapIndex) 
@@ -54,4 +58,5 @@ namespace GameFramework.Data
 			};
 		}
     }
+
 }

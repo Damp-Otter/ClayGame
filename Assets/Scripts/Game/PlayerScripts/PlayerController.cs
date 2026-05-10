@@ -16,12 +16,14 @@ namespace Game
     public class PlayerController : NetworkBehaviour
     {
 
-        private float _lookSensitivity = 15f;
+        private float _lookSensitivity = 10f;
 
         [SerializeField] private PlayerData _playerData;
 
         [SerializeField] private Vector2 _minMaxRotationX;
         [SerializeField] private Transform _cameraTransform;
+        private float _pitch;
+
         [SerializeField] private NetworkMovementComponent _playerMovement;
         [SerializeField] private LayerMask _shootingPlayer;
 
@@ -52,15 +54,18 @@ namespace Game
         {
             Debug.Log($"Spawned on {OwnerClientId} | IsOwner: {IsOwner} | IsServer: {IsServer}");
 
-            CinemachineCamera cinCamera = _cameraTransform.gameObject.GetComponent<CinemachineCamera>();
+            Camera camera = _cameraTransform.GetComponentInChildren<Camera>();
+            AudioListener audioListener = _cameraTransform.GetComponentInChildren<AudioListener>();
 
             if (IsOwner)
             {
-                cinCamera.Priority = 1;
+                camera.enabled = true;
+                audioListener.enabled = true;
             }
             else
             {
-                cinCamera.Priority = 0;
+                camera.enabled = false;
+                audioListener.enabled = false;
             }
 
         }
@@ -83,7 +88,7 @@ namespace Game
         {
             if (IsLocalPlayer && _playerControl.Player.Shoot.inProgress)
             {
-                _playerData.cooledDown = _playerData.CheckCooldown();
+                _playerData.cooledDown = _playerData.spellData.CheckCooldown();
 
                 if (_playerData.cooledDown)
                 {
@@ -118,20 +123,21 @@ namespace Game
 
         private void RotateCamera(Vector2 lookInput)
         {
-            _cameraAngle = Vector3.SignedAngle(transform.forward, _cameraTransform.forward, _cameraTransform.right);
-            float cameraRotateAmount = lookInput.y * _lookSensitivity * Time.deltaTime;
-            float newCameraAngle = _cameraAngle - cameraRotateAmount;
+            _pitch -= lookInput.y * _lookSensitivity * _playerData.senstivityMultiplier * Time.deltaTime;
 
-            if (newCameraAngle < _minMaxRotationX.x && newCameraAngle > _minMaxRotationX.y)
-            {
-                _cameraTransform.RotateAround(_cameraTransform.position, _cameraTransform.right, -lookInput.y * _lookSensitivity);
-            }
+            _pitch = Mathf.Clamp(
+                _pitch,
+                _minMaxRotationX.x,
+                _minMaxRotationX.y);
+
+            _cameraTransform.localRotation =
+                Quaternion.Euler(_pitch, 0f, 0f);
         }
 
 
         private void ShootButton(Vector3 origin, Vector3 direction)
         {
-            if (Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit hit, _playerData.shootRange, _shootingPlayer))
+            if (Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit hit, _playerData.spellData.shootRange, _shootingPlayer))
             {
                 if (hit.collider.TryGetComponent<ButtonController>(out ButtonController buttonController))
                 {
@@ -144,7 +150,7 @@ namespace Game
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         private void UseButtonServerRpc(Vector3 origin, Vector3 direction)
         {
-            if (Physics.Raycast(origin, direction, out RaycastHit hit, _playerData.shootRange, _shootingPlayer))
+            if (Physics.Raycast(origin, direction, out RaycastHit hit, _playerData.spellData.shootRange, _shootingPlayer))
             {
                 if (hit.collider.TryGetComponent<ButtonController>(out ButtonController buttonController))
                 {
@@ -160,14 +166,14 @@ namespace Game
             if (!_playerData.cooledDown)
                 return;
 
-            if (Physics.Raycast(origin, direction, out RaycastHit hit, _playerData.shootRange))
+            if (Physics.Raycast(origin, direction, out RaycastHit hit, _playerData.spellData.shootRange))
             {
                 DamageController damageController =
                     hit.collider.GetComponentInParent<DamageController>();
 
-                if (damageController != null)
+                if (damageController != null && damageController != _damageController)
                 {
-                    damageController.TakeDamage(_playerData.damage);
+                    damageController.TakeDamage(_playerData.spellData.damage);
                 }
             }
         }

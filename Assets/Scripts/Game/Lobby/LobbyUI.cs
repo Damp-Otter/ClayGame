@@ -3,6 +3,7 @@ using GameFramework.Data;
 using System;
 using System.Runtime.CompilerServices;
 using TMPro;
+using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
@@ -17,10 +18,16 @@ namespace Game
         [SerializeField] private Button _readyButton;
 
         [SerializeField] private TextMeshProUGUI _mapName;
-        [SerializeField] private Button _upButton;
-        [SerializeField] private Button _downButton;
+        [SerializeField] private Button _mapUpButton;
+        [SerializeField] private Button _mapDownButton;
         [SerializeField] private MapSelectionData _mapSelectionData;
         private int _currentMapIndex = 0;
+
+        [SerializeField] private TextMeshProUGUI _characterName;
+        [SerializeField] private Button _characterUpButton;
+        [SerializeField] private Button _characterDownButton;
+        [SerializeField] private CharacterSelectionData _characterSelectionData;
+        private int _currentCharacterIndex = 0;
 
         [SerializeField] private Button _startButton;
         [SerializeField] private TextMeshProUGUI _startText;
@@ -35,11 +42,15 @@ namespace Game
 
             _readyButton.onClick.AddListener(OnReadyPressed);
 
+            _characterUpButton.onClick.AddListener(OnCharacterUpPressed);
+            _characterDownButton.onClick.AddListener(OnCharacterDownPressed);
+
             if (GameLobbyManager.singleton.isHost)
             {
                 _startButton.onClick.AddListener(OnStartPressed);
-                _upButton.onClick.AddListener(OnUpPressed);
-                _downButton.onClick.AddListener(OnDownPressed);
+
+                _mapUpButton.onClick.AddListener(OnMapUpPressed);
+                _mapDownButton.onClick.AddListener(OnMapDownPressed);
             }
         }
 
@@ -50,8 +61,8 @@ namespace Game
             LobbyEvents.OnLobbyReady -= OnLobbyReady;
 
             _readyButton.onClick.RemoveAllListeners();
-            _upButton.onClick.RemoveAllListeners();
-            _downButton.onClick.RemoveAllListeners();
+            _mapUpButton.onClick.RemoveAllListeners();
+            _mapDownButton.onClick.RemoveAllListeners();
             _startButton.onClick.RemoveAllListeners();
 
         }
@@ -69,9 +80,10 @@ namespace Game
 
             if (!GameLobbyManager.singleton.isHost)
             {
-                _upButton.gameObject.SetActive(false);
-                _downButton.gameObject.SetActive(false);
+                _mapUpButton.gameObject.SetActive(false);
+                _mapDownButton.gameObject.SetActive(false);
             }
+
 
         }
 
@@ -95,7 +107,7 @@ namespace Game
         }
 
 
-        private async void OnDownPressed()
+        private async void OnMapDownPressed()
         {
             _currentMapIndex--;
             if (_currentMapIndex < 0)
@@ -110,7 +122,7 @@ namespace Game
         }
 
 
-        private async void OnUpPressed()
+        private async void OnMapUpPressed()
         {
             _currentMapIndex++;
             if (_currentMapIndex > _mapSelectionData.maps.Count - 1)
@@ -119,16 +131,51 @@ namespace Game
             }
 
             UpdateMap();
+            _waitingForLobbySync = true;
 
             await GameLobbyManager.singleton.SetSelectedMap(_currentMapIndex, _mapSelectionData.maps[_currentMapIndex].sceneName);
         }
 
 
-        private void UpdateMap()
+        private async void OnCharacterDownPressed()
         {
-            _mapName.text = _mapSelectionData.maps[_currentMapIndex].mapName;
+            _currentCharacterIndex--;
+            if (_currentCharacterIndex < 0)
+            {
+                _currentCharacterIndex = _characterSelectionData.characters.Count - 1;
+            }
+
+            UpdateCharacter();
+            _waitingForLobbySync = true;
+
+            await GameLobbyManager.singleton.SetSelectedCharacter(_currentCharacterIndex, _characterSelectionData.characters[_currentCharacterIndex].name);
         }
 
+
+        private async void OnCharacterUpPressed()
+        {
+            _currentCharacterIndex++;
+            if (_currentCharacterIndex > _characterSelectionData.characters.Count - 1)
+            {
+                _currentCharacterIndex = 0;
+            }
+
+            UpdateCharacter();
+            _waitingForLobbySync = true;
+
+            await GameLobbyManager.singleton.SetSelectedCharacter(_currentCharacterIndex, _characterSelectionData.characters[_currentCharacterIndex].name);
+        }
+
+
+        private void UpdateMap()
+        {
+            _mapName.text = _mapSelectionData.maps[_currentMapIndex].sceneName;
+        }
+
+        private void UpdateCharacter()
+        {
+            _characterName.text = _characterSelectionData.characters[_currentCharacterIndex].name;
+        }
         private void OnLobbyUpdated()
         {
             int lobbyMapIndex = GameLobbyManager.singleton.GetMapIndex();

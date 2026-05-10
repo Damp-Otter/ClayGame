@@ -56,6 +56,7 @@ namespace Game
         {
             _localLobbyPlayerData = new LobbyPlayerData();
             _localLobbyPlayerData.Initialize(AuthenticationService.Instance.PlayerId, "HostPlayer");
+            LobbyPlayerManager.singleton.players[AuthenticationService.Instance.PlayerId] = _localLobbyPlayerData;
 
             _lobbyData = new LobbyData();
             _lobbyData.Initialize(0);
@@ -76,6 +77,7 @@ namespace Game
         {
             _localLobbyPlayerData = new LobbyPlayerData();
             _localLobbyPlayerData.Initialize(AuthenticationService.Instance.PlayerId, "JoinPlayer");
+            LobbyPlayerManager.singleton.players[AuthenticationService.Instance.PlayerId] = _localLobbyPlayerData;
 
             bool succeeded = await LobbyManager.singleton.JoinLobby(code, _localLobbyPlayerData.Serialize());
 
@@ -92,6 +94,7 @@ namespace Game
             {
                 LobbyPlayerData lobbyPlayerData = new LobbyPlayerData();
                 lobbyPlayerData.UpdateState(data);
+                LobbyPlayerManager.singleton.players[lobbyPlayerData.id] = lobbyPlayerData;
 
                 if (lobbyPlayerData.isReady)
                 {
@@ -134,6 +137,11 @@ namespace Game
             return _lobbyPlayerDatas;
         }
 
+        public LobbyPlayerData GetPlayer()
+        {
+            return _localLobbyPlayerData;
+        }
+
         internal async Task<bool> SetPlayerReady()
         {
             _localLobbyPlayerData.isReady = true;
@@ -153,10 +161,20 @@ namespace Game
             return await LobbyManager.singleton.UpdateLobbyData(_lobbyData.Serialize());
         }
 
+        internal async Task<bool> SetSelectedCharacter(int currentCharacterIndex, string characterName)
+        {
+            _localLobbyPlayerData.characterIndex = currentCharacterIndex;
+            _localLobbyPlayerData.characterName = characterName;
+            LobbyPlayerManager.singleton.players[AuthenticationService.Instance.PlayerId].characterIndex = currentCharacterIndex;
+            LobbyPlayerManager.singleton.players[AuthenticationService.Instance.PlayerId].characterName = characterName;
 
-//----------------------------------------------------------------------------------
-// Relay Service and starting / joining game
-//----------------------------------------------------------------------------------
+            return await LobbyManager.singleton.UpdatePlayerData(_localLobbyPlayerData.id, _localLobbyPlayerData.Serialize());
+        }
+
+
+        //----------------------------------------------------------------------------------
+        // Relay Service and starting / joining game
+        //----------------------------------------------------------------------------------
 
         internal async Task<bool> StartGame()
         {

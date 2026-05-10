@@ -36,7 +36,7 @@ public class PlayerAnimationController : NetworkBehaviour
 
     private void UpdateHealthBar()
     {
-        float healthPercent = _playerData.Health.Value / _playerData.maxHealth;
+        float healthPercent = _playerData.Health.Value / _playerData.characterData.maxHealth;
 
         Debug.Log($"Health: {healthPercent * 100}%");
 

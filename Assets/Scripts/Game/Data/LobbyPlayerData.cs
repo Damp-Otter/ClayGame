@@ -8,6 +8,9 @@ public class LobbyPlayerData
     private string _id; public string id { get { return _id; } }
     private string _gamertag; public string gamertag { get { return _gamertag; } }
     private bool _isReady; public bool isReady { get { return _isReady; } set { _isReady = value;  } }
+    private int _characterIndex; public int characterIndex { get { return _characterIndex; } set { _characterIndex = value; } }
+    private string _characterName; public string characterName { get { return _characterName; } set { _characterName = value; } }
+
 
     public void Initialize(string id, string gamertag)
     {
@@ -34,6 +37,14 @@ public class LobbyPlayerData
         {
             bool.TryParse(playerData["IsReady"].Value, out _isReady);
         }
+        if (playerData.ContainsKey("CharacterName"))
+        {
+            _characterName = playerData["CharacterName"].Value;
+        }
+        if (playerData.ContainsKey("CharacterIndex"))
+        {
+            int.TryParse(playerData["CharacterIndex"].Value, out _characterIndex);
+        }
     }
 
     public Dictionary<string, string> Serialize()
@@ -42,7 +53,9 @@ public class LobbyPlayerData
         {
             {"Id", _id},
             {"Gamertag", _gamertag},
-            {"IsReady", _isReady.ToString()}
+            {"IsReady", _isReady.ToString()},
+            {"CharacterName", _characterName ?? ""},
+            {"CharacterIndex", _characterIndex.ToString() }
         };
     }
 

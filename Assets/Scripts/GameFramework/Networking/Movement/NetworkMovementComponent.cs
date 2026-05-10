@@ -13,12 +13,9 @@ namespace GameFramework.Networking.Movement
 // In game variables
 //-------------------------------------------------------------------------------------------
 
-        [SerializeField] private float _speed = 7f;
-        [SerializeField] private float _rotationSpeed = 0f;
-        [SerializeField] private Vector2 _minMaxRotationX;
+        private float _rotationSpeed = 0.1f;
 
-        [SerializeField] private float _gravity = -25f;
-        [SerializeField] private float _jumpHeight = 2f;
+        private float _gravity = -25f;
         private float _verticalVelocity;
 
         [SerializeField] private GameObject _camera;
@@ -259,14 +256,14 @@ namespace GameFramework.Networking.Movement
             if(_playerData.isGrounded && jumpPressed)
             {
                 Debug.Log("Starting jump");
-                _verticalVelocity = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
+                _verticalVelocity = Mathf.Sqrt(_playerData.characterData.jumpHeight * -2f * _gravity);
             }
 
             _verticalVelocity += _gravity * _tickRate;
 
             Vector3 movement = movementInput.x * transform.right + movementInput.y * transform.forward;
             movement.Normalize();
-            movement *= _speed;
+            movement *= _playerData.characterData.speed;
             movement.y = _verticalVelocity;
 
             _characterController.Move(movement * _tickRate);
@@ -275,9 +272,10 @@ namespace GameFramework.Networking.Movement
 
         private void RotatePlayer(Vector2 lookInput)
         {
+            Debug.Log(_rotationSpeed);
             transform.Rotate(
                 Vector3.up,
-                lookInput.x * _rotationSpeed);
+                lookInput.x * _rotationSpeed * _playerData.senstivityMultiplier);
         }
 
 
@@ -300,17 +298,6 @@ namespace GameFramework.Networking.Movement
             _previousTransformState = serverTransformState.Value;
             serverTransformState.Value = state;
 
-        }
-
-
-        protected virtual void OnDrawGizmos()
-        {
-
-            if (serverTransformState.Value.hasStartedMoving)
-            {
-                Gizmos.color = _color;
-                Gizmos.DrawMesh(_meshFilter.mesh, serverTransformState.Value.position);
-            }
         }
 
     }
