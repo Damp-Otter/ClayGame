@@ -17,4 +17,11 @@ public class PlayerData : NetworkBehaviour
     private float _senstivityMultiplier = 0.75f; public float senstivityMultiplier { get { return _senstivityMultiplier; } set { _senstivityMultiplier = value; } }
 
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        Health.Value = characterData.maxHealth;
+
+    }
+
 }

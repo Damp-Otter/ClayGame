@@ -84,6 +84,7 @@ namespace Game
 
         }
 
+
         private void HandleShoot()
         {
             if (IsLocalPlayer && _playerControl.Player.Shoot.inProgress)
@@ -97,6 +98,7 @@ namespace Game
                 }
             }
         }
+
 
         private void HandleMovement(Vector2 moveInput, Vector2 lookInput, bool jumpPressed)
         {
@@ -112,6 +114,7 @@ namespace Game
             }
         }
 
+
         private bool HandleJumping()
         {
             if (_playerControl.Player.Jump.inProgress && _playerData.isGrounded)
@@ -120,6 +123,7 @@ namespace Game
             }
             return false;
         }
+
 
         private void RotateCamera(Vector2 lookInput)
         {

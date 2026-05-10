@@ -15,10 +15,13 @@ public class PlayerAnimationController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         _playerData.Health.OnValueChanged += OnHealthChanged;
-
-        UpdateHealthBar();
     }
 
+    protected override void OnNetworkPostSpawn()
+    {
+        base.OnNetworkPostSpawn();
+        UpdateHealthBar();
+    }
 
     public override void OnNetworkDespawn()
     {
