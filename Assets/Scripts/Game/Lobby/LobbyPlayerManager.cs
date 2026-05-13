@@ -7,6 +7,8 @@ public class LobbyPlayerManager : MonoBehaviour
     public static LobbyPlayerManager singleton;
 
     public Dictionary<string, LobbyPlayerData> players = new Dictionary<string, LobbyPlayerData>();
+    public Dictionary<ulong, string> clientToAuth = new Dictionary<ulong, string>();
+
 
     internal LobbyPlayerData GetPlayer(string playerId)
     {

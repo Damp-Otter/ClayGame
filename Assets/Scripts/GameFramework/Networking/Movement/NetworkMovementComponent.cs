@@ -13,7 +13,7 @@ namespace GameFramework.Networking.Movement
 // In game variables
 //-------------------------------------------------------------------------------------------
 
-        private float _rotationSpeed = 1f;
+        private float _rotationSpeed = 10f;
 
         private float _gravity = -25f;
         private float _verticalVelocity;
@@ -80,7 +80,7 @@ namespace GameFramework.Networking.Movement
             float positionError =
             Vector3.Distance(calculatedState.position, serverState.position);
 
-            if (positionError > 0.001f)
+            if (positionError > 0.05f)
             {
 
                 Debug.Log("Correcting client position");
@@ -155,46 +155,22 @@ namespace GameFramework.Networking.Movement
 
         public void ProcessLocalPlayerMovement(Vector2 moveInput, Vector2 lookInput, bool jumpPressed)
         {
-            _tickDeltaTime += Time.deltaTime;
-            while (_tickDeltaTime >= _tickRate)
+            int bufferIndex = _tick % BUFFER_SIZE;
+
+            if (!IsServer)
             {
-                int bufferIndex = _tick % BUFFER_SIZE;
+                _playerData.isGrounded = CheckGrounded();
+                RotatePlayer(lookInput);
+                MovePlayer(moveInput, jumpPressed);
+                MovePlayerServerRpc(_tick, moveInput, lookInput, jumpPressed);
+            }
+            else
+            {
+                _playerData.isGrounded = CheckGrounded();
+                RotatePlayer(lookInput);
+                MovePlayer(moveInput, jumpPressed);
 
-                if (!IsServer)
-                {
-                    _playerData.isGrounded = CheckGrounded();
-                    MovePlayerServerRpc(_tick, moveInput, lookInput, jumpPressed);
-                    RotatePlayer(lookInput);
-                    MovePlayer(moveInput, jumpPressed);
-                }
-                else
-                {
-                    _playerData.isGrounded = CheckGrounded();
-                    RotatePlayer(lookInput);
-                    MovePlayer(moveInput, jumpPressed);
-
-                    TransformState state = new TransformState()
-                    {
-                        tick = _tick,
-                        position = transform.position,
-                        rotation = transform.rotation,
-                        verticalVelocity = _verticalVelocity,
-                        hasStartedMoving = true
-                    };
-
-                    _previousTransformState = serverTransformState.Value;
-                    serverTransformState.Value = state;
-                }
-
-                InputState inputState = new InputState()
-                {
-                    tick = _tick,
-                    movementInput = moveInput,
-                    lookInput = lookInput,
-                    jumpPressed = jumpPressed
-                };
-
-                TransformState transformState = new TransformState()
+                TransformState state = new TransformState()
                 {
                     tick = _tick,
                     position = transform.position,
@@ -203,12 +179,31 @@ namespace GameFramework.Networking.Movement
                     hasStartedMoving = true
                 };
 
-                _inputStates[bufferIndex] = inputState;
-                _transformStates[bufferIndex] = transformState;
-
-                _tickDeltaTime -= _tickRate;
-                _tick++;
+                _previousTransformState = serverTransformState.Value;
+                serverTransformState.Value = state;
             }
+
+            InputState inputState = new InputState()
+            {
+                tick = _tick,
+                movementInput = moveInput,
+                lookInput = lookInput,
+                jumpPressed = jumpPressed
+            };
+
+            TransformState transformState = new TransformState()
+            {
+                tick = _tick,
+                position = transform.position,
+                rotation = transform.rotation,
+                verticalVelocity = _verticalVelocity,
+                hasStartedMoving = true
+            };
+
+            _inputStates[bufferIndex] = inputState;
+            _transformStates[bufferIndex] = transformState;
+
+            _tick++;
         }
 
         private bool CheckGrounded()
@@ -224,21 +219,16 @@ namespace GameFramework.Networking.Movement
 
         public void ProcessSimulatedPlayerMovement()
         {
-            _tickDeltaTime += Time.deltaTime;
-            while (_tickDeltaTime >= _tickRate)
+
+            if (serverTransformState.Value.hasStartedMoving)
             {
-                if (serverTransformState.Value.hasStartedMoving)
-                {
-                    transform.position = serverTransformState.Value.position;
-                    transform.rotation = serverTransformState.Value.rotation;
-                    _verticalVelocity = serverTransformState.Value.verticalVelocity;
+                transform.position = serverTransformState.Value.position;
+                transform.rotation = serverTransformState.Value.rotation;
+                _verticalVelocity = serverTransformState.Value.verticalVelocity;
 
-                    _cameraTransform.localRotation = Quaternion.Euler(_cameraPitch, 0f, 0f);
-                }
-
-                _tickDeltaTime -= _tickRate;
-                _tick++;
+                _cameraTransform.localRotation = Quaternion.Euler(_cameraPitch, 0f, 0f);
             }
+            
         }
 
 
@@ -270,9 +260,7 @@ namespace GameFramework.Networking.Movement
 
         private void RotatePlayer(Vector2 lookInput)
         {
-            transform.Rotate(
-                Vector3.up,
-                lookInput.x * _rotationSpeed * _playerData.senstivityMultiplier);
+            transform.Rotate(Vector3.up, lookInput.x * _rotationSpeed * _playerData.senstivityMultiplier * _tickRate);
         }
 
 

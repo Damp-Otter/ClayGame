@@ -1,10 +1,11 @@
+using Game;
 using System.Collections.Generic;
-using UnityEngine;
+using Unity.Netcode;
 using Unity.Services.Lobbies.Models;
+using UnityEngine;
 
 public class LobbyPlayerData
 {
-
     private string _id; public string id { get { return _id; } }
     private string _gamertag; public string gamertag { get { return _gamertag; } }
     private bool _isReady; public bool isReady { get { return _isReady; } set { _isReady = value;  } }

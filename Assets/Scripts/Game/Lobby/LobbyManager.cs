@@ -108,6 +108,46 @@ namespace Game
         }
 
 
+        internal async Task<bool> RejoinLobby()
+        {
+
+            string recentLobbyId = _joinedLobbyIds[0];
+
+            try
+            {
+                _lobby = await LobbyService.Instance.ReconnectToLobbyAsync(recentLobbyId);
+                LobbyEvents.OnLobbyUpdated(_lobby);
+            }
+            catch (Exception)
+            {
+                Debug.Log("Failed to rejoin lobby");
+                return false;
+            }
+
+            _refreshLobbyCoroutine = StartCoroutine(RefreshLobbyCoroutine(recentLobbyId, _refreshInterval));
+
+            return true;
+        }
+
+
+        internal async Task<bool> LeaveAllLobbies()
+        {
+            string playerId = AuthenticationService.Instance.PlayerId;
+            foreach(string lobbyId in _joinedLobbyIds)
+            {
+                try
+                {
+                    await LobbyService.Instance.RemovePlayerAsync(lobbyId, playerId);
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
         private IEnumerator HeartbeatLobbyCoroutine(string id, float waitTimeSeconds)
         {
             while (true)
@@ -258,6 +298,7 @@ namespace Game
                 _refreshLobbyCoroutine = null;
             }
         }
-    }
 
+
+    }
 }

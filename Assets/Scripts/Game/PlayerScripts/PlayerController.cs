@@ -17,7 +17,7 @@ namespace Game
     public class PlayerController : NetworkBehaviour
     {
 
-        private float _lookSensitivity = 1f;
+        private float _lookSensitivity = 0.1f;
 
         [SerializeField] private PlayerData _playerData;
 
@@ -37,6 +37,9 @@ namespace Game
         private float _cameraAngle;
 
         private bool _isRespawning = false;
+
+        private Vector2 _moveInput;
+        private Vector2 _lookInput;
 
 
         private void Start()
@@ -77,22 +80,28 @@ namespace Game
 
         private void Update()
         {
-            if (!IsOwner)
-                return;
+            _moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
 
-            Vector2 moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
-            Vector2 lookInput = _playerControl.Player.Look.ReadValue<Vector2>();
+            Vector2 frameLookInput =
+                _playerControl.Player.Look.ReadValue<Vector2>();
 
-            bool jump = HandleJumping();
+            _lookInput += frameLookInput;
 
-            HandleMovement(moveInput, lookInput, jump);
-
-            HandleShoot();
-
+            RotateCamera(frameLookInput);
         }
+
 
         private void FixedUpdate()
         {
+
+            bool jump = HandleJumping();
+
+            HandleMovement(_moveInput, _lookInput, jump);
+
+            _lookInput = Vector2.zero;
+
+            HandleShoot();
+
             if (IsServer && !_playerData.isAlive.Value && !_isRespawning)
             {
                 HandleDeath();
@@ -141,8 +150,6 @@ namespace Game
         {
             if (IsClient && IsLocalPlayer)
             {
-                RotateCamera(lookInput);
-
                 _playerMovement.ProcessLocalPlayerMovement(moveInput, lookInput, jumpPressed);
             }
             else

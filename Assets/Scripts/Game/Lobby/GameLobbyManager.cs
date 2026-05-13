@@ -90,6 +90,19 @@ namespace Game
             return succeeded;
         }
 
+
+        internal async Task<bool> RejoinGame()
+        {
+            return await LobbyManager.singleton.RejoinLobby();
+        }
+
+
+        internal async Task<bool> LeaveAllLobbies()
+        {
+            return await LobbyManager.singleton.LeaveAllLobbies();
+        }
+
+
         private async void OnLobbyUpdated(Lobby lobby)
         {
             List<Dictionary<string, PlayerDataObject>> playerData = LobbyManager.singleton.GetPlayersData();
@@ -229,6 +242,5 @@ namespace Game
 
             return true;
         }
-
     }
 }

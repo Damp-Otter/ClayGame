@@ -18,12 +18,13 @@ namespace Game
         [SerializeField] private Button _hostButton = null;
         [SerializeField] private Button _clientButton = null;
         [SerializeField] private Button _rejoinButton = null;
+        [SerializeField] private Button _leaveButton = null;
 
         [SerializeField] private Button _submitCodeButton;
         [SerializeField] private TextMeshProUGUI _codeText;
 
 
-       /* private async void Start()
+       private async void Start()
         {
             if (await GameLobbyManager.singleton.HasActiveLobbies())
             {
@@ -31,9 +32,12 @@ namespace Game
                 _clientButton.gameObject.SetActive(false);
 
                 _rejoinButton.gameObject.SetActive(true);
+                _leaveButton.gameObject.SetActive(true);
                 _rejoinButton.onClick.AddListener(OnRejoinGameClicked);
+                _leaveButton.onClick.AddListener(OnLeaveGameClicked);
             }
-        } */
+        }
+
 
         private void OnEnable()
         {
@@ -92,11 +96,27 @@ namespace Game
             }
         }
 
-        private void OnRejoinGameClicked()
+        private async void OnRejoinGameClicked()
         {
-            Debug.Log("Rejoin the lobby");
+
+            bool suceeded = await GameLobbyManager.singleton.RejoinGame();
+            if (suceeded)
+            {
+                await SceneManager.LoadSceneAsync("Lobby");
+            }
+
         }
 
-    }
+        private async void OnLeaveGameClicked()
+        {
+            bool suceeded = await GameLobbyManager.singleton.LeaveAllLobbies();
 
+            if (suceeded)
+            {
+                Debug.Log("Left all active lobbies");
+            }
+        }
+
+
+    }
 }
