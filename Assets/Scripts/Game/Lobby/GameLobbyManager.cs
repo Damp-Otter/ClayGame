@@ -51,6 +51,12 @@ namespace Game
         }
 
 
+        internal async Task<bool> HasActiveLobbies()
+        {
+            return await LobbyManager.singleton.HasActiveLobbies();
+        }
+
+
         // Changes to make: Server instantly loads the player, then in update lobby, set correct players
         public async Task<bool> CreateLobby()
         {

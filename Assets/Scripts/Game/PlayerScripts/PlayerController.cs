@@ -1,14 +1,15 @@
-using Assets.Scripts.Game.Maps.Environments;
 using Assets.Scripts.Game;
+using Assets.Scripts.Game.Maps.Environments;
+using Game;
 using GameFramework.Networking.Movement;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using Game;
 
 namespace Game
 {
@@ -16,7 +17,7 @@ namespace Game
     public class PlayerController : NetworkBehaviour
     {
 
-        private float _lookSensitivity = 10f;
+        private float _lookSensitivity = 1f;
 
         [SerializeField] private PlayerData _playerData;
 
@@ -27,12 +28,15 @@ namespace Game
         [SerializeField] private NetworkMovementComponent _playerMovement;
         [SerializeField] private LayerMask _shootingPlayer;
 
+
         private CharacterController _characterController;
         private PlayerControl _playerControl;
         [SerializeField] private DamageController _damageController;
         [SerializeField] private PlayerAnimationController _playerAnimationController;
 
         private float _cameraAngle;
+
+        private bool _isRespawning = false;
 
 
         private void Start()
@@ -73,6 +77,9 @@ namespace Game
 
         private void Update()
         {
+            if (!IsOwner)
+                return;
+
             Vector2 moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
             Vector2 lookInput = _playerControl.Player.Look.ReadValue<Vector2>();
 
@@ -82,6 +89,36 @@ namespace Game
 
             HandleShoot();
 
+        }
+
+        private void FixedUpdate()
+        {
+            if (IsServer && !_playerData.isAlive.Value && !_isRespawning)
+            {
+                HandleDeath();
+            }
+        }
+
+
+        private void HandleDeath()
+        {
+            Transform spawnPoint = SpawnPoints.singleton.GetPointInOrder();
+
+            CharacterController controller = GetComponent<CharacterController>();
+            controller.enabled = false;
+
+            _characterController.enabled = false;
+            transform.position = spawnPoint.position;
+            _characterController.enabled = true;
+
+            controller.enabled = true;
+
+            _playerData.Health.Value = _playerData.characterData.maxHealth;
+            _playerData.isAlive.Value = true;
+
+            _playerAnimationController.UpdateHealthBar();
+
+            _isRespawning = false;
         }
 
 
@@ -127,7 +164,7 @@ namespace Game
 
         private void RotateCamera(Vector2 lookInput)
         {
-            _pitch -= lookInput.y * _lookSensitivity * _playerData.senstivityMultiplier * Time.deltaTime;
+            _pitch -= lookInput.y * _lookSensitivity * _playerData.senstivityMultiplier;
 
             _pitch = Mathf.Clamp(
                 _pitch,

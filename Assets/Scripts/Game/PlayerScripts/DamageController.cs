@@ -1,6 +1,8 @@
 ﻿using Assets.Scripts.Game.Maps.Environments;
+using System;
 using System.Collections;
 using Unity.Netcode;
+using Unity.Services.Authentication;
 using UnityEngine;
 using static Assets.Scripts.Game.Maps.Environments.ButtonController;
 
@@ -18,6 +20,11 @@ namespace Game
             _playerData.Health.Value -= damage;
 
             _playerData.Health.Value = Mathf.Clamp(_playerData.Health.Value, 0, _playerData.characterData.maxHealth);
+
+            if (_playerData.Health.Value == 0)
+            {
+                _playerData.isAlive.Value = false;
+            }
 
         }
     }

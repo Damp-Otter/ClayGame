@@ -66,7 +66,7 @@ namespace Game
 
                     UnLoadSceneOnTop("Loading");
 
-                    await SceneManager.LoadSceneAsync("Main_Menu");
+                    await SceneManager.LoadSceneAsync("MainMenu");
 
                 }
             }

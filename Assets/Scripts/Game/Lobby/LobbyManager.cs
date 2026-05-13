@@ -22,10 +22,10 @@ namespace Game
         private Coroutine _refreshLobbyCoroutine;
         private float _heartBeatInterval = 6f;
         private float _refreshInterval = 1f;
-        private
+        private List<string> _joinedLobbyIds;
 
 
-        void Start()
+        private void Start()
         {
             if (_singleton == null)
             {
@@ -36,6 +36,14 @@ namespace Game
             {
                 Destroy(gameObject);
             }
+        }
+
+
+        internal async Task<bool> HasActiveLobbies()
+        {
+            _joinedLobbyIds = await LobbyService.Instance.GetJoinedLobbiesAsync();
+
+            return _joinedLobbyIds.Count > 0;
         }
 
 
@@ -250,7 +258,6 @@ namespace Game
                 _refreshLobbyCoroutine = null;
             }
         }
-
     }
 
 }

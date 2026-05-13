@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -16,9 +17,23 @@ namespace Game
         [SerializeField] private GameObject _joinScreen;
         [SerializeField] private Button _hostButton = null;
         [SerializeField] private Button _clientButton = null;
+        [SerializeField] private Button _rejoinButton = null;
 
         [SerializeField] private Button _submitCodeButton;
         [SerializeField] private TextMeshProUGUI _codeText;
+
+
+       /* private async void Start()
+        {
+            if (await GameLobbyManager.singleton.HasActiveLobbies())
+            {
+                _hostButton.gameObject.SetActive(false);
+                _clientButton.gameObject.SetActive(false);
+
+                _rejoinButton.gameObject.SetActive(true);
+                _rejoinButton.onClick.AddListener(OnRejoinGameClicked);
+            }
+        } */
 
         private void OnEnable()
         {
@@ -62,6 +77,7 @@ namespace Game
             _joinScreen.SetActive(true);
         }
 
+
         private async void OnJoinClicked()
         {
             string code = _codeText.text;
@@ -74,6 +90,11 @@ namespace Game
             {
                 await SceneManager.LoadSceneAsync("Lobby");
             }
+        }
+
+        private void OnRejoinGameClicked()
+        {
+            Debug.Log("Rejoin the lobby");
         }
 
     }

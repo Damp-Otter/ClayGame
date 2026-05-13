@@ -13,7 +13,7 @@ namespace GameFramework.Networking.Movement
 // In game variables
 //-------------------------------------------------------------------------------------------
 
-        private float _rotationSpeed = 0.1f;
+        private float _rotationSpeed = 1f;
 
         private float _gravity = -25f;
         private float _verticalVelocity;
@@ -248,14 +248,12 @@ namespace GameFramework.Networking.Movement
             // This is to stick to the ground
             if(_playerData.isGrounded && _verticalVelocity < 0f)
             {
-                Debug.Log("On ground");
                 _verticalVelocity = -2f;
             }
 
             // Actually moving up with jump
             if(_playerData.isGrounded && jumpPressed)
             {
-                Debug.Log("Starting jump");
                 _verticalVelocity = Mathf.Sqrt(_playerData.characterData.jumpHeight * -2f * _gravity);
             }
 
@@ -272,7 +270,6 @@ namespace GameFramework.Networking.Movement
 
         private void RotatePlayer(Vector2 lookInput)
         {
-            Debug.Log(_rotationSpeed);
             transform.Rotate(
                 Vector3.up,
                 lookInput.x * _rotationSpeed * _playerData.senstivityMultiplier);
