@@ -2,9 +2,9 @@ using System;
 using System.Drawing;
 using UnityEngine;
 
-public class MoveFoot : MonoBehaviour
+public class MoveKnee : MonoBehaviour
 {
-    private Vector2 _moveInput;
+    private Vector2 _lookInput;
     private PlayerControl _playerControl;
     [SerializeField] private GameObject _desiredJointEnd;
     [SerializeField] private GameObject _thisJoint;
@@ -24,9 +24,9 @@ public class MoveFoot : MonoBehaviour
     {
         // This stuff moves the desired position across the spherical plane
 
-        _moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
+        _lookInput = _playerControl.Player.Look.ReadValue<Vector2>();
 
-        Vector3 moveOffset = new Vector3(_moveInput.x, _moveInput.y, 0f) * 0.05f;
+        Vector3 moveOffset = new Vector3(_lookInput.x, _lookInput.y, 0f) * 0.05f;
 
         Vector3 desiredPosition = _desiredJointEnd.transform.position + moveOffset;
 
