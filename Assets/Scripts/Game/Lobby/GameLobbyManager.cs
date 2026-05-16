@@ -146,7 +146,7 @@ namespace Game
                 LobbyManager.singleton.StopLobbyUpdates();
 
                 await JoinRelayServer(_lobbyData.joinRelayCode);
-                await SceneManager.LoadSceneAsync(_lobbyData.sceneName);
+                NetworkManager.Singleton.SceneManager.LoadScene(_lobbyData.sceneName, LoadSceneMode.Single);
             }
 
         }
@@ -201,6 +201,7 @@ namespace Game
             try
             {
                 joinRelayCode = await RelayManager.singleton.CreateRelay(MAX_PLAYERS);
+                NetworkManager.Singleton.StartHost();
                 _isTransitioning = true;
             }
             catch (Exception)
@@ -217,7 +218,7 @@ namespace Game
 
             await LobbyManager.singleton.UpdatePlayerData(_localLobbyPlayerData.id, _localLobbyPlayerData.Serialize(), allocationId, connectionData);
 
-            await SceneManager.LoadSceneAsync(_lobbyData.sceneName);
+            NetworkManager.Singleton.SceneManager.LoadScene(_lobbyData.sceneName, LoadSceneMode.Single);
 
             return true;
         }
@@ -228,6 +229,7 @@ namespace Game
             {
                 _isTransitioning = true;
                 await RelayManager.singleton.JoinRelay(joinRelayCode);
+                NetworkManager.Singleton.StartClient();
             }
             catch (Exception e)
             {
