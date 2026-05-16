@@ -8,6 +8,10 @@ public class MoveFoot : MonoBehaviour
     private PlayerControl _playerControl;
     [SerializeField] private GameObject _desiredJointEnd;
     [SerializeField] private GameObject _thisJoint;
+
+    [SerializeField] private GameObject _parentJoint;
+    [SerializeField] private GameObject _parentDesiredJointEnd;
+
     [SerializeField] private float _boneLength = 2f;
 
     private float _angle;
@@ -39,35 +43,38 @@ public class MoveFoot : MonoBehaviour
 
         // This stuff moves the desired position across the spherical plane
 
-
-        float distanceToEnd = Vector3.Dot(_desiredJointEnd.transform.position - _thisJoint.transform.position, 
+        float squaredDistanceToEnd = Vector3.Dot(_desiredJointEnd.transform.position - _thisJoint.transform.position, 
             _desiredJointEnd.transform.position - _thisJoint.transform.position);
 
-        Debug.Log($"Distance to end: {distanceToEnd}");
 
-        if (distanceToEnd + 0.3f < _boneLength * _boneLength)
+        if (squaredDistanceToEnd - 0.3f > _boneLength * _boneLength)
         {
             Debug.Log("Moving forward");
 
-            Vector3 moveOffset = new Vector3(1, 1, 0f) * 0.05f;
+            Vector3 radiusDirection = (_parentDesiredJointEnd.transform.position - _parentJoint.transform.position).normalized;
 
-            Vector3 desiredPosition = _thisJoint.transform.position + moveOffset;
+            Vector3 tangentDirection = Vector3.Cross(radiusDirection, Vector3.forward).normalized;
 
-            Vector3 direction = (desiredPosition - _desiredJointEnd.transform.position).normalized;
+            Vector3 desiredPosition = _parentDesiredJointEnd.transform.position + tangentDirection * 0.05f;
 
-            _thisJoint.transform.position = _desiredJointEnd.transform.position + direction * _boneLength;
+            Vector3 direction = (desiredPosition - _parentJoint.transform.position).normalized;
+
+            _parentDesiredJointEnd.transform.position = _parentJoint.transform.position + direction * _boneLength;
+
         }
-        else if (distanceToEnd - 0.3f > _boneLength * _boneLength)
+        else if (squaredDistanceToEnd + 0.3f < _boneLength * _boneLength)
         {
             Debug.Log("Moving backward");
 
-            Vector3 moveOffset = new Vector3(1, 1, 0f) * -0.05f;
+            Vector3 radiusDirection = (_parentDesiredJointEnd.transform.position - _parentJoint.transform.position).normalized;
 
-            Vector3 desiredPosition = _thisJoint.transform.position + moveOffset;
+            Vector3 tangentDirection = Vector3.Cross(radiusDirection, -Vector3.forward).normalized;
 
-            Vector3 direction = (desiredPosition - _desiredJointEnd.transform.position).normalized;
+            Vector3 desiredPosition = _parentDesiredJointEnd.transform.position + tangentDirection * 0.05f;
 
-            _thisJoint.transform.position = _desiredJointEnd.transform.position + direction * _boneLength;
+            Vector3 direction = (desiredPosition - _parentJoint.transform.position).normalized;
+
+            _parentDesiredJointEnd.transform.position = _parentJoint.transform.position + direction * _boneLength;
         }
     }
 }

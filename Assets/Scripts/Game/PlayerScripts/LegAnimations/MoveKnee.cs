@@ -22,18 +22,6 @@ public class MoveKnee : MonoBehaviour
 
     void Update()
     {
-        // This stuff moves the desired position across the spherical plane
-
-        _lookInput = _playerControl.Player.Look.ReadValue<Vector2>();
-
-        Vector3 moveOffset = new Vector3(_lookInput.x, _lookInput.y, 0f) * 0.05f;
-
-        Vector3 desiredPosition = _desiredJointEnd.transform.position + moveOffset;
-
-        Vector3 direction = (desiredPosition - _thisJoint.transform.position).normalized;
-
-        _desiredJointEnd.transform.position = _thisJoint.transform.position + direction * _boneLength;
-
 
         // This rotates the ball joint to look at the desired position
 

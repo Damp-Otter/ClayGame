@@ -378,8 +378,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MoveFoot
   _desiredJointEnd: {fileID: 1365177268}
   _thisJoint: {fileID: 1145025563}
-  _parentJoint: {fileID: 1519558971}
-  _parentDesiredJointEnd: {fileID: 1517462287}
+  _centre: {fileID: 1054864743}
   _boneLength: 2
 --- !u!4 &483591007
 Transform:
@@ -404,7 +403,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 483591005}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7f46ef0ae0d51204ba37653f0c5f8b29, type: 3}
   m_Name: 
