@@ -33,6 +33,13 @@ public class LegController : MonoBehaviour
         {
             _movePosition.transform.position += moveOffset;
         }
+        else
+        {
+            Vector3 direction = (desiredPosition - _centre.transform.position).normalized;
+
+            _movePosition.transform.position = _centre.transform.position + direction * _boneLength;
+
+        }
 
     }
 }
