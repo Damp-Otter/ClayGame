@@ -10,6 +10,8 @@ public class MoveKnee : MonoBehaviour
     [SerializeField] private GameObject _thisJoint;
     [SerializeField] private float _boneLength = 2f;
 
+    [SerializeField] private GameObject _origin;
+
     private float _angle;
     private Vector3 _rotationAxis;
 
@@ -25,7 +27,7 @@ public class MoveKnee : MonoBehaviour
 
         // This rotates the ball joint to look at the desired position
 
-        _rotationAxis = Vector3.right;
+        _rotationAxis = _origin.transform.right;
 
         Vector3 currentDirection = _thisJoint.transform.up;
 

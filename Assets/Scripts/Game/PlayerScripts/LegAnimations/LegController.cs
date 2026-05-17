@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class LegController : MonoBehaviour
 {
@@ -13,25 +14,23 @@ public class LegController : MonoBehaviour
     private Vector3 _rotationAxis;
 
 
-    void Start()
+    private void Start()
     {
         _playerControl = new PlayerControl();
         _playerControl.Enable();
     }
 
-    void Update()
+
+    public void SetFootPosition(Vector3 offset)
     {
-        // This stuff moves the desired position across the spherical plane
 
-        _moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
+        Vector3 worldOffset = transform.up * offset.x + -transform.forward * offset.y;
 
-        Vector3 moveOffset = new Vector3(_moveInput.x, _moveInput.y, 0f) * 0.05f;
+        Vector3 desiredPosition = _movePosition.transform.position + worldOffset;
 
-        Vector3 desiredPosition = _movePosition.transform.position + moveOffset;
-
-        if (Vector3.Dot(_centre.transform.position - desiredPosition, _centre.transform.position - desiredPosition) < _boneLength * _boneLength)
+        if (Vector3.Dot(_centre.transform.position - desiredPosition, _centre.transform.position - desiredPosition) < _boneLength* _boneLength)
         {
-            _movePosition.transform.position += moveOffset;
+            _movePosition.transform.position = desiredPosition;
         }
         else
         {
@@ -39,6 +38,6 @@ public class LegController : MonoBehaviour
 
             _movePosition.transform.position = _centre.transform.position + direction * _boneLength;
         }
-
     }
+
 }
