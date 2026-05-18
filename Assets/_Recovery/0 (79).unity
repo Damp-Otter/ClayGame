@@ -588,7 +588,6 @@ MonoBehaviour:
   _thisJoint: {fileID: 3620374205887175073}
   _parentJoint: {fileID: 3339075609535570476}
   _parentDesiredJointEnd: {fileID: 4735111454075713852}
-  _origin: {fileID: 227655124076480127}
   _boneLength: 2
 --- !u!136 &3504212951741308521
 CapsuleCollider:

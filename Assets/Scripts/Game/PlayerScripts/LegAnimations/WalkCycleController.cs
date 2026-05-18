@@ -9,6 +9,11 @@ public class WalkCycleController : MonoBehaviour
     private Vector2 _moveInput;
     private PlayerControl _playerControl;
     [SerializeField] private List<LegController> _legs;
+    [SerializeField] private CharacterController _characterController;
+
+    private float _verticalVelocity;
+    private float _gravity = -1f;
+
 
     private void Start()
     {
@@ -19,8 +24,41 @@ public class WalkCycleController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //MoveWithInput();
 
-        MoveWithInput();
+        HandleGravity();
+
+        HandleMovement();
+
+    }
+
+
+    private void HandleMovement()
+    {
+        Vector2 moveInput = _playerControl.Player.Move.ReadValue<Vector2>().normalized;
+
+        _characterController.Move(new Vector3(moveInput.x, 0, moveInput.y) * Time.deltaTime);
+
+        return;
+    }
+
+
+    private void HandleGravity()
+    {
+        bool grounded = CheckGrounded();
+
+        if (!grounded)
+        {
+            _verticalVelocity += _gravity * Time.deltaTime;
+        }
+        else
+        {
+            _verticalVelocity = -2f;
+        }
+
+        _characterController.Move(new Vector3(0, _verticalVelocity, 0));
+
+        return;
     }
 
     private void MoveWithInput()
@@ -36,5 +74,16 @@ public class WalkCycleController : MonoBehaviour
             leg.SetFootPosition(moveOffset);
         }
 
+    }
+
+    private bool CheckGrounded()
+    {
+        RaycastHit hit;
+        Debug.DrawRay(transform.position, -Vector3.up, Color.red);
+        if (Physics.SphereCast(transform.position, 0.2f, -Vector3.up, out hit, 0.2f))
+        {
+            return true;
+        }
+        return false;
     }
 }

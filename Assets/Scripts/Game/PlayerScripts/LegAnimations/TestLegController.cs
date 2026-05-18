@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class LegController : MonoBehaviour
+public class TestLegController : MonoBehaviour
 {
     private PlayerControl _playerControl;
     [SerializeField] private GameObject _movePosition;
@@ -10,9 +10,7 @@ public class LegController : MonoBehaviour
     [SerializeField] private float _boneLength = 4f;
     [SerializeField] LayerMask _groundedMask;
 
-    private Vector3 _previousPosition;
-    private bool _isGrounded;
-
+    private Vector2 _moveInput;
 
     private void Start()
     {
@@ -23,23 +21,12 @@ public class LegController : MonoBehaviour
 
     private void Update()
     {
-        bool _isGrounded = CheckGrounded();
+        _moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
 
-        if (_isGrounded)
-        {
-            SetToPreviousPosition(_previousPosition);
+        Vector3 moveOffset = new Vector3(_moveInput.x, _moveInput.y, 0f) * 0.15f;
 
-            return;
-        }
+        MoveFootToPosition(moveOffset);
 
-        _previousPosition = _movePosition.transform.position;
-    }
-
-    public void SetFootPosition(Vector3 offset)
-    {
-        MoveFootToPosition(offset);
-
-        return;
     }
 
     private void MoveFootToPosition(Vector3 offset)
@@ -60,27 +47,5 @@ public class LegController : MonoBehaviour
         }
 
         return;
-    }
-
-    private void SetToPreviousPosition(Vector3 previousPosition)
-    {
-        Debug.Log("Setting to previous position");
-
-        _movePosition.transform.position = previousPosition;
-
-        return;
-    }
-
-    private bool CheckGrounded()
-    {        
-        RaycastHit hit;
-        Debug.DrawRay(_movePosition.transform.position, -Vector3.up, Color.red);
-        if (Physics.SphereCast(_movePosition.transform.position, 0.2f, -Vector3.up, out hit, 0.2f, _groundedMask))
-        {
-            Debug.Log(hit.transform.gameObject.layer);
-
-            return true;
-        }
-        return false;
     }
 }
