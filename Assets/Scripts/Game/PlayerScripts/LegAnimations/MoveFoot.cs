@@ -38,18 +38,22 @@ public class MoveFoot : MonoBehaviour {
         }
 
         float squaredDistanceToEnd = Vector3.Dot(_desiredJointEnd.transform.position - _thisJoint.transform.position, 
-            _desiredJointEnd.transform.position - _thisJoint.transform.position); 
+            _desiredJointEnd.transform.position - _thisJoint.transform.position);
 
-        if (squaredDistanceToEnd - 0.3f > _boneLength * _boneLength) 
+        float difference = squaredDistanceToEnd - _boneLength * _boneLength;
+
+        Debug.Log($"Difference = {difference}");
+
+
+        if (squaredDistanceToEnd - 1f > _boneLength * _boneLength) 
         { 
             currentDirection = _thisJoint.transform.forward; 
-            _parentDesiredJointEnd.transform.position += currentDirection * 0.05f; 
-
+            _parentDesiredJointEnd.transform.position += currentDirection * 0.1f; 
         } 
-        else if(squaredDistanceToEnd + 0.3f < _boneLength * _boneLength)
+        else if(squaredDistanceToEnd + 1f < _boneLength * _boneLength)
         {
             currentDirection = -_thisJoint.transform.forward;
-            _parentDesiredJointEnd.transform.position += currentDirection * 0.05f;
+            _parentDesiredJointEnd.transform.position += currentDirection * 0.1f;
         }
 
         Vector3 direction = (_parentDesiredJointEnd.transform.position - _parentJoint.transform.position).normalized; 

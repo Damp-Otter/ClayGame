@@ -9,11 +9,13 @@ public class WalkCycleController : MonoBehaviour
     private Vector2 _moveInput;
     private PlayerControl _playerControl;
     [SerializeField] private List<LegController> _legs;
+
     [SerializeField] private CharacterController _characterController;
+    [SerializeField] private LayerMask _groundedMask;
 
     private float _verticalVelocity;
-    private float _gravity = -1f;
-
+    private float _gravity = -25f;
+    private float _moveSpeed = 5f;
 
     private void Start()
     {
@@ -37,7 +39,7 @@ public class WalkCycleController : MonoBehaviour
     {
         Vector2 moveInput = _playerControl.Player.Move.ReadValue<Vector2>().normalized;
 
-        _characterController.Move(new Vector3(moveInput.x, 0, moveInput.y) * Time.deltaTime);
+        _characterController.Move(new Vector3(moveInput.x, 0, moveInput.y) * _moveSpeed *Time.deltaTime);
 
         return;
     }
@@ -53,10 +55,10 @@ public class WalkCycleController : MonoBehaviour
         }
         else
         {
-            _verticalVelocity = -2f;
+            _verticalVelocity = 0f;
         }
 
-        _characterController.Move(new Vector3(0, _verticalVelocity, 0));
+        _characterController.Move(new Vector3(0, _verticalVelocity, 0) * Time.deltaTime);
 
         return;
     }
@@ -79,9 +81,11 @@ public class WalkCycleController : MonoBehaviour
     private bool CheckGrounded()
     {
         RaycastHit hit;
-        Debug.DrawRay(transform.position, -Vector3.up, Color.red);
-        if (Physics.SphereCast(transform.position, 0.2f, -Vector3.up, out hit, 0.2f))
+
+        Vector3 rayOrigin = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
+        if (Physics.SphereCast(rayOrigin, 0.2f, -Vector3.up, out hit, 0.2f, _groundedMask))
         {
+            Debug.Log("Character is grounded");
             return true;
         }
         return false;

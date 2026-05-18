@@ -7,6 +7,7 @@ public class TestLegController : MonoBehaviour
     private PlayerControl _playerControl;
     [SerializeField] private GameObject _movePosition;
     [SerializeField] private GameObject _centre;
+    [SerializeField] private GameObject _origin;
     [SerializeField] private float _boneLength = 4f;
     [SerializeField] LayerMask _groundedMask;
 
@@ -31,7 +32,7 @@ public class TestLegController : MonoBehaviour
 
     private void MoveFootToPosition(Vector3 offset)
     {
-        Vector3 worldOffset = transform.up * offset.x + -transform.forward * offset.y;
+        Vector3 worldOffset = _origin.transform.up * offset.x + -_origin.transform.forward * offset.y;
 
         Vector3 desiredPosition = _movePosition.transform.position + worldOffset;
 

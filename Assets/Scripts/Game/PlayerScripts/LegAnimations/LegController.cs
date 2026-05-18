@@ -7,8 +7,11 @@ public class LegController : MonoBehaviour
     private PlayerControl _playerControl;
     [SerializeField] private GameObject _movePosition;
     [SerializeField] private GameObject _centre;
+    [SerializeField] private GameObject _origin;
     [SerializeField] private float _boneLength = 4f;
     [SerializeField] LayerMask _groundedMask;
+
+    [SerializeField] private GameObject _base;
 
     private Vector3 _previousPosition;
     private bool _isGrounded;
@@ -44,7 +47,7 @@ public class LegController : MonoBehaviour
 
     private void MoveFootToPosition(Vector3 offset)
     {
-        Vector3 worldOffset = transform.up * offset.x + -transform.forward * offset.y;
+        Vector3 worldOffset = _origin.transform.up * offset.x + -_origin.transform.forward * offset.y;
 
         Vector3 desiredPosition = _movePosition.transform.position + worldOffset;
 
@@ -72,11 +75,17 @@ public class LegController : MonoBehaviour
     }
 
     private bool CheckGrounded()
-    {        
+    {
         RaycastHit hit;
-        Debug.DrawRay(_movePosition.transform.position, -Vector3.up, Color.red);
-        if (Physics.SphereCast(_movePosition.transform.position, 0.2f, -Vector3.up, out hit, 0.2f, _groundedMask))
+
+        Vector3 rayOrigin = new Vector3(_movePosition.transform.position.x, _base.transform.position.y + 0.1f, _movePosition.transform.position.z);
+
+        Debug.DrawRay(rayOrigin, _movePosition.transform.forward, Color.green);
+
+        if (Physics.SphereCast(rayOrigin, 0.2f, _movePosition.transform.forward, out hit, 0.3f, _groundedMask))
         {
+            Debug.DrawLine(rayOrigin, hit.point, Color.red);
+
             Debug.Log(hit.transform.gameObject.layer);
 
             return true;
