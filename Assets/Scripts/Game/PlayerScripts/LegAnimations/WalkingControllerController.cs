@@ -52,12 +52,10 @@ public class WalkingControllerController : MonoBehaviour
         if(moveInput != Vector2.zero)
         {
             _controller.isMoving = true;
-            Debug.Log("Moving");
         }
         else
         {
             _controller.isMoving = false;
-             Debug.Log("Not moving");
         }
 
         return;

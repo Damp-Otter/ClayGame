@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class TestLegController : MonoBehaviour
+public class TestJointController : MonoBehaviour
 {
     private PlayerControl _playerControl;
     [SerializeField] private GameObject _movePosition;

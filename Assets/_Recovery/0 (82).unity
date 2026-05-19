@@ -520,13 +520,13 @@ Transform:
   m_GameObject: {fileID: 4729390672135746517}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 2}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2163803207650043022}
   - {fileID: 4815880121811122724}
-  m_Father: {fileID: 4199948450217407141}
+  m_Father: {fileID: 1531215150983177166}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &1531122796289592386
 MeshRenderer:
@@ -590,6 +590,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1379926784088534666}
   - {fileID: 4199948450217407141}
   - {fileID: 6498114500630618806}
   - {fileID: 5989328178467546159}
@@ -864,7 +865,6 @@ Transform:
   m_Children:
   - {fileID: 3880340287836249661}
   - {fileID: 7781583438206727051}
-  - {fileID: 1379926784088534666}
   m_Father: {fileID: 1531215150983177166}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &4292281228774722322
@@ -1044,8 +1044,7 @@ MonoBehaviour:
   _parentJoint: {fileID: 5204176186437606194}
   _parentDesiredJointEnd: {fileID: 307800262049324340}
   _boneLength: 2
-  _origin: {fileID: 2913276798185128250}
-  _centre: {fileID: 5832699577587681836}
+  _origin: {fileID: 5832699577587681836}
 --- !u!1 &5832699577587681836
 GameObject:
   m_ObjectHideFlags: 0

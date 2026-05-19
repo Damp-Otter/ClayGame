@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 8507317133171605984}
   - component: {fileID: 3511054203977634857}
   m_Layer: 0
-  m_Name: Leg
+  m_Name: Joint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

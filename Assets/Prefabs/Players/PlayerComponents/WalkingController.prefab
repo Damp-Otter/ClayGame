@@ -878,6 +878,7 @@ MonoBehaviour:
   _parentDesiredJointEnd: {fileID: 7369491798763550252}
   _boneLength: 2
   _origin: {fileID: 3309212836231591699}
+  _centre: {fileID: 3297602494432410110}
 --- !u!114 &8935280881341259034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1099,6 +1100,7 @@ MonoBehaviour:
   _parentDesiredJointEnd: {fileID: 5516616448354677979}
   _boneLength: 2
   _origin: {fileID: 3666406394466527934}
+  _centre: {fileID: 4126544150679912246}
 --- !u!114 &3092947553745155705
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1724,6 +1726,7 @@ MonoBehaviour:
   _parentDesiredJointEnd: {fileID: 4609431145229426113}
   _boneLength: 2
   _origin: {fileID: 4381700671778394231}
+  _centre: {fileID: 4922882314107077943}
 --- !u!114 &1114992024990637540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1945,6 +1948,7 @@ MonoBehaviour:
   _parentDesiredJointEnd: {fileID: 1530679104425497918}
   _boneLength: 2
   _origin: {fileID: 4558719339480942138}
+  _centre: {fileID: 8937791650043967184}
 --- !u!114 &296213189580788105
 MonoBehaviour:
   m_ObjectHideFlags: 0

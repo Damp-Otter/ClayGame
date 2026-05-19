@@ -2,16 +2,15 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class LegController : MonoBehaviour
+public class JointController : MonoBehaviour
 {
     private PlayerControl _playerControl;
     [SerializeField] private GameObject _movePosition;
-    [SerializeField] private GameObject _centre;
+    [SerializeField] private GameObject _centre; public GameObject centre { get { return _centre; } }
     [SerializeField] private GameObject _origin; public GameObject origin { get { return _origin; } }
     [SerializeField] private float _boneLength = 4f;
-
-    private Vector3 _previousPosition = Vector3.zero;
     private bool _isStuckToGround; public bool isStuckToGround { get { return _isStuckToGround; } set { _isStuckToGround = value; } }
+    private Vector3 _lockedGroundPosition = Vector3.zero;
     public int flipped = 1;
 
     private void Start()
@@ -25,12 +24,12 @@ public class LegController : MonoBehaviour
     {
         if (_isStuckToGround)
         {
-            if (_previousPosition != Vector3.zero)
+            if (_lockedGroundPosition != Vector3.zero)
             {
-                _movePosition.transform.position = _previousPosition;
+                _movePosition.transform.position = _lockedGroundPosition;
             }
 
-            _previousPosition = _movePosition.transform.position;
+            _lockedGroundPosition = _movePosition.transform.position;
         }
     }
 
@@ -46,6 +45,9 @@ public class LegController : MonoBehaviour
         }
         else
         {
+
+            Debug.Log("HIT EDGE");
+
             Vector3 direction = (desiredPosition - _centre.transform.position).normalized;
 
             _movePosition.transform.position = _centre.transform.position + direction * _boneLength;
@@ -63,12 +65,19 @@ public class LegController : MonoBehaviour
         }
         else
         {
+            Debug.Log("HIT EDGE");
+
             Vector3 direction = (desiredPosition - _centre.transform.position).normalized;
 
             _movePosition.transform.position = _centre.transform.position + direction * _boneLength;
         }
 
         return;
+    }
+
+    public void LockCurrentPosition()
+    {
+        _lockedGroundPosition = _movePosition.transform.position;
     }
 
 }

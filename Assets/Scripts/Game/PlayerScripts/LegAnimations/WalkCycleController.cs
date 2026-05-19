@@ -8,7 +8,7 @@ using Unity.VisualScripting;
 [Serializable]
 public class LegBaseDictionaryItem
 {
-    [SerializeField] public LegController leg;
+    [SerializeField] public JointController leg;
     [SerializeField] public GameObject legBase;
 }
 
@@ -18,10 +18,10 @@ public class LegBaseDictionary
 {
     [SerializeField] LegBaseDictionaryItem[] thisDictItems;
 
-    public Dictionary<LegController, GameObject> ToDictionary()
+    public Dictionary<JointController, GameObject> ToDictionary()
     {
 
-        Dictionary<LegController, GameObject> thisDict = new Dictionary<LegController, GameObject>();
+        Dictionary<JointController, GameObject> thisDict = new Dictionary<JointController, GameObject>();
 
         foreach(var item in thisDictItems)
         {
@@ -36,7 +36,7 @@ public class LegBaseDictionary
 public class WalkCycleController : MonoBehaviour
 {
 
-    private Dictionary<LegController, GameObject> _legsBases;
+    private Dictionary<JointController, GameObject> _legsBases;
 
     [SerializeField] LayerMask _groundedMask;
     [SerializeField] LegBaseDictionary serializedDict;
@@ -48,56 +48,75 @@ public class WalkCycleController : MonoBehaviour
     private void Start()
     {
         _legsBases = serializedDict.ToDictionary();
+
+        int flipped = -1;
+        foreach (var (leg, legBase) in _legsBases)
+        {
+            leg.flipped = flipped;
+            flipped *= -1;
+        }
+
     }
 
 
     void Update()
     {
-        int flipped = 1;
         foreach (var (leg, legBase) in _legsBases)
         {
-            flipped *= -1 * leg.flipped;
-            ControlLeg(leg, legBase, flipped);
+            ControlLeg(leg, legBase);
         }
     }
     
 
-    private void ControlLeg(LegController leg, GameObject legBase, int flipped)
+    private void ControlLeg(JointController leg, GameObject legBase)
     {
         Vector3 basePosition = legBase.transform.position;
 
-        //legBase.transform.position += new Vector3(1f * Time.deltaTime, 0, 1f * Time.deltaTime);
-
         if (isMoving)
         {
-            Debug.Log("Handling move");
-            
-            Vector3 currentDirection = leg.transform.right * flipped;
+            // Moving base
 
-            basePosition += currentDirection * 3 *  Time.deltaTime;
+            Vector3 currentDirection = leg.transform.up * leg.flipped;
+            basePosition += currentDirection * 5 *  Time.deltaTime;
+
+            // Moving leg
+
+            Vector3 legPosition = new Vector3(basePosition.x, basePosition.y + 1f, basePosition.z);
+            leg.MoveFootToPosition(legPosition);
+
         }
+
+
+        legBase.transform.position = basePosition;
 
 
         // Lift up leg if needed
 
-        Vector2 offset = new Vector2(basePosition.x - leg.origin.transform.position.x, basePosition.z - leg.origin.transform.position.z);
+        Vector2 offset = new Vector2(legBase.transform.position.x - leg.centre.transform.position.x, legBase.transform.position.z - leg.centre.transform.position.z);
 
         float distanceFromOrigin = offset.magnitude;
-        
-        if(distanceFromOrigin > 2f && !leg.isStuckToGround)
+
+        if (distanceFromOrigin > 1.5f && leg.isStuckToGround)
         {
-            leg.flipped *= -1;
             SnapLegOffGround(leg, legBase);
-            Debug.Log("Snapping leg up");
         }
-        else if (distanceFromOrigin < 0.5f && leg.isStuckToGround)
+        else if (distanceFromOrigin < 0.7f && !leg.isStuckToGround)
         {
-            leg.flipped *= -1;
             SnapLegToGround(leg, legBase);
-            Debug.Log("Snapping leg down");
         }
 
-        legBase.transform.position = basePosition;
+        // Reversing foot position
+
+        if (distanceFromOrigin > 1.8f)
+        {
+            leg.flipped *= -1;
+        }
+        else if (distanceFromOrigin < 0.4f )
+        {
+            leg.flipped *= -1;
+        }
+
+         
     }
 
 
@@ -114,17 +133,24 @@ public class WalkCycleController : MonoBehaviour
     }
 
 
-    public void SnapLegToGround(LegController leg, GameObject legBase)
+    public void SnapLegToGround(JointController leg, GameObject legBase)
     {
-        Vector3 groundPosition = new Vector3(legBase.transform.position.x, legBase.transform.position.y - 0.2f, legBase.transform.position.z);
+        Debug.Log("Snapping to ground");
 
-        leg.MoveFootToPosition(groundPosition);
+        MoveBaseToGround(legBase);
+
+        leg.MoveFootToPosition(legBase.transform.position);
+
         leg.isStuckToGround = true;
+
+        leg.LockCurrentPosition();
     }
 
 
-    public void SnapLegOffGround(LegController leg, GameObject legBase)
+    public void SnapLegOffGround(JointController leg, GameObject legBase)
     {
+        Debug.Log("Snapping off ground");
+
         Vector3 offset = new Vector3(0, 1f, 0);
 
         leg.isStuckToGround = false;
