@@ -40,11 +40,6 @@ public class MoveFoot : MonoBehaviour {
         float squaredDistanceToEnd = Vector3.Dot(_desiredJointEnd.transform.position - _thisJoint.transform.position, 
             _desiredJointEnd.transform.position - _thisJoint.transform.position);
 
-        float difference = squaredDistanceToEnd - _boneLength * _boneLength;
-
-        Debug.Log($"Difference = {difference}");
-
-
         if (squaredDistanceToEnd - 1f > _boneLength * _boneLength) 
         { 
             currentDirection = _thisJoint.transform.forward; 

@@ -7,14 +7,11 @@ public class LegController : MonoBehaviour
     private PlayerControl _playerControl;
     [SerializeField] private GameObject _movePosition;
     [SerializeField] private GameObject _centre;
-    [SerializeField] private GameObject _origin;
+    [SerializeField] private GameObject _origin; public GameObject origin { get { return _origin; } }
     [SerializeField] private float _boneLength = 4f;
-    [SerializeField] LayerMask _groundedMask;
 
-    [SerializeField] private GameObject _base;
-
-    private Vector3 _previousPosition;
-    private bool _isGrounded;
+    private Vector3 _previousPosition = Vector3.zero;
+    private bool _isStuckToGround; public bool isStuckToGround { get { return _isStuckToGround; } set { _isStuckToGround = value; } }
 
 
     private void Start()
@@ -26,26 +23,18 @@ public class LegController : MonoBehaviour
 
     private void Update()
     {
-        bool _isGrounded = CheckGrounded();
-
-        if (_isGrounded)
+        if (_isStuckToGround)
         {
-            SetToPreviousPosition(_previousPosition);
+            if (_previousPosition != Vector3.zero)
+            {
+                _movePosition.transform.position = _previousPosition;
+            }
 
-            return;
+            _previousPosition = _movePosition.transform.position;
         }
-
-        _previousPosition = _movePosition.transform.position;
     }
 
-    public void SetFootPosition(Vector3 offset)
-    {
-        MoveFootToPosition(offset);
-
-        return;
-    }
-
-    private void MoveFootToPosition(Vector3 offset)
+    public void MoveFootByOffest(Vector3 offset)
     {
         Vector3 worldOffset = _origin.transform.up * offset.x + -_origin.transform.forward * offset.y;
 
@@ -65,31 +54,21 @@ public class LegController : MonoBehaviour
         return;
     }
 
-    private void SetToPreviousPosition(Vector3 previousPosition)
-    {
-        Debug.Log("Setting to previous position");
 
-        _movePosition.transform.position = previousPosition;
+    public void MoveFootToPosition(Vector3 desiredPosition)
+    {
+        if (Vector3.Dot(_centre.transform.position - desiredPosition, _centre.transform.position - desiredPosition) < _boneLength * _boneLength)
+        {
+            _movePosition.transform.position = desiredPosition;
+        }
+        else
+        {
+            Vector3 direction = (desiredPosition - _centre.transform.position).normalized;
+
+            _movePosition.transform.position = _centre.transform.position + direction * _boneLength;
+        }
 
         return;
     }
 
-    private bool CheckGrounded()
-    {
-        RaycastHit hit;
-
-        Vector3 rayOrigin = new Vector3(_movePosition.transform.position.x, _base.transform.position.y + 0.1f, _movePosition.transform.position.z);
-
-        Debug.DrawRay(rayOrigin, _movePosition.transform.forward, Color.green);
-
-        if (Physics.SphereCast(rayOrigin, 0.2f, _movePosition.transform.forward, out hit, 0.3f, _groundedMask))
-        {
-            Debug.DrawLine(rayOrigin, hit.point, Color.red);
-
-            Debug.Log(hit.transform.gameObject.layer);
-
-            return true;
-        }
-        return false;
-    }
 }

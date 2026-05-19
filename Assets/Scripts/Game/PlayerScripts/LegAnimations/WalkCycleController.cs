@@ -2,92 +2,124 @@ using NUnit.Framework;
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+
+
+[Serializable]
+public class LegBaseDictionaryItem
+{
+    [SerializeField] public LegController leg;
+    [SerializeField] public GameObject legBase;
+}
+
+
+[Serializable]
+public class LegBaseDictionary
+{
+    [SerializeField] LegBaseDictionaryItem[] thisDictItems;
+
+    public Dictionary<LegController, GameObject> ToDictionary()
+    {
+
+        Dictionary<LegController, GameObject> thisDict = new Dictionary<LegController, GameObject>();
+
+        foreach(var item in thisDictItems)
+        {
+            thisDict.Add(item.leg, item.legBase);
+        }
+
+        return thisDict;
+    }
+}
 
 
 public class WalkCycleController : MonoBehaviour
 {
-    private Vector2 _moveInput;
-    private PlayerControl _playerControl;
-    [SerializeField] private List<LegController> _legs;
 
-    [SerializeField] private CharacterController _characterController;
-    [SerializeField] private LayerMask _groundedMask;
+    private Dictionary<LegController, GameObject> _legsBases;
 
-    private float _verticalVelocity;
-    private float _gravity = -25f;
-    private float _moveSpeed = 5f;
+    [SerializeField] LayerMask _groundedMask;
+    [SerializeField] LegBaseDictionary serializedDict;
+
 
     private void Start()
     {
-        _playerControl = new PlayerControl();
-        _playerControl.Enable();
+        _legsBases = serializedDict.ToDictionary();
+
+
     }
 
-    // Update is called once per frame
+
     void Update()
     {
-        //MoveWithInput();
-
-        HandleGravity();
-
-        HandleMovement();
-
-    }
-
-
-    private void HandleMovement()
-    {
-        Vector2 moveInput = _playerControl.Player.Move.ReadValue<Vector2>().normalized;
-
-        _characterController.Move(new Vector3(moveInput.x, 0, moveInput.y) * _moveSpeed *Time.deltaTime);
-
-        return;
-    }
-
-
-    private void HandleGravity()
-    {
-        bool grounded = CheckGrounded();
-
-        if (!grounded)
+        foreach (var (leg, legBase) in _legsBases)
         {
-            _verticalVelocity += _gravity * Time.deltaTime;
+            ControlLeg(leg, legBase);
         }
-        else
+    }
+    
+
+    private void ControlLeg(LegController leg, GameObject legBase)
+    {
+        Vector3 basePosition = legBase.transform.position;
+        legBase.transform.position += new Vector3(1f * Time.deltaTime, 0, 1f * Time.deltaTime);
+
+        // Lift up leg if needed
+
+        Vector2 offset = new Vector2(basePosition.x - leg.origin.transform.position.x, basePosition.z - leg.origin.transform.position.z);
+
+        float distanceFromOrigin = offset.magnitude;
+        
+        if(distanceFromOrigin > 3f)
         {
-            _verticalVelocity = 0f;
+            Debug.Log("Lifting off");
+
+            SnapLegOffGround(leg, legBase);
         }
-
-        _characterController.Move(new Vector3(0, _verticalVelocity, 0) * Time.deltaTime);
-
-        return;
     }
 
-    private void MoveWithInput()
+
+    public void HandleLanding()
     {
-        // This stuff moves the desired position up to the spherical barrier
 
-        _moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
-
-        Vector3 moveOffset = new Vector3(_moveInput.x, _moveInput.y, 0f) * 0.15f;
-
-        foreach(LegController leg in _legs)
+        foreach (var (leg, legBase) in _legsBases)
         {
-            leg.SetFootPosition(moveOffset);
+            MoveBaseToGround(legBase);
+
+            SnapLegToGround(leg, legBase);
         }
 
     }
 
-    private bool CheckGrounded()
+
+    public void SnapLegToGround(LegController leg, GameObject legBase)
     {
+        Vector3 groundPosition = new Vector3(legBase.transform.position.x, legBase.transform.position.y - 0.2f, legBase.transform.position.z);
+
+        leg.MoveFootToPosition(groundPosition);
+        leg.isStuckToGround = true;
+    }
+
+
+    public void SnapLegOffGround(LegController leg, GameObject legBase)
+    {
+        Vector3 offset = new Vector3(0, 1f, 0);
+
+        leg.isStuckToGround = false;
+        leg.MoveFootByOffest(offset);
+    }
+
+
+    public void MoveBaseToGround(GameObject legbase)
+    {
+        // Actually doing the raycasting
+
         RaycastHit hit;
 
-        Vector3 rayOrigin = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
-        if (Physics.SphereCast(rayOrigin, 0.2f, -Vector3.up, out hit, 0.2f, _groundedMask))
+        if (Physics.SphereCast(legbase.transform.position, 0.2f, -Vector3.up, out hit, 2f, _groundedMask))
         {
-            Debug.Log("Character is grounded");
-            return true;
+            legbase.transform.position = hit.point;
         }
-        return false;
     }
+
 }
