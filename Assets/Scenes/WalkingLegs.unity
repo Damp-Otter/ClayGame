@@ -640,14 +640,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2986298932498310401, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3722033939895018458, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3912059915723327746, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -688,21 +680,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4424845803778737338, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5508232810069972262, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
       propertyPath: m_Name
       value: WalkingController
-      objectReference: {fileID: 0}
-    - target: {fileID: 6417552853040294931, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
-      propertyPath: _groundedMask.m_Bits
-      value: 63
-      objectReference: {fileID: 0}
-    - target: {fileID: 6880127532156197668, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

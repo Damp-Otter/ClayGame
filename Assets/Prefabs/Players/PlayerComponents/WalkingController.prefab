@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 2, y: 0.1, z: -2}
-  m_LocalScale: {x: 1, y: 0.2, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3912059915723327746}
@@ -398,7 +398,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -2, y: 0.1, z: 2}
-  m_LocalScale: {x: 1, y: 0.2, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3912059915723327746}
@@ -877,6 +877,7 @@ MonoBehaviour:
   _parentJoint: {fileID: 2186399125307187978}
   _parentDesiredJointEnd: {fileID: 7369491798763550252}
   _boneLength: 2
+  _origin: {fileID: 3309212836231591699}
 --- !u!114 &8935280881341259034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -909,6 +910,7 @@ MonoBehaviour:
   _centre: {fileID: 3297602494432410110}
   _origin: {fileID: 3309212836231591699}
   _boneLength: 4
+  flipped: 1
 --- !u!114 &3065134124174955769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -957,7 +959,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -2, y: 0.1, z: -2}
-  m_LocalScale: {x: 1, y: 0.2, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3912059915723327746}
@@ -1096,6 +1098,7 @@ MonoBehaviour:
   _parentJoint: {fileID: 4279932185630225769}
   _parentDesiredJointEnd: {fileID: 5516616448354677979}
   _boneLength: 2
+  _origin: {fileID: 3666406394466527934}
 --- !u!114 &3092947553745155705
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1128,6 +1131,7 @@ MonoBehaviour:
   _centre: {fileID: 4126544150679912246}
   _origin: {fileID: 3666406394466527934}
   _boneLength: 4
+  flipped: 1
 --- !u!114 &6872406540449776570
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1719,6 +1723,7 @@ MonoBehaviour:
   _parentJoint: {fileID: 6695448699771339559}
   _parentDesiredJointEnd: {fileID: 4609431145229426113}
   _boneLength: 2
+  _origin: {fileID: 4381700671778394231}
 --- !u!114 &1114992024990637540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1751,6 +1756,7 @@ MonoBehaviour:
   _centre: {fileID: 4922882314107077943}
   _origin: {fileID: 4381700671778394231}
   _boneLength: 4
+  flipped: 1
 --- !u!114 &6419358511963752629
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1938,6 +1944,7 @@ MonoBehaviour:
   _parentJoint: {fileID: 3947401544965004602}
   _parentDesiredJointEnd: {fileID: 1530679104425497918}
   _boneLength: 2
+  _origin: {fileID: 4558719339480942138}
 --- !u!114 &296213189580788105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1970,6 +1977,7 @@ MonoBehaviour:
   _centre: {fileID: 8937791650043967184}
   _origin: {fileID: 4558719339480942138}
   _boneLength: 4
+  flipped: 1
 --- !u!114 &5820884675918176141
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2506,6 +2514,8 @@ MonoBehaviour:
       legBase: {fileID: 760429430698835653}
     - leg: {fileID: 8634072207104080799}
       legBase: {fileID: 3458621533983914886}
+  isMoving: 0
+  isJumping: 0
 --- !u!143 &8806350772396315843
 CharacterController:
   m_ObjectHideFlags: 0
@@ -4073,7 +4083,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 2, y: 0.1, z: 2}
-  m_LocalScale: {x: 1, y: 0.2, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3912059915723327746}

@@ -49,6 +49,17 @@ public class WalkingControllerController : MonoBehaviour
 
         _characterController.Move(new Vector3(moveInput.x, 0, moveInput.y) * _moveSpeed * Time.deltaTime);
 
+        if(moveInput != Vector2.zero)
+        {
+            _controller.isMoving = true;
+            Debug.Log("Moving");
+        }
+        else
+        {
+            _controller.isMoving = false;
+             Debug.Log("Not moving");
+        }
+
         return;
     }
 
@@ -81,7 +92,6 @@ public class WalkingControllerController : MonoBehaviour
         if (Physics.SphereCast(rayOrigin, 0.2f, -Vector3.up, out hit, 0.3f, _groundedMask))
         {
             Debug.DrawLine(rayOrigin, hit.point, Color.red);
-            Debug.Log("Character is grounded");
 
             return true;
         }

@@ -41,28 +41,42 @@ public class WalkCycleController : MonoBehaviour
     [SerializeField] LayerMask _groundedMask;
     [SerializeField] LegBaseDictionary serializedDict;
 
+    public bool isMoving;
+    public bool isJumping;
+
 
     private void Start()
     {
         _legsBases = serializedDict.ToDictionary();
-
-
     }
 
 
     void Update()
     {
+        int flipped = 1;
         foreach (var (leg, legBase) in _legsBases)
         {
-            ControlLeg(leg, legBase);
+            flipped *= -1 * leg.flipped;
+            ControlLeg(leg, legBase, flipped);
         }
     }
     
 
-    private void ControlLeg(LegController leg, GameObject legBase)
+    private void ControlLeg(LegController leg, GameObject legBase, int flipped)
     {
         Vector3 basePosition = legBase.transform.position;
-        legBase.transform.position += new Vector3(1f * Time.deltaTime, 0, 1f * Time.deltaTime);
+
+        //legBase.transform.position += new Vector3(1f * Time.deltaTime, 0, 1f * Time.deltaTime);
+
+        if (isMoving)
+        {
+            Debug.Log("Handling move");
+            
+            Vector3 currentDirection = leg.transform.right * flipped;
+
+            basePosition += currentDirection * 3 *  Time.deltaTime;
+        }
+
 
         // Lift up leg if needed
 
@@ -70,12 +84,20 @@ public class WalkCycleController : MonoBehaviour
 
         float distanceFromOrigin = offset.magnitude;
         
-        if(distanceFromOrigin > 3f)
+        if(distanceFromOrigin > 2f && !leg.isStuckToGround)
         {
-            Debug.Log("Lifting off");
-
+            leg.flipped *= -1;
             SnapLegOffGround(leg, legBase);
+            Debug.Log("Snapping leg up");
         }
+        else if (distanceFromOrigin < 0.5f && leg.isStuckToGround)
+        {
+            leg.flipped *= -1;
+            SnapLegToGround(leg, legBase);
+            Debug.Log("Snapping leg down");
+        }
+
+        legBase.transform.position = basePosition;
     }
 
 

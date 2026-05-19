@@ -12,7 +12,7 @@ public class LegController : MonoBehaviour
 
     private Vector3 _previousPosition = Vector3.zero;
     private bool _isStuckToGround; public bool isStuckToGround { get { return _isStuckToGround; } set { _isStuckToGround = value; } }
-
+    public int flipped = 1;
 
     private void Start()
     {
