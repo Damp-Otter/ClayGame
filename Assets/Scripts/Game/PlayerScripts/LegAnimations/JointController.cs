@@ -11,7 +11,6 @@ public class JointController : MonoBehaviour
     [SerializeField] private float _boneLength = 4f;
     private bool _isStuckToGround; public bool isStuckToGround { get { return _isStuckToGround; } set { _isStuckToGround = value; } }
     private Vector3 _lockedGroundPosition = Vector3.zero;
-    public int flipped = 1;
 
     private void Start()
     {

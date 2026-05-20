@@ -3,13 +3,15 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using System.Linq;
+using UnityEditor.Experimental.GraphView;
 
 
 [Serializable]
 public class LegBaseDictionaryItem
 {
     [SerializeField] public JointController leg;
-    [SerializeField] public GameObject legBase;
+    [SerializeField] public BaseController legBase;
 }
 
 
@@ -18,12 +20,12 @@ public class LegBaseDictionary
 {
     [SerializeField] LegBaseDictionaryItem[] thisDictItems;
 
-    public Dictionary<JointController, GameObject> ToDictionary()
+    public Dictionary<JointController, BaseController> ToDictionary()
     {
 
-        Dictionary<JointController, GameObject> thisDict = new Dictionary<JointController, GameObject>();
+        Dictionary<JointController, BaseController> thisDict = new Dictionary<JointController, BaseController>();
 
-        foreach(var item in thisDictItems)
+        foreach (var item in thisDictItems)
         {
             thisDict.Add(item.leg, item.legBase);
         }
@@ -36,14 +38,21 @@ public class LegBaseDictionary
 public class WalkCycleController : MonoBehaviour
 {
 
-    private Dictionary<JointController, GameObject> _legsBases;
+    private Dictionary<JointController, BaseController> _legsBases;
 
     [SerializeField] LayerMask _groundedMask;
     [SerializeField] LegBaseDictionary serializedDict;
 
     public bool isMoving;
     public bool isJumping;
+    public bool isTurning;
 
+    private float _baseMaxBoundary = 2.5f;
+    private float _baseMinBoundary = 0.75f;
+    private float _legMaxBoundary = 2f;
+    private float _legMinBoundary = 1.25f;
+
+    private float _legSpeed = 4f * 2;
 
     private void Start()
     {
@@ -52,7 +61,7 @@ public class WalkCycleController : MonoBehaviour
         int flipped = -1;
         foreach (var (leg, legBase) in _legsBases)
         {
-            leg.flipped = flipped;
+            legBase.direction = flipped;
             flipped *= -1;
         }
 
@@ -68,22 +77,24 @@ public class WalkCycleController : MonoBehaviour
     }
     
 
-    private void ControlLeg(JointController leg, GameObject legBase)
+    private void ControlLeg(JointController leg, BaseController legBase)
     {
         Vector3 basePosition = legBase.transform.position;
 
-        if (isMoving)
+        if (isMoving || isTurning)
         {
             // Moving base
 
-            Vector3 currentDirection = leg.transform.up * leg.flipped;
-            basePosition += currentDirection * 5 *  Time.deltaTime;
+            Vector3 currentDirection = leg.transform.up * legBase.direction;
+            basePosition += currentDirection * _legSpeed * Time.deltaTime;
 
-            // Moving leg
+            if (isMoving)
+            {
+                // Moving leg
 
-            Vector3 legPosition = new Vector3(basePosition.x, basePosition.y + 1f, basePosition.z);
-            leg.MoveFootToPosition(legPosition);
-
+                Vector3 legPosition = new Vector3(basePosition.x, basePosition.y + 1f, basePosition.z);
+                leg.MoveFootToPosition(legPosition);
+            }
         }
 
 
@@ -95,30 +106,46 @@ public class WalkCycleController : MonoBehaviour
         Vector2 offset = new Vector2(legBase.transform.position.x - leg.centre.transform.position.x, legBase.transform.position.z - leg.centre.transform.position.z);
 
         float distanceFromOrigin = offset.magnitude;
+        
+        CheckIfLegPastBoundary(leg, legBase);
 
-        if (distanceFromOrigin > 1.5f && leg.isStuckToGround)
+        // Reversing foot position
+
+        CheckIfBaseOnBoundary(leg, legBase, distanceFromOrigin);
+
+    }
+
+    private void CheckIfBaseOnBoundary(JointController leg, BaseController legBase, float distanceFromOrigin)
+    {
+        if (distanceFromOrigin > _baseMaxBoundary && legBase.direction == -1)
+        {
+            legBase.direction = 1;
+            legBase.SetState(2);
+        }
+        else if (distanceFromOrigin < _baseMinBoundary && legBase.direction == 1)
+        {
+            legBase.direction = -1;
+            legBase.SetState(1);
+        }
+    }
+
+    private void CheckIfLegPastBoundary(JointController leg, BaseController legBase)
+    {
+        Vector2 offset = new Vector2(legBase.transform.position.x - leg.centre.transform.position.x, legBase.transform.position.z - leg.centre.transform.position.z);
+
+        float distanceFromOrigin = offset.magnitude;
+
+        if (distanceFromOrigin > _legMaxBoundary && leg.isStuckToGround)
         {
             SnapLegOffGround(leg, legBase);
         }
-        else if (distanceFromOrigin < 0.7f && !leg.isStuckToGround)
+        else if (distanceFromOrigin < _legMinBoundary && !leg.isStuckToGround)
         {
             SnapLegToGround(leg, legBase);
         }
 
-        // Reversing foot position
-
-        if (distanceFromOrigin > 1.8f)
-        {
-            leg.flipped *= -1;
-        }
-        else if (distanceFromOrigin < 0.4f )
-        {
-            leg.flipped *= -1;
-        }
-
-         
+        return;
     }
-
 
     public void HandleLanding()
     {
@@ -133,10 +160,8 @@ public class WalkCycleController : MonoBehaviour
     }
 
 
-    public void SnapLegToGround(JointController leg, GameObject legBase)
+    public void SnapLegToGround(JointController leg, BaseController legBase)
     {
-        Debug.Log("Snapping to ground");
-
         MoveBaseToGround(legBase);
 
         leg.MoveFootToPosition(legBase.transform.position);
@@ -147,10 +172,8 @@ public class WalkCycleController : MonoBehaviour
     }
 
 
-    public void SnapLegOffGround(JointController leg, GameObject legBase)
+    public void SnapLegOffGround(JointController leg, BaseController legBase)
     {
-        Debug.Log("Snapping off ground");
-
         Vector3 offset = new Vector3(0, 1f, 0);
 
         leg.isStuckToGround = false;
@@ -158,15 +181,21 @@ public class WalkCycleController : MonoBehaviour
     }
 
 
-    public void MoveBaseToGround(GameObject legbase)
+    public void MoveBaseToGround(BaseController legbase)
     {
         // Actually doing the raycasting
 
         RaycastHit hit;
 
+        Vector3 raycastOrigin = new Vector3(legbase.transform.position.x, legbase.transform.position.y + 0.5f, legbase.transform.position.z);
+
         if (Physics.SphereCast(legbase.transform.position, 0.2f, -Vector3.up, out hit, 2f, _groundedMask))
         {
             legbase.transform.position = hit.point;
+        }
+        else
+        {
+            Debug.LogWarning($"Failed to snap {legbase.transform.name} to the ground");
         }
     }
 

@@ -15,7 +15,7 @@ namespace GameFramework.Networking.Movement
 
         private float _rotationSpeed = 10f;
 
-        private float _gravity = -5f;
+        private float _gravity = -25f;
         private float _verticalVelocity;
 
         [SerializeField] private GameObject _camera;

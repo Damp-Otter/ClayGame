@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 
-public class WalkingControllerController : MonoBehaviour
+public class TestWalkingController : MonoBehaviour
 {
     private Vector2 _moveInput;
     private PlayerControl _playerControl;
@@ -15,7 +15,8 @@ public class WalkingControllerController : MonoBehaviour
 
     private float _verticalVelocity;
     private float _gravity = -25f;
-    private float _moveSpeed = 5f;
+    private float _moveSpeed = 10f;
+    private float _rotationSpeed = 100f;
     private bool _isGrounded;
     public bool justGrounded = false;
 
@@ -39,6 +40,8 @@ public class WalkingControllerController : MonoBehaviour
 
         HandleMovement();
 
+        HandleTurning();
+
     }
 
 
@@ -47,9 +50,11 @@ public class WalkingControllerController : MonoBehaviour
 
         Vector2 moveInput = _playerControl.Player.Move.ReadValue<Vector2>().normalized;
 
-        _characterController.Move(new Vector3(moveInput.x, 0, moveInput.y) * _moveSpeed * Time.deltaTime);
+        Vector3 movementPosition = new Vector3(this.transform.position.x - moveInput.x, this.transform.position.y, this.transform.position.z + moveInput.y);
 
-        if(moveInput != Vector2.zero)
+        _characterController.Move(new Vector3(-moveInput.x, 0, moveInput.y) * _moveSpeed * Time.deltaTime);
+
+        if (moveInput != Vector2.zero)
         {
             _controller.isMoving = true;
         }
@@ -59,6 +64,26 @@ public class WalkingControllerController : MonoBehaviour
         }
 
         return;
+    }
+
+
+    private void HandleTurning()
+    {
+        Vector2 lookInput = _playerControl.Player.Look.ReadValue<Vector2>().normalized;
+
+        transform.Rotate(Vector3.up, lookInput.x * _rotationSpeed * Time.deltaTime);
+
+        if (lookInput != Vector2.zero)
+        {
+            _controller.isTurning = true;
+        }
+        else
+        {
+            _controller.isTurning = false;
+        }
+
+        return;
+
     }
 
 
@@ -89,8 +114,7 @@ public class WalkingControllerController : MonoBehaviour
 
         if (Physics.SphereCast(rayOrigin, 0.2f, -Vector3.up, out hit, 0.3f, _groundedMask))
         {
-            Debug.DrawLine(rayOrigin, hit.point, Color.red);
-
+            Debug.Log("Grounded Player");
             return true;
         }
         return false;
