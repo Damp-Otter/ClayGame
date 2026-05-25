@@ -11,14 +11,17 @@ public class TestWalkingController : MonoBehaviour
 
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private LayerMask _groundedMask;
-    [SerializeField] private WalkCycleController _controller;
+    [SerializeField] private WalkCycle _controller;
 
     private float _verticalVelocity;
     private float _gravity = -25f;
-    private float _moveSpeed = 10f;
+    private float _moveSpeed = 2f;
     private float _rotationSpeed = 100f;
     private bool _isGrounded;
     public bool justGrounded = false;
+    private float _legMaxBoundary = 2.5f;
+    private float _legMinBoundary = 0.75f;
+
 
     private void Start()
     {
@@ -76,6 +79,7 @@ public class TestWalkingController : MonoBehaviour
         if (lookInput != Vector2.zero)
         {
             _controller.isTurning = true;
+            _controller.turnDirection = Convert.ToInt32(lookInput.x < 0);
         }
         else
         {
@@ -100,6 +104,8 @@ public class TestWalkingController : MonoBehaviour
             _verticalVelocity = 0f;
         }
 
+        _controller.characterGrounded = grounded;
+
         _characterController.Move(new Vector3(0, _verticalVelocity, 0) * Time.deltaTime);
 
         return grounded;
@@ -114,7 +120,6 @@ public class TestWalkingController : MonoBehaviour
 
         if (Physics.SphereCast(rayOrigin, 0.2f, -Vector3.up, out hit, 0.3f, _groundedMask))
         {
-            Debug.Log("Grounded Player");
             return true;
         }
         return false;

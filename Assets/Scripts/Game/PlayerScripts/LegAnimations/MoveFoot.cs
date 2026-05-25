@@ -90,8 +90,6 @@ public class MoveFoot : MonoBehaviour {
     {
         Vector3 direction = (from - to).normalized;
 
-        Debug.DrawRay(_origin.transform.up, direction, Color.red);
-
         float angle = Vector3.SignedAngle(Vector3.up, direction, _origin.transform.right);
         if (angle < 0)
         {

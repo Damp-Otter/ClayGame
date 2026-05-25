@@ -127,7 +127,7 @@ GameObject:
   - component: {fileID: 7116432890854350838}
   - component: {fileID: 8909989301165785701}
   - component: {fileID: 34929122035968862}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Base (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1006,7 +1006,7 @@ GameObject:
   - component: {fileID: 1490969221003809635}
   - component: {fileID: 70910916100262528}
   - component: {fileID: 3928534449698774649}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Base (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1361,7 +1361,7 @@ GameObject:
   - component: {fileID: 313830530057932704}
   - component: {fileID: 8574543955271226809}
   - component: {fileID: 6822485410312030702}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Base (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2837,6 +2837,9 @@ MonoBehaviour:
       legBase: {fileID: 6822485410312030702}
   isMoving: 0
   isJumping: 0
+  isTurning: 0
+  characterGrounded: 0
+  turnDirection: 0
 --- !u!143 &8806350772396315843
 CharacterController:
   m_ObjectHideFlags: 0
@@ -4226,7 +4229,7 @@ GameObject:
   - component: {fileID: 5603195718887918464}
   - component: {fileID: 2040751783172987572}
   - component: {fileID: 7551578796082098324}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
