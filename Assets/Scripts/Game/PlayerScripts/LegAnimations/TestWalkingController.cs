@@ -15,7 +15,7 @@ public class TestWalkingController : MonoBehaviour
 
     private float _verticalVelocity;
     private float _gravity = -25f;
-    private float _moveSpeed = 2f;
+    private float _moveSpeed = 8f;
     private float _rotationSpeed = 100f;
     private bool _isGrounded;
     public bool justGrounded = false;
@@ -51,11 +51,13 @@ public class TestWalkingController : MonoBehaviour
     private void HandleMovement()
     {
 
-        Vector2 moveInput = _playerControl.Player.Move.ReadValue<Vector2>().normalized;
+        Vector2 moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
 
-        Vector3 movementPosition = new Vector3(this.transform.position.x - moveInput.x, this.transform.position.y, this.transform.position.z + moveInput.y);
+        Vector3 movement = moveInput.x * transform.right + moveInput.y * transform.forward;
 
-        _characterController.Move(new Vector3(-moveInput.x, 0, moveInput.y) * _moveSpeed * Time.deltaTime);
+        movement.Normalize();
+
+        _characterController.Move(movement * _moveSpeed * Time.deltaTime);
 
         if (moveInput != Vector2.zero)
         {

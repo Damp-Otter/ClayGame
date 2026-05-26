@@ -55,15 +55,15 @@ public class WalkCycle : MonoBehaviour
     public bool characterGrounded = false;
     public int turnDirection;
 
-    private float _legSpeed = 4f;
+    private float _legSpeed = 3f;
 
     private float _legMaxBoundary = 2.5f;
-    private float _legOutwardMaxBoundary = 1.8f;
+    private float _legOutwardMaxBoundary = 2f;
 
     private float _legMinBoundary = 1f;
-    private float _legInwardMinBoundary = 1.5f;
+    private float _legInwardMinBoundary = 1.2f;
 
-    private float _angleBoundary = 20f;
+    private float _angleBoundary = 30f;
 
     //private LegState _tempLegState;
 
@@ -97,11 +97,11 @@ public class WalkCycle : MonoBehaviour
         {
             if (legBase.state == LegState.LockedToGround)
             {
-                offsetFromDefault = RotateLegToFoot(leg);
+                offsetFromDefault = leg.initialRotation.eulerAngles.y - RotateLegToFoot(leg);
 
                 if(leg.transform.name == "Leg")
                 {
-                    Debug.Log($"Offset: {offsetFromDefault}");
+                    Debug.Log($"Initial angle: {leg.initialRotation.eulerAngles.y}");
                 }
             }
             else
@@ -122,6 +122,7 @@ public class WalkCycle : MonoBehaviour
 
                 Vector3 currentDirection = (leg.centre.transform.position - legBase.transform.position).normalized * legBase.direction;
                 legBase.transform.position += currentDirection * _legSpeed * 2 * Time.deltaTime;
+
 
                 Vector3 basePosition = legBase.transform.position;
 
@@ -147,7 +148,7 @@ public class WalkCycle : MonoBehaviour
 
         foreach (var (leg, legBase) in _legsBases)
         {
-            MoveBaseToGround(legBase);
+            MoveBaseToGround(leg, legBase);
 
             SnapLegToGround(leg, legBase);
 
@@ -222,14 +223,22 @@ public class WalkCycle : MonoBehaviour
     }
 
 
-
     private void LegSnapping(bool snap, JointController leg, BaseController legBase)
     {
         int legsOffGroundCount = _legsBases.Count - GroundedLegsCount();
 
-        if (snap && legBase.state == LegState.LockedToGround)
+
+        Debug.Log($"Legs off ground: {legsOffGroundCount}, Legs on ground {GroundedLegsCount()}");
+
+        /*
+        if(legsOffGroundCount > 1 && snap && legBase.state == LegState.LockedToGround)
         {
-            legBase.transform.position = leg.movePosition.transform.position;
+            legBase.tempState = LegState.LockedToGround;
+            return;
+        } */
+
+        if (legsOffGroundCount < 5 && snap && legBase.state == LegState.LockedToGround)
+        {
 
             if (legBase.tempState == LegState.MovingInwards)
             {
@@ -249,10 +258,9 @@ public class WalkCycle : MonoBehaviour
         else if (snap)
         {
             SnapLegToGround(leg, legBase);
-
-            legBase.transform.position = leg.movePosition.transform.position;
         }
     }
+
 
     private int GroundedLegsCount()
     {
@@ -276,11 +284,9 @@ public class WalkCycle : MonoBehaviour
 
         legBase.transform.position = leg.movePosition.transform.position;
 
-        Vector3 desiredPosiiton = new Vector3(legBase.transform.position.x, legBase.transform.position.y + 1f, legBase.transform.position.z);
+        Vector3 desiredPosiiton = new Vector3(legBase.transform.position.x, leg.centre.transform.position.y - 1.2f, legBase.transform.position.z);
 
         leg.MoveFootToPosition(desiredPosiiton);
-
-        legBase.transform.position = leg.movePosition.transform.position;
     }
 
 
@@ -288,7 +294,7 @@ public class WalkCycle : MonoBehaviour
     {
         legBase.transform.position = leg.movePosition.transform.position;
 
-        MoveBaseToGround(legBase);
+        MoveBaseToGround(leg, legBase);
 
         leg.MoveFootToPosition(legBase.transform.position);
 
@@ -298,17 +304,17 @@ public class WalkCycle : MonoBehaviour
     }
 
 
-    public void MoveBaseToGround(BaseController legbase)
+    public void MoveBaseToGround(JointController leg, BaseController legbase)
     {
         // Actually doing the raycasting
 
         RaycastHit hit;
 
-        Vector3 raycastOrigin = new Vector3(legbase.transform.position.x, legbase.transform.position.y + 1f, legbase.transform.position.z);
+        Vector3 raycastOrigin = new Vector3(legbase.transform.position.x, leg.centre.transform.position.y, legbase.transform.position.z);
 
-        Debug.DrawRay(raycastOrigin, -Vector3.up, Color.red);
+        Debug.DrawRay(raycastOrigin, -Vector3.up, Color.red, 4);
 
-        if (Physics.Raycast(raycastOrigin, -Vector3.up, out hit, 3f, _groundedMask))
+        if (Physics.Raycast(raycastOrigin, -Vector3.up, out hit, 5f, _groundedMask))
         {
             legbase.transform.position = hit.point;
         }
@@ -321,10 +327,11 @@ public class WalkCycle : MonoBehaviour
 
     private float RotateLegToFoot(JointController leg)
     {
-        float zLegAngle = leg.transform.rotation.eulerAngles.y;
+        float zLegAngle = leg.transform.localRotation.eulerAngles.y;
 
         Vector3 footDir = leg.movePosition.transform.position - leg.centre.transform.position;
         footDir = Vector3.ProjectOnPlane(footDir, Vector3.up).normalized;
+        footDir = transform.InverseTransformDirection(footDir);
 
         Vector3 initialForward = Vector3.ProjectOnPlane(leg.initialRotation * Vector3.forward, Vector3.up);
 
@@ -337,30 +344,35 @@ public class WalkCycle : MonoBehaviour
 
         float offsetAngle = footAngle - zLegAngle;
 
-        if (MathF.Abs(offsetAngle) > 1)
+        if (leg.transform.name == "Leg")
         {
-            leg.transform.rotation = Quaternion.Euler(90f, zLegAngle + offsetAngle, 0f);
+           // Debug.Log($"Offset: {offsetAngle}, Initial angle: {zLegAngle}, Current angle: {footAngle}");
         }
 
-        return leg.initialRotation.eulerAngles.y - footAngle;
+        if (MathF.Abs(offsetAngle) > 1)
+        {
+            leg.transform.localRotation = Quaternion.Euler(90f, zLegAngle + offsetAngle, 0f);
+        }
+
+        return zLegAngle;
     }
 
 
     private void RotateLegToDefault(JointController leg, BaseController legBase)
     {
-        float legAngle = leg.transform.rotation.eulerAngles.y;
+        float legAngle = leg.transform.localRotation.eulerAngles.y;
 
         float defaultAngle = leg.initialRotation.eulerAngles.y;
 
-        float offsetAngle = legAngle - defaultAngle;
+        float offsetAngle = Mathf.DeltaAngle(legAngle, defaultAngle);
 
         if (offsetAngle > 3)
         {
-            leg.transform.rotation = Quaternion.Euler(90f, legAngle - 3, 0f);
+            leg.transform.localRotation = Quaternion.Euler(90f, legAngle + 3, 0f);
         }
         else if(offsetAngle < -3)
         {
-            leg.transform.rotation = Quaternion.Euler(90f, legAngle + 3, 0f);
+            leg.transform.localRotation = Quaternion.Euler(90f, legAngle - 3, 0f);
         }
 
 

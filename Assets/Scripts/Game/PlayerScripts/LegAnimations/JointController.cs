@@ -20,7 +20,7 @@ public class JointController : MonoBehaviour
         _playerControl = new PlayerControl();
         _playerControl.Enable();
 
-        _initialRotation = transform.rotation;
+        _initialRotation = transform.localRotation;
     }
 
 
