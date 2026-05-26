@@ -55,7 +55,10 @@ public class WalkCycle : MonoBehaviour
     public bool characterGrounded = false;
     public int turnDirection;
 
+    private float _verticalVelocity; public float verticalVelocity { get { return _verticalVelocity; } set { _verticalVelocity = value; } }
+    private float _jumpHeight; public float jumpHeight { get { return _jumpHeight; } set { _jumpHeight = value; } }
     private float _legSpeed = 3f;
+    private float _jumpSpeed = 0.5f;
 
     private float _legMaxBoundary = 2.5f;
     private float _legOutwardMaxBoundary = 2f;
@@ -65,9 +68,6 @@ public class WalkCycle : MonoBehaviour
 
     private float _angleBoundary = 30f;
 
-    //private LegState _tempLegState;
-
-
     private void Start()
     {
         _legsBases = serializedDict.ToDictionary();
@@ -75,6 +75,7 @@ public class WalkCycle : MonoBehaviour
         foreach (var (leg, legBase) in _legsBases)
         {
             legBase.direction = 0;
+            legBase.lastGroundedPosition = legBase.transform.position;
         }
     }
 
@@ -89,59 +90,68 @@ public class WalkCycle : MonoBehaviour
     private void ControlLeg(JointController leg, BaseController legBase)
     {
 
-        // Rotate the leg so that it is inline with the foot
-
-        float offsetFromDefault = 0f;
-
         if (characterGrounded)
         {
+            // Rotate the leg so that it is inline with the foot
+
+            float offsetFromDefault = 0f;
+
             if (legBase.state == LegState.LockedToGround)
             {
                 offsetFromDefault = leg.initialRotation.eulerAngles.y - RotateLegToFoot(leg);
-
-                if(leg.transform.name == "Leg")
-                {
-                    Debug.Log($"Initial angle: {leg.initialRotation.eulerAngles.y}");
-                }
             }
             else
             {
                 RotateLegToDefault(leg, legBase);
             }
-        }
 
-        bool snap = CheckForLegRotationSnap(leg, legBase, offsetFromDefault, leg.initialRotation.eulerAngles.y);
+            bool snap = CheckForLegRotationSnap(leg, legBase, offsetFromDefault);
 
-        // Moving block - I think it should be first but maybe I will move it later
+            // Moving block - I think it should be first but maybe I will move it later
 
-        if ((isMoving || isTurning) && characterGrounded)
-        {
-            if (legBase.state != LegState.LockedToGround)
+            if ((isMoving || isTurning) && characterGrounded)
             {
-                // Moving base
+                if (legBase.state != LegState.LockedToGround)
+                {
+                    // Moving base
 
-                Vector3 currentDirection = (leg.centre.transform.position - legBase.transform.position).normalized * legBase.direction;
-                legBase.transform.position += currentDirection * _legSpeed * 2 * Time.deltaTime;
+                    Vector3 currentDirection = (new Vector3(leg.centre.transform.position.x, legBase.transform.position.y, leg.centre.transform.position.z)
+                        - legBase.transform.position).normalized * legBase.direction;
+                    legBase.transform.position += currentDirection * _legSpeed * 2 * Time.deltaTime;
 
 
-                Vector3 basePosition = legBase.transform.position;
+                    Vector3 basePosition = legBase.transform.position;
 
-                // Moving leg
+                    // Moving leg
 
-                leg.MoveFootToPosition(legBase.transform.position);
+                    leg.MoveFootToPosition(legBase.transform.position);
+                }
+            }
+
+            if (!snap)
+            {
+                snap = CheckIfLegFootBoundary(leg, legBase);
+            }
+
+            LegSnapping(snap, leg, legBase);
+
+        }
+        else
+        {
+            if (_verticalVelocity < -1)
+            {
+                RotateLegToFoot(leg);
+                MoveLegsUpDown(leg, legBase);
+            }
+            else if(_verticalVelocity > 1)
+            {
+                RotateLegToFoot(leg);
+                MoveLegsUpDown(leg, legBase);
             }
         }
 
-        if (!snap)
-        {
-            snap = CheckIfLegFootBoundary(leg, legBase);
-        }
-
-        LegSnapping(snap, leg, legBase);
-
         legBase.state = legBase.tempState;
     }
-
 
     public void HandleLanding()
     {
@@ -154,6 +164,30 @@ public class WalkCycle : MonoBehaviour
 
             legBase.state = LegState.LockedToGround;
             legBase.tempState = LegState.LockedToGround;
+        }
+    }
+
+
+    public void HandleJumping()
+    {
+        foreach (var (leg, legBase) in _legsBases)
+        {
+            SnapLegToGround(leg, legBase);
+
+            leg.isStuckToGround = false;
+            legBase.state = LegState.LockedToGround;
+            legBase.tempState = LegState.LockedToGround;
+            legBase.lastGroundedPosition = legBase.transform.position;
+        }
+    }
+
+
+    private void MoveLegsUpDown(JointController leg, BaseController legBase)
+    {
+        if(legBase.transform.position.y >= legBase.lastGroundedPosition.y)
+        {
+            legBase.transform.position = new Vector3(legBase.transform.position.x, legBase.transform.position.y + verticalVelocity * _jumpSpeed * Time.deltaTime, legBase.transform.position.z);
+            leg.MoveFootToPosition(legBase.transform.position);
         }
     }
 
@@ -196,7 +230,7 @@ public class WalkCycle : MonoBehaviour
     }
 
 
-    private bool CheckForLegRotationSnap(JointController leg, BaseController legBase, float angleOffset, float defaultAngle)
+    private bool CheckForLegRotationSnap(JointController leg, BaseController legBase, float angleOffset)
     {
         bool snap = false;
 
@@ -226,18 +260,14 @@ public class WalkCycle : MonoBehaviour
     private void LegSnapping(bool snap, JointController leg, BaseController legBase)
     {
         int legsOffGroundCount = _legsBases.Count - GroundedLegsCount();
-
-
-        Debug.Log($"Legs off ground: {legsOffGroundCount}, Legs on ground {GroundedLegsCount()}");
-
-        /*
-        if(legsOffGroundCount > 1 && snap && legBase.state == LegState.LockedToGround)
+        
+        if(legsOffGroundCount > 2 && snap && legBase.state == LegState.LockedToGround)
         {
             legBase.tempState = LegState.LockedToGround;
             return;
-        } */
+        } 
 
-        if (legsOffGroundCount < 5 && snap && legBase.state == LegState.LockedToGround)
+        if (legsOffGroundCount < 3 && snap && legBase.state == LegState.LockedToGround)
         {
 
             if (legBase.tempState == LegState.MovingInwards)
@@ -268,7 +298,7 @@ public class WalkCycle : MonoBehaviour
 
         foreach (var (leg, legBase) in _legsBases)
         {
-            if (legBase.state != LegState.LockedToGround)
+            if (legBase.state != LegState.LockedToGround && legBase.tempState != LegState.LockedToGround)
             {
                 groundedLegsCount--;
             }
@@ -284,7 +314,7 @@ public class WalkCycle : MonoBehaviour
 
         legBase.transform.position = leg.movePosition.transform.position;
 
-        Vector3 desiredPosiiton = new Vector3(legBase.transform.position.x, leg.centre.transform.position.y - 1.2f, legBase.transform.position.z);
+        Vector3 desiredPosiiton = new Vector3(legBase.transform.position.x, leg.centre.transform.position.y - 0.7f, legBase.transform.position.z);
 
         leg.MoveFootToPosition(desiredPosiiton);
     }
@@ -344,11 +374,6 @@ public class WalkCycle : MonoBehaviour
 
         float offsetAngle = footAngle - zLegAngle;
 
-        if (leg.transform.name == "Leg")
-        {
-           // Debug.Log($"Offset: {offsetAngle}, Initial angle: {zLegAngle}, Current angle: {footAngle}");
-        }
-
         if (MathF.Abs(offsetAngle) > 1)
         {
             leg.transform.localRotation = Quaternion.Euler(90f, zLegAngle + offsetAngle, 0f);
@@ -374,7 +399,6 @@ public class WalkCycle : MonoBehaviour
         {
             leg.transform.localRotation = Quaternion.Euler(90f, legAngle - 3, 0f);
         }
-
 
         legBase.transform.position = leg.movePosition.transform.position;
     }

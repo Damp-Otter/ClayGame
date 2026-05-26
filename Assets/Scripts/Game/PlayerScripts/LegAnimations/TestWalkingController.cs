@@ -15,35 +15,28 @@ public class TestWalkingController : MonoBehaviour
 
     private float _verticalVelocity;
     private float _gravity = -25f;
+    private float _jumpHeight = 8f;
+
     private float _moveSpeed = 8f;
     private float _rotationSpeed = 100f;
-    private bool _isGrounded;
-    public bool justGrounded = false;
-    private float _legMaxBoundary = 2.5f;
-    private float _legMinBoundary = 0.75f;
 
 
     private void Start()
     {
         _playerControl = new PlayerControl();
         _playerControl.Enable();
+
+        _controller.jumpHeight = _jumpHeight;
     }
 
     // Update is called once per frame
     void Update()
     {
-        bool wasGrounded = _isGrounded;
-
-        _isGrounded = HandleGravity();
-
-        if(_isGrounded && !wasGrounded)
-        {
-            _controller.HandleLanding();
-        }
-
         HandleMovement();
 
         HandleTurning();
+
+        HandleGravityAndJumping();
 
     }
 
@@ -67,6 +60,8 @@ public class TestWalkingController : MonoBehaviour
         {
             _controller.isMoving = false;
         }
+
+        HandleGravityAndJumping();
 
         return;
     }
@@ -93,11 +88,18 @@ public class TestWalkingController : MonoBehaviour
     }
 
 
-    private bool HandleGravity()
+    private void HandleGravityAndJumping()
     {
         bool grounded = CheckGrounded();
 
-        if (!grounded)
+        bool jumpInput = _playerControl.Player.Jump.triggered;
+
+        if (jumpInput && grounded)
+        {
+            _verticalVelocity = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
+            _controller.HandleJumping();
+        }
+        else if (!grounded)
         {
             _verticalVelocity += _gravity * Time.deltaTime;
         }
@@ -106,11 +108,17 @@ public class TestWalkingController : MonoBehaviour
             _verticalVelocity = 0f;
         }
 
+        if (grounded && _controller.characterGrounded == false)
+        {
+            _controller.HandleLanding();
+        }
+
         _controller.characterGrounded = grounded;
+        _controller.verticalVelocity = _verticalVelocity;
 
         _characterController.Move(new Vector3(0, _verticalVelocity, 0) * Time.deltaTime);
 
-        return grounded;
+        return;
     }
 
 
