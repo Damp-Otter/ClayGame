@@ -18,7 +18,7 @@ public class TestWalkingController : MonoBehaviour
     private float _jumpHeight = 8f;
 
     private float _moveSpeed = 8f;
-    private float _rotationSpeed = 100f;
+    private float _rotationSpeed = 150f;
 
 
     private void Start()
@@ -126,9 +126,9 @@ public class TestWalkingController : MonoBehaviour
     {
         RaycastHit hit;
 
-        Vector3 rayOrigin = new Vector3(transform.position.x, transform.position.y + 0.2f, transform.position.z);
+        Vector3 rayOrigin = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);
 
-        if (Physics.SphereCast(rayOrigin, 0.2f, -Vector3.up, out hit, 0.3f, _groundedMask))
+        if (Physics.SphereCast(rayOrigin, 0.2f, -Vector3.up, out hit, 0.5f, _groundedMask))
         {
             return true;
         }

@@ -1,5 +1,4 @@
 using System;
-using Unity.GraphToolkit.Editor;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;

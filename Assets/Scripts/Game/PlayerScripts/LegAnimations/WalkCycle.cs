@@ -57,16 +57,16 @@ public class WalkCycle : MonoBehaviour
 
     private float _verticalVelocity; public float verticalVelocity { get { return _verticalVelocity; } set { _verticalVelocity = value; } }
     private float _jumpHeight; public float jumpHeight { get { return _jumpHeight; } set { _jumpHeight = value; } }
-    private float _legSpeed = 3f;
+    [SerializeField] private float _legSpeed;
     private float _jumpSpeed = 0.5f;
 
-    private float _legMaxBoundary = 2.5f;
-    private float _legOutwardMaxBoundary = 2f;
+    [SerializeField] private float _legMaxBoundary;
+    [SerializeField] private float _legOutwardMaxBoundary;
 
-    private float _legMinBoundary = 1f;
-    private float _legInwardMinBoundary = 1.2f;
+    [SerializeField] private float _legMinBoundary;
+    [SerializeField] private float _legInwardMinBoundary;
 
-    private float _angleBoundary = 30f;
+    private float _angleBoundary = 40f;
 
     private void Start()
     {
@@ -75,7 +75,7 @@ public class WalkCycle : MonoBehaviour
         foreach (var (leg, legBase) in _legsBases)
         {
             legBase.direction = 0;
-            legBase.lastGroundedPosition = legBase.transform.position;
+            legBase.lastGroundedPosition.transform.position = legBase.transform.position;
         }
     }
 
@@ -98,34 +98,36 @@ public class WalkCycle : MonoBehaviour
 
             if (legBase.state == LegState.LockedToGround)
             {
-                offsetFromDefault = leg.initialRotation.eulerAngles.y - RotateLegToFoot(leg);
-            }
-            else
-            {
-                RotateLegToDefault(leg, legBase);
+                offsetFromDefault = Mathf.DeltaAngle(leg.initialRotation.eulerAngles.y, RotateLegToFoot(leg, legBase));
             }
 
             bool snap = CheckForLegRotationSnap(leg, legBase, offsetFromDefault);
 
+
             // Moving block - I think it should be first but maybe I will move it later
 
-            if ((isMoving || isTurning) && characterGrounded)
+            if (legBase.state != LegState.LockedToGround)
             {
-                if (legBase.state != LegState.LockedToGround)
-                {
-                    // Moving base
 
-                    Vector3 currentDirection = (new Vector3(leg.centre.transform.position.x, legBase.transform.position.y, leg.centre.transform.position.z)
-                        - legBase.transform.position).normalized * legBase.direction;
-                    legBase.transform.position += currentDirection * _legSpeed * 2 * Time.deltaTime;
+                // Rotate base towards default 
+                // Move base along direction
 
+                MoveBaseBackForthAndRotate(leg, legBase);
 
-                    Vector3 basePosition = legBase.transform.position;
+                // Move base to ground
 
-                    // Moving leg
+                MoveBaseToGround(leg, legBase);
 
-                    leg.MoveFootToPosition(legBase.transform.position);
-                }
+                // Move foot to base
+
+                Vector3 basePosition = new Vector3(legBase.transform.position.x, legBase.transform.position.y + 1.5f, legBase.transform.position.z);
+
+                leg.MoveFootToPosition(basePosition);
+
+            }
+            else
+            {
+                MoveBaseToGround(leg, legBase);
             }
 
             if (!snap)
@@ -140,18 +142,19 @@ public class WalkCycle : MonoBehaviour
         {
             if (_verticalVelocity < -1)
             {
-                RotateLegToFoot(leg);
+                RotateLegToFoot(leg, legBase);
                 MoveLegsUpDown(leg, legBase);
             }
             else if(_verticalVelocity > 1)
             {
-                RotateLegToFoot(leg);
+                RotateLegToFoot(leg, legBase);
                 MoveLegsUpDown(leg, legBase);
             }
         }
 
         legBase.state = legBase.tempState;
     }
+
 
     public void HandleLanding()
     {
@@ -164,6 +167,8 @@ public class WalkCycle : MonoBehaviour
 
             legBase.state = LegState.LockedToGround;
             legBase.tempState = LegState.LockedToGround;
+
+            legBase.lastGroundedPosition.transform.position = legBase.transform.position;
         }
     }
 
@@ -177,14 +182,15 @@ public class WalkCycle : MonoBehaviour
             leg.isStuckToGround = false;
             legBase.state = LegState.LockedToGround;
             legBase.tempState = LegState.LockedToGround;
-            legBase.lastGroundedPosition = legBase.transform.position;
+
+            legBase.lastGroundedPosition.transform.position = legBase.transform.position;
         }
     }
 
 
     private void MoveLegsUpDown(JointController leg, BaseController legBase)
     {
-        if(legBase.transform.position.y >= legBase.lastGroundedPosition.y)
+        if(legBase.transform.position.y >= legBase.lastGroundedPosition.transform.position.y)
         {
             legBase.transform.position = new Vector3(legBase.transform.position.x, legBase.transform.position.y + verticalVelocity * _jumpSpeed * Time.deltaTime, legBase.transform.position.z);
             leg.MoveFootToPosition(legBase.transform.position);
@@ -194,7 +200,18 @@ public class WalkCycle : MonoBehaviour
 
     private bool CheckIfLegFootBoundary(JointController leg, BaseController legBase)
     {
-        Vector2 offset = new Vector2(leg.movePosition.transform.position.x - leg.centre.transform.position.x, leg.movePosition.transform.position.z - leg.centre.transform.position.z);
+        Vector2 offset;
+
+        if (leg.isStuckToGround)
+        {
+            offset = new Vector2(leg.movePosition.transform.position.x - leg.centre.transform.position.x,
+                leg.movePosition.transform.position.z - leg.centre.transform.position.z);
+        }
+        else
+        {
+            offset = new Vector2(legBase.transform.position.x - leg.centre.transform.position.x,
+                legBase.transform.position.z - leg.centre.transform.position.z);
+        }
 
         float distanceFromOrigin = offset.magnitude;
 
@@ -217,6 +234,7 @@ public class WalkCycle : MonoBehaviour
 
         if (distanceFromOrigin > _legMaxBoundary && legBase.state != LegState.MovingInwards)
         {
+
             snap = true;
             legBase.tempState = LegState.MovingInwards;
         }
@@ -238,11 +256,12 @@ public class WalkCycle : MonoBehaviour
         {
             snap = true;
 
-            Vector2 offset = new Vector2(leg.movePosition.transform.position.x - leg.centre.transform.position.x, leg.movePosition.transform.position.z - leg.centre.transform.position.z);
+            Vector2 offset = new Vector2(leg.movePosition.transform.position.x - leg.centre.transform.position.x,
+                leg.movePosition.transform.position.z - leg.centre.transform.position.z);
 
             float distanceFromOrigin = offset.magnitude;
 
-            if(distanceFromOrigin < (_legMaxBoundary + _legMinBoundary) / 2)
+            if(distanceFromOrigin < (_legOutwardMaxBoundary + _legInwardMinBoundary) / 2)
             {
                 legBase.tempState = LegState.MovingOutwards;
             }
@@ -261,13 +280,13 @@ public class WalkCycle : MonoBehaviour
     {
         int legsOffGroundCount = _legsBases.Count - GroundedLegsCount();
         
-        if(legsOffGroundCount > 2 && snap && legBase.state == LegState.LockedToGround)
+        if(legsOffGroundCount > 4 && snap && legBase.state == LegState.LockedToGround)
         {
             legBase.tempState = LegState.LockedToGround;
             return;
         } 
 
-        if (legsOffGroundCount < 3 && snap && legBase.state == LegState.LockedToGround)
+        if (legsOffGroundCount < 5 && snap && legBase.state == LegState.LockedToGround)
         {
 
             if (legBase.tempState == LegState.MovingInwards)
@@ -310,9 +329,12 @@ public class WalkCycle : MonoBehaviour
 
     public void SnapLegOffGround(JointController leg, BaseController legBase)
     {
+
         leg.isStuckToGround = false;
 
         legBase.transform.position = leg.movePosition.transform.position;
+
+        MoveBaseToGround(leg, legBase);
 
         Vector3 desiredPosiiton = new Vector3(legBase.transform.position.x, leg.centre.transform.position.y - 0.7f, legBase.transform.position.z);
 
@@ -334,30 +356,28 @@ public class WalkCycle : MonoBehaviour
     }
 
 
-    public void MoveBaseToGround(JointController leg, BaseController legbase)
+    public void MoveBaseToGround(JointController leg, BaseController legBase)
     {
         // Actually doing the raycasting
 
         RaycastHit hit;
 
-        Vector3 raycastOrigin = new Vector3(legbase.transform.position.x, leg.centre.transform.position.y, legbase.transform.position.z);
+        Vector3 raycastOrigin = new Vector3(legBase.transform.position.x, leg.centre.transform.position.y + 2, legBase.transform.position.z);
 
-        Debug.DrawRay(raycastOrigin, -Vector3.up, Color.red, 4);
-
-        if (Physics.Raycast(raycastOrigin, -Vector3.up, out hit, 5f, _groundedMask))
+        if (Physics.Raycast(raycastOrigin, -Vector3.up, out hit, 10f, _groundedMask))
         {
-            legbase.transform.position = hit.point;
+            legBase.transform.position = hit.point;
         }
         else
         {
-            Debug.LogWarning($"Failed to snap {legbase.transform.name} to the ground");
+            Debug.LogWarning($"Failed to snap {legBase.transform.name} to the ground");
         }
     }
 
 
-    private float RotateLegToFoot(JointController leg)
+    private float RotateLegToFoot(JointController leg, BaseController legBase)
     {
-        float zLegAngle = leg.transform.localRotation.eulerAngles.y;
+        float legAngle = leg.transform.localRotation.eulerAngles.y;
 
         Vector3 footDir = leg.movePosition.transform.position - leg.centre.transform.position;
         footDir = Vector3.ProjectOnPlane(footDir, Vector3.up).normalized;
@@ -372,34 +392,91 @@ public class WalkCycle : MonoBehaviour
             footAngle = 360 + footAngle;
         }
 
-        float offsetAngle = footAngle - zLegAngle;
+        float offsetAngle = footAngle - legAngle;
 
         if (MathF.Abs(offsetAngle) > 1)
         {
-            leg.transform.localRotation = Quaternion.Euler(90f, zLegAngle + offsetAngle, 0f);
+            leg.transform.localRotation = Quaternion.Euler(90f, legAngle + offsetAngle, 0f);
         }
 
-        return zLegAngle;
+        return legAngle;
     }
 
 
-    private void RotateLegToDefault(JointController leg, BaseController legBase)
+    private void RotateLegToBase(JointController leg, BaseController legBase)
     {
         float legAngle = leg.transform.localRotation.eulerAngles.y;
 
-        float defaultAngle = leg.initialRotation.eulerAngles.y;
+        Vector3 baseDir = legBase.transform.position - leg.centre.transform.position;
+        baseDir = Vector3.ProjectOnPlane(baseDir, Vector3.up).normalized;
+        baseDir = transform.InverseTransformDirection(baseDir);
 
-        float offsetAngle = Mathf.DeltaAngle(legAngle, defaultAngle);
+        Vector3 initialForward = Vector3.ProjectOnPlane(leg.initialRotation * Vector3.forward, Vector3.up);
 
-        if (offsetAngle > 3)
+        float baseAngle = Vector3.SignedAngle(initialForward, baseDir, Vector3.up);
+
+        if (baseAngle < 0)
         {
-            leg.transform.localRotation = Quaternion.Euler(90f, legAngle + 3, 0f);
-        }
-        else if(offsetAngle < -3)
-        {
-            leg.transform.localRotation = Quaternion.Euler(90f, legAngle - 3, 0f);
+            baseAngle = 360 + baseAngle;
         }
 
-        legBase.transform.position = leg.movePosition.transform.position;
+        float offsetAngle = baseAngle - legAngle;
+
+        if (MathF.Abs(offsetAngle) > 0.5)
+        {
+            leg.transform.localRotation = Quaternion.Euler(90f, legAngle + offsetAngle, 0f);
+        }
+
+        return;
+    }
+
+
+    private void MoveBaseBackForthAndRotate(JointController leg, BaseController legBase)
+    {
+        // Gets offset of body to base (The destinatition it moves towards)
+        Vector3 desiredPosition = legBase.lastGroundedPosition.transform.position;
+        desiredPosition.y = legBase.transform.position.y;
+
+        // Gets the position if it wasnt bound to an orbit
+        desiredPosition = Vector3.MoveTowards(legBase.transform.position, desiredPosition, _legSpeed * Time.deltaTime * 10);
+
+        // Binds to an orbit
+        // Gets distance from base to centre in the x and y
+        Vector2 offset = new Vector2(legBase.transform.position.x - leg.centre.transform.position.x,
+            legBase.transform.position.z - leg.centre.transform.position.z);
+        float distanceFromOrigin = offset.magnitude;
+
+        // Actually binds to orbit
+        Vector3 direction = desiredPosition - leg.centre.transform.position;
+        direction.y = 0f;
+        direction.Normalize();
+
+        desiredPosition = leg.centre.transform.position + direction * distanceFromOrigin;
+        desiredPosition.y = legBase.transform.position.y;
+
+        // Checks if we are close to target
+        Vector3 currentDir = legBase.transform.position - leg.centre.transform.position;
+        currentDir.y = 0f;
+        currentDir.Normalize();
+
+        Vector3 targetDir = legBase.lastGroundedPosition.transform.position - leg.centre.transform.position;
+        targetDir.y = 0f;
+        targetDir.Normalize();
+
+        float angle = Vector3.Angle(currentDir, targetDir);
+
+        if (angle > 1f)
+        {
+            // Updates position
+            legBase.transform.position = desiredPosition;
+
+            RotateLegToBase(leg, legBase);
+        }
+        
+        // Moves back and forth
+        Vector3 desiredDirection = (new Vector3(leg.centre.transform.position.x, legBase.transform.position.y, leg.centre.transform.position.z)
+            - legBase.transform.position).normalized * legBase.direction;
+
+        legBase.transform.position += desiredDirection * _legSpeed * 2f * Time.deltaTime;
     }
 }

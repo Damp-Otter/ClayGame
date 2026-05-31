@@ -7,5 +7,5 @@ public class BaseController : MonoBehaviour
     public LegState tempState = LegState.Undetermined;
     public int direction = 1;
 
-    public Vector3 lastGroundedPosition;
+    public GameObject lastGroundedPosition;
 }
