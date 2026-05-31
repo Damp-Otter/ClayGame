@@ -158,6 +158,8 @@ public class WalkCycle : MonoBehaviour
 
     public void HandleLanding()
     {
+        Debug.Log("Landing");
+        characterGrounded = true;
 
         foreach (var (leg, legBase) in _legsBases)
         {
@@ -175,6 +177,9 @@ public class WalkCycle : MonoBehaviour
 
     public void HandleJumping()
     {
+        Debug.Log("Jumping");
+        characterGrounded = false;
+
         foreach (var (leg, legBase) in _legsBases)
         {
             SnapLegToGround(leg, legBase);
@@ -280,13 +285,13 @@ public class WalkCycle : MonoBehaviour
     {
         int legsOffGroundCount = _legsBases.Count - GroundedLegsCount();
         
-        if(legsOffGroundCount > 4 && snap && legBase.state == LegState.LockedToGround)
+        if(legsOffGroundCount > 3 && snap && legBase.state == LegState.LockedToGround)
         {
             legBase.tempState = LegState.LockedToGround;
             return;
         } 
 
-        if (legsOffGroundCount < 5 && snap && legBase.state == LegState.LockedToGround)
+        if (legsOffGroundCount < 4 && snap && legBase.state == LegState.LockedToGround)
         {
 
             if (legBase.tempState == LegState.MovingInwards)

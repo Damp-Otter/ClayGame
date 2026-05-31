@@ -61,8 +61,6 @@ public class TestWalkingController : MonoBehaviour
             _controller.isMoving = false;
         }
 
-        HandleGravityAndJumping();
-
         return;
     }
 
@@ -90,7 +88,8 @@ public class TestWalkingController : MonoBehaviour
 
     private void HandleGravityAndJumping()
     {
-        bool grounded = CheckGrounded();
+
+        bool grounded = grounded = CheckGrounded(1f);
 
         bool jumpInput = _playerControl.Player.Jump.triggered;
 
@@ -113,7 +112,6 @@ public class TestWalkingController : MonoBehaviour
             _controller.HandleLanding();
         }
 
-        _controller.characterGrounded = grounded;
         _controller.verticalVelocity = _verticalVelocity;
 
         _characterController.Move(new Vector3(0, _verticalVelocity, 0) * Time.deltaTime);
@@ -122,13 +120,14 @@ public class TestWalkingController : MonoBehaviour
     }
 
 
-    private bool CheckGrounded()
+    private bool CheckGrounded(float rayLength)
     {
         RaycastHit hit;
 
-        Vector3 rayOrigin = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);
+        Vector3 rayOrigin = _characterController.bounds.center;
+        rayOrigin.y = _characterController.bounds.min.y + 0.05f;
 
-        if (Physics.SphereCast(rayOrigin, 0.2f, -Vector3.up, out hit, 0.5f, _groundedMask))
+        if (Physics.SphereCast(rayOrigin, 0.2f, -Vector3.up, out hit, rayLength, _groundedMask))
         {
             return true;
         }
