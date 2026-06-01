@@ -89,7 +89,7 @@ public class TestWalkingController : MonoBehaviour
     private void HandleGravityAndJumping()
     {
 
-        bool grounded = grounded = CheckGrounded(1f);
+        bool grounded = grounded = CheckGrounded(0.5f);
 
         bool jumpInput = _playerControl.Player.Jump.triggered;
 

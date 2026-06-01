@@ -127,7 +127,14 @@ public class WalkCycle : MonoBehaviour
             }
             else
             {
-                MoveBaseToGround(leg, legBase);
+                try
+                {
+                    MoveBaseToGround(leg, legBase);
+                }
+                catch (Exception)
+                {
+                    ResetGroundedPosition(leg, legBase, legBase.lastGroundedPosition.transform.position);
+                }
             }
 
             if (!snap)
@@ -340,10 +347,6 @@ public class WalkCycle : MonoBehaviour
         legBase.transform.position = leg.movePosition.transform.position;
 
         MoveBaseToGround(leg, legBase);
-
-        Vector3 desiredPosiiton = new Vector3(legBase.transform.position.x, leg.centre.transform.position.y - 0.7f, legBase.transform.position.z);
-
-        leg.MoveFootToPosition(desiredPosiiton);
     }
 
 
@@ -375,8 +378,14 @@ public class WalkCycle : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"Failed to snap {legBase.transform.name} to the ground");
+            throw new Exception($"Failed to snap {legBase.transform.name} to the ground");
         }
+    }
+
+
+    private void ResetGroundedPosition(JointController leg, BaseController legBase, Vector3 position)
+    {
+
     }
 
 
@@ -427,7 +436,7 @@ public class WalkCycle : MonoBehaviour
 
         float offsetAngle = baseAngle - legAngle;
 
-        if (MathF.Abs(offsetAngle) > 0.5)
+        if (MathF.Abs(offsetAngle) > 1)
         {
             leg.transform.localRotation = Quaternion.Euler(90f, legAngle + offsetAngle, 0f);
         }
@@ -443,7 +452,7 @@ public class WalkCycle : MonoBehaviour
         desiredPosition.y = legBase.transform.position.y;
 
         // Gets the position if it wasnt bound to an orbit
-        desiredPosition = Vector3.MoveTowards(legBase.transform.position, desiredPosition, _legSpeed * Time.deltaTime * 10);
+        desiredPosition = Vector3.MoveTowards(legBase.transform.position, desiredPosition, _legSpeed * Time.deltaTime * 3);
 
         // Binds to an orbit
         // Gets distance from base to centre in the x and y
