@@ -13,6 +13,8 @@ public class JointController : MonoBehaviour
     private Vector3 _lockedGroundPosition = Vector3.zero;
 
     private Quaternion _initialRotation; public Quaternion initialRotation { get { return _initialRotation; } }
+    private Quaternion _defaultRotation; public Quaternion defaultRotation { get { return _defaultRotation; } set { _defaultRotation = value; } }
+
 
 
     private void Start()

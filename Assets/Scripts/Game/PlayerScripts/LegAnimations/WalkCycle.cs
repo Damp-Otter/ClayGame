@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 [Serializable]
@@ -75,7 +76,7 @@ public class WalkCycle : MonoBehaviour
         foreach (var (leg, legBase) in _legsBases)
         {
             legBase.direction = 0;
-            legBase.lastGroundedPosition.transform.position = legBase.transform.position;
+            HandleGroundPointAligned(leg, legBase);
         }
     }
 
@@ -98,11 +99,17 @@ public class WalkCycle : MonoBehaviour
 
             if (legBase.state == LegState.LockedToGround)
             {
-                offsetFromDefault = Mathf.DeltaAngle(leg.initialRotation.eulerAngles.y, RotateLegToFoot(leg, legBase));
+                RotateLegToFoot(leg, legBase);
             }
 
+            offsetFromDefault = Mathf.DeltaAngle(leg.defaultRotation.eulerAngles.y, leg.transform.localRotation.eulerAngles.y);
             bool snap = CheckForLegRotationSnap(leg, legBase, offsetFromDefault);
 
+            if (leg.transform.name == "Leg (3)")
+            {
+                //Debug.Log($"LegAngle: {leg.transform.localRotation.eulerAngles.y} DefaultAngle: {leg.defaultRotation.eulerAngles.y}, OffsetFromDefault: {offsetFromDefault}");
+                //Debug.Log($"Within rotation boundary?: {MathF.Abs(offsetFromDefault) < _angleBoundary}");
+            }
 
             // Moving block - I think it should be first but maybe I will move it later
 
@@ -127,13 +134,16 @@ public class WalkCycle : MonoBehaviour
             }
             else
             {
-                try
+                bool baseHitGround = MoveBaseToGround(leg, legBase);
+
+                if (!baseHitGround)
                 {
-                    MoveBaseToGround(leg, legBase);
+                    RotateGroundedPosition(leg, legBase);
+                    legBase.positionsAligned = false;
                 }
-                catch (Exception)
+                else if(baseHitGround && !legBase.positionsAligned)
                 {
-                    ResetGroundedPosition(leg, legBase, legBase.lastGroundedPosition.transform.position);
+                    ResetGroundedPosition(leg, legBase);
                 }
             }
 
@@ -283,7 +293,6 @@ public class WalkCycle : MonoBehaviour
             }
         }
 
-
         return snap;
     }
 
@@ -325,6 +334,8 @@ public class WalkCycle : MonoBehaviour
 
     private int GroundedLegsCount()
     {
+        // Make this more efficient
+
         int groundedLegsCount = _legsBases.Count;
 
         foreach (var (leg, legBase) in _legsBases)
@@ -364,7 +375,7 @@ public class WalkCycle : MonoBehaviour
     }
 
 
-    public void MoveBaseToGround(JointController leg, BaseController legBase)
+    public bool MoveBaseToGround(JointController leg, BaseController legBase)
     {
         // Actually doing the raycasting
 
@@ -378,18 +389,133 @@ public class WalkCycle : MonoBehaviour
         }
         else
         {
-            throw new Exception($"Failed to snap {legBase.transform.name} to the ground");
+            return false;
         }
+        return true;
     }
 
 
-    private void ResetGroundedPosition(JointController leg, BaseController legBase, Vector3 position)
+    private void RotateGroundedPosition(JointController leg, BaseController legBase)
     {
+        legBase.lastGroundedPosition.transform.position = FindGroundPoint(0.1f, leg.centre.transform.position, legBase.lastGroundedPosition.transform.position);
 
+        leg.defaultRotation = Quaternion.Euler(new Vector3(0, CalculateDefaultRotation(leg, legBase), 0));
     }
 
 
-    private float RotateLegToFoot(JointController leg, BaseController legBase)
+    private void ResetGroundedPosition(JointController leg, BaseController legBase)
+    {
+        Vector3 hitPoint = TryGetGroundPoint(legBase.trueGroundedPosition.transform.position);
+        if(hitPoint != Vector3.zero)
+        {
+            HandleGroundPointAligned(leg, legBase);
+
+            leg.defaultRotation = leg.initialRotation;
+
+            return;
+        }
+
+        hitPoint = TryGetGroundPoint(legBase.lastGroundedPosition.transform.position);
+        if (hitPoint == Vector3.zero)
+        {
+            return;
+        }
+
+        legBase.lastGroundedPosition.transform.position = FindGroundPoint(0.1f, leg.centre.transform.position, legBase.trueGroundedPosition.transform.position);
+
+        leg.defaultRotation = Quaternion.Euler(new Vector3(0, CalculateDefaultRotation(leg, legBase), 0));
+        
+        return;
+    }
+
+
+    private static void HandleGroundPointAligned(JointController leg, BaseController legBase)
+    {
+        legBase.lastGroundedPosition.transform.position = legBase.trueGroundedPosition.transform.position;
+        legBase.positionsAligned = true;
+        leg.defaultRotation = leg.initialRotation;
+    }
+
+
+    private Vector3 FindGroundPoint(float step, Vector3 centre, Vector3 end)
+    {
+        float distanceThroughOrbit = 0f;
+
+        float radius = new Vector2(end.x - centre.x, end.z - centre.z).magnitude;
+        float startAngle = Mathf.Atan2(end.z - centre.z, end.x - centre.x) * Mathf.Rad2Deg;
+        Vector3 forward = (end - centre).normalized;
+
+        Debug.Log($"Radius: {radius}");
+
+        while (distanceThroughOrbit < 60f)
+        {
+            distanceThroughOrbit += step;
+
+            // Orbit the end clockwise and cast ray
+            // If hits ground return hit.point
+            Vector3 clockwisePosition = OrbitPoint(centre, radius, startAngle + distanceThroughOrbit);
+            Vector3 hitPoint = TryGetGroundPoint(clockwisePosition);
+            if (hitPoint != Vector3.zero)
+            {
+                clockwisePosition = OrbitPoint(centre, radius, startAngle + distanceThroughOrbit + 15f);
+                hitPoint = TryGetGroundPoint(clockwisePosition);
+                return hitPoint;
+            }
+
+            // Orbit the end anticlockwise and cast ray
+            // If hits ground return hit.point
+            Vector3 counterClockwisePosition = OrbitPoint(centre, radius, startAngle - distanceThroughOrbit);
+            hitPoint = TryGetGroundPoint(counterClockwisePosition);
+            if (hitPoint != Vector3.zero)
+            {
+                counterClockwisePosition = OrbitPoint(centre, radius, startAngle - distanceThroughOrbit - 15f);
+                hitPoint = TryGetGroundPoint(counterClockwisePosition);
+                return hitPoint;
+            }
+        }
+
+        Debug.LogWarning("Leg step more than 60");
+
+        return end;
+    }
+
+
+    private Vector3 OrbitPoint(Vector3 centre, float radius, float angleDeg)
+    {
+        float angle = angleDeg * Mathf.Deg2Rad;
+
+        return new Vector3(centre.x + Mathf.Cos(angle) * radius, centre.y, centre.z + Mathf.Sin(angle) * radius);
+    }
+
+
+    private Vector3 TryGetGroundPoint(Vector3 pos)
+    {
+        if (Physics.Raycast(pos + Vector3.up * 2f, Vector3.down, out RaycastHit hit, 10f, _groundedMask))
+        {
+            Vector3 hitPoint = hit.point;
+            return hit.point;
+        }
+        return Vector3.zero;
+    }
+
+
+    private float CalculateDefaultRotation(JointController leg, BaseController legBase)
+    {
+        Vector3 lastGroundedDir = legBase.lastGroundedPosition.transform.position - leg.centre.transform.position;
+        lastGroundedDir = Vector3.ProjectOnPlane(lastGroundedDir, Vector3.up).normalized;
+        lastGroundedDir = transform.InverseTransformDirection(lastGroundedDir);
+
+        Vector3 initialForward = Vector3.ProjectOnPlane(leg.initialRotation * Vector3.forward, Vector3.up);
+
+        float angleBetweenMarkers = Vector3.SignedAngle(initialForward, lastGroundedDir, Vector3.up);
+
+        float defaultRotation = leg.initialRotation.eulerAngles.y + angleBetweenMarkers;
+
+        return angleBetweenMarkers;
+    }
+
+
+    private void RotateLegToFoot(JointController leg, BaseController legBase)
     {
         float legAngle = leg.transform.localRotation.eulerAngles.y;
 
@@ -413,7 +539,7 @@ public class WalkCycle : MonoBehaviour
             leg.transform.localRotation = Quaternion.Euler(90f, legAngle + offsetAngle, 0f);
         }
 
-        return legAngle;
+        return;
     }
 
 
@@ -486,7 +612,7 @@ public class WalkCycle : MonoBehaviour
 
             RotateLegToBase(leg, legBase);
         }
-        
+
         // Moves back and forth
         Vector3 desiredDirection = (new Vector3(leg.centre.transform.position.x, legBase.transform.position.y, leg.centre.transform.position.z)
             - legBase.transform.position).normalized * legBase.direction;

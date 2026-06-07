@@ -8,4 +8,6 @@ public class BaseController : MonoBehaviour
     public int direction = 1;
 
     public GameObject lastGroundedPosition;
+    public GameObject trueGroundedPosition;
+    public bool positionsAligned;
 }
