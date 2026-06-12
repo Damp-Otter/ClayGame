@@ -739,7 +739,7 @@ Transform:
   m_GameObject: {fileID: 1596293950520713352}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2, y: 0.1, z: 2}
+  m_LocalPosition: {x: -2, y: 0.2, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1179,6 +1179,7 @@ MonoBehaviour:
   direction: 1
   lastGroundedPosition: {fileID: 4531988335088977114}
   trueGroundedPosition: {fileID: 1596293950520713352}
+  groundedPositions: 0
 --- !u!1 &1883908484949747635
 GameObject:
   m_ObjectHideFlags: 0
@@ -1207,7 +1208,7 @@ Transform:
   m_GameObject: {fileID: 1883908484949747635}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2, y: 0.1, z: 2}
+  m_LocalPosition: {x: 2, y: 0.2, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2885,6 +2886,7 @@ MonoBehaviour:
   direction: 1
   lastGroundedPosition: {fileID: 5589254901038688068}
   trueGroundedPosition: {fileID: 5146454631777943766}
+  groundedPositions: 0
 --- !u!1 &4531988335088977114
 GameObject:
   m_ObjectHideFlags: 0
@@ -3500,7 +3502,7 @@ Transform:
   m_GameObject: {fileID: 5146454631777943766}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2, y: 0.1, z: -2}
+  m_LocalPosition: {x: -2, y: 0.2, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3695,7 +3697,7 @@ Transform:
   m_GameObject: {fileID: 5460226775597509820}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2, y: 0.1, z: -2}
+  m_LocalPosition: {x: 2, y: 0.2, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4054,6 +4056,7 @@ MonoBehaviour:
   direction: 1
   lastGroundedPosition: {fileID: 7503259328323112815}
   trueGroundedPosition: {fileID: 5460226775597509820}
+  groundedPositions: 0
 --- !u!1 &6103662924932202767
 GameObject:
   m_ObjectHideFlags: 0
@@ -5169,6 +5172,7 @@ MonoBehaviour:
   direction: 1
   lastGroundedPosition: {fileID: 2617014373975419441}
   trueGroundedPosition: {fileID: 1883908484949747635}
+  groundedPositions: 0
 --- !u!1 &8311198333468960830
 GameObject:
   m_ObjectHideFlags: 0

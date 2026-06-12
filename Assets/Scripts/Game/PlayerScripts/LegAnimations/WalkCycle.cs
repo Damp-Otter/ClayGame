@@ -67,8 +67,6 @@ public class WalkCycle : MonoBehaviour
     [SerializeField] private float _legMinBoundary;
     [SerializeField] private float _legInwardMinBoundary;
 
-    private float _angleBoundary = 40f;
-
     private void Start()
     {
         _legsBases = serializedDict.ToDictionary();
@@ -139,9 +137,8 @@ public class WalkCycle : MonoBehaviour
                 if (!baseHitGround)
                 {
                     RotateGroundedPosition(leg, legBase);
-                    legBase.positionsAligned = false;
                 }
-                else if(baseHitGround && !legBase.positionsAligned)
+                else if(baseHitGround && legBase.groundedPositions != GroundedPositions.Aligned)
                 {
                     ResetGroundedPosition(leg, legBase);
                 }
@@ -175,7 +172,7 @@ public class WalkCycle : MonoBehaviour
 
     public void HandleLanding()
     {
-        Debug.Log("Landing");
+        //Debug.Log("Landing");
         characterGrounded = true;
 
         foreach (var (leg, legBase) in _legsBases)
@@ -188,13 +185,15 @@ public class WalkCycle : MonoBehaviour
             legBase.tempState = LegState.LockedToGround;
 
             legBase.lastGroundedPosition.transform.position = legBase.transform.position;
+
+            legBase.groundedPositions = GroundedPositions.UnAligned;
         }
     }
 
 
     public void HandleJumping()
     {
-        Debug.Log("Jumping");
+        //Debug.Log("Jumping");
         characterGrounded = false;
 
         foreach (var (leg, legBase) in _legsBases)
@@ -274,7 +273,7 @@ public class WalkCycle : MonoBehaviour
     {
         bool snap = false;
 
-        if (MathF.Abs(angleOffset) > _angleBoundary && legBase.state == LegState.LockedToGround)
+        if (MathF.Abs(angleOffset) > legBase.angleBoundary && legBase.state == LegState.LockedToGround)
         {
             snap = true;
 
@@ -352,7 +351,6 @@ public class WalkCycle : MonoBehaviour
 
     public void SnapLegOffGround(JointController leg, BaseController legBase)
     {
-
         leg.isStuckToGround = false;
 
         legBase.transform.position = leg.movePosition.transform.position;
@@ -381,9 +379,10 @@ public class WalkCycle : MonoBehaviour
 
         RaycastHit hit;
 
-        Vector3 raycastOrigin = new Vector3(legBase.transform.position.x, leg.centre.transform.position.y + 2, legBase.transform.position.z);
+        Vector3 raycastOrigin = new Vector3(legBase.transform.position.x, legBase.transform.position.y + 2, legBase.transform.position.z);
+        Debug.DrawRay(raycastOrigin, -Vector3.up, Color.red, 0.01f);
 
-        if (Physics.Raycast(raycastOrigin, -Vector3.up, out hit, 10f, _groundedMask))
+        if (Physics.Raycast(raycastOrigin, -Vector3.up, out hit, 4f, _groundedMask))
         {
             legBase.transform.position = hit.point;
         }
@@ -397,7 +396,7 @@ public class WalkCycle : MonoBehaviour
 
     private void RotateGroundedPosition(JointController leg, BaseController legBase)
     {
-        legBase.lastGroundedPosition.transform.position = FindGroundPoint(0.1f, leg.centre.transform.position, legBase.lastGroundedPosition.transform.position);
+        legBase.lastGroundedPosition.transform.position = FindGroundPoint(legBase, 0.1f, leg.centre.transform.position, legBase.trueGroundedPosition.transform.position);
 
         leg.defaultRotation = Quaternion.Euler(new Vector3(0, CalculateDefaultRotation(leg, legBase), 0));
     }
@@ -412,16 +411,23 @@ public class WalkCycle : MonoBehaviour
 
             leg.defaultRotation = leg.initialRotation;
 
+            //Debug.Log("True ground point not grounded");
+
             return;
         }
-
+        /*
         hitPoint = TryGetGroundPoint(legBase.lastGroundedPosition.transform.position);
         if (hitPoint == Vector3.zero)
         {
-            return;
-        }
+            //Debug.Log("Last ground point not grounded");
 
-        legBase.lastGroundedPosition.transform.position = FindGroundPoint(0.1f, leg.centre.transform.position, legBase.trueGroundedPosition.transform.position);
+            return;
+        }*/
+
+        Vector3 groundPointPosition = FindGroundPoint(legBase, 0.1f, leg.centre.transform.position, legBase.trueGroundedPosition.transform.position);
+        groundPointPosition.y = legBase.trueGroundedPosition.transform.position.y;
+
+        legBase.lastGroundedPosition.transform.position = groundPointPosition;
 
         leg.defaultRotation = Quaternion.Euler(new Vector3(0, CalculateDefaultRotation(leg, legBase), 0));
         
@@ -432,51 +438,74 @@ public class WalkCycle : MonoBehaviour
     private static void HandleGroundPointAligned(JointController leg, BaseController legBase)
     {
         legBase.lastGroundedPosition.transform.position = legBase.trueGroundedPosition.transform.position;
-        legBase.positionsAligned = true;
+
+        legBase.groundedPositions = GroundedPositions.Aligned;
         leg.defaultRotation = leg.initialRotation;
+
+        legBase.angleBoundary = 40f;
     }
 
 
-    private Vector3 FindGroundPoint(float step, Vector3 centre, Vector3 end)
+    private Vector3 FindGroundPoint(BaseController legBase, float step, Vector3 centre, Vector3 end)
     {
         float distanceThroughOrbit = 0f;
 
-        float radius = new Vector2(end.x - centre.x, end.z - centre.z).magnitude;
+        float radius = 1.75f; //new Vector2(end.x - centre.x, end.z - centre.z).magnitude;
         float startAngle = Mathf.Atan2(end.z - centre.z, end.x - centre.x) * Mathf.Rad2Deg;
         Vector3 forward = (end - centre).normalized;
+        Vector3 hitPoint;
+        Vector3 orbitPosition = Vector3.zero;
 
         Debug.Log($"Radius: {radius}");
 
-        while (distanceThroughOrbit < 60f)
+        while (distanceThroughOrbit < 30f)
         {
             distanceThroughOrbit += step;
 
-            // Orbit the end clockwise and cast ray
-            // If hits ground return hit.point
-            Vector3 clockwisePosition = OrbitPoint(centre, radius, startAngle + distanceThroughOrbit);
-            Vector3 hitPoint = TryGetGroundPoint(clockwisePosition);
-            if (hitPoint != Vector3.zero)
+            if(legBase.groundedPositions != GroundedPositions.AntiClockwise)
             {
-                clockwisePosition = OrbitPoint(centre, radius, startAngle + distanceThroughOrbit + 15f);
-                hitPoint = TryGetGroundPoint(clockwisePosition);
-                return hitPoint;
+                // Orbit the end clockwise and cast ray
+                // If hits ground return hit.point
+                orbitPosition = OrbitPoint(centre, radius, startAngle + distanceThroughOrbit);
+                hitPoint = TryGetGroundPoint(orbitPosition);
+                if (hitPoint != Vector3.zero)
+                {
+                    orbitPosition = OrbitPoint(centre, radius, startAngle + distanceThroughOrbit + 15f);
+                    hitPoint = TryGetGroundPoint(orbitPosition);
+                    if (hitPoint != Vector3.zero)
+                    {
+                        legBase.groundedPositions = GroundedPositions.Clockwise;
+                        legBase.angleBoundary = 40 - distanceThroughOrbit;
+
+                        return hitPoint;
+                    }
+                }
             }
 
-            // Orbit the end anticlockwise and cast ray
-            // If hits ground return hit.point
-            Vector3 counterClockwisePosition = OrbitPoint(centre, radius, startAngle - distanceThroughOrbit);
-            hitPoint = TryGetGroundPoint(counterClockwisePosition);
-            if (hitPoint != Vector3.zero)
+            if (legBase.groundedPositions != GroundedPositions.Clockwise)
             {
-                counterClockwisePosition = OrbitPoint(centre, radius, startAngle - distanceThroughOrbit - 15f);
-                hitPoint = TryGetGroundPoint(counterClockwisePosition);
-                return hitPoint;
+                // Orbit the end anticlockwise and cast ray
+                // If hits ground return hit.point
+                orbitPosition = OrbitPoint(centre, radius, startAngle - distanceThroughOrbit);
+                hitPoint = TryGetGroundPoint(orbitPosition);
+                if (hitPoint != Vector3.zero)
+                {
+                    orbitPosition = OrbitPoint(centre, radius, startAngle - distanceThroughOrbit - 15f);
+                    hitPoint = TryGetGroundPoint(orbitPosition);
+                    if (hitPoint != Vector3.zero)
+                    {
+                        legBase.groundedPositions = GroundedPositions.AntiClockwise;
+                        legBase.angleBoundary = 40 - distanceThroughOrbit;
+
+                        return hitPoint;
+                    }
+                }
             }
         }
 
-        Debug.LogWarning("Leg step more than 60");
+        //Debug.LogWarning("Leg step more than 30");
 
-        return end;
+        return legBase.lastGroundedPosition.transform.position;
     }
 
 
@@ -495,6 +524,7 @@ public class WalkCycle : MonoBehaviour
             Vector3 hitPoint = hit.point;
             return hit.point;
         }
+
         return Vector3.zero;
     }
 
@@ -619,4 +649,5 @@ public class WalkCycle : MonoBehaviour
 
         legBase.transform.position += desiredDirection * _legSpeed * 2f * Time.deltaTime;
     }
+
 }

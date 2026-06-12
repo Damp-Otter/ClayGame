@@ -1,5 +1,13 @@
 using UnityEngine;
 
+public enum GroundedPositions
+{
+    Aligned,
+    UnAligned,
+    Clockwise,
+    AntiClockwise
+}
+
 public class BaseController : MonoBehaviour
 {
 
@@ -9,5 +17,6 @@ public class BaseController : MonoBehaviour
 
     public GameObject lastGroundedPosition;
     public GameObject trueGroundedPosition;
-    public bool positionsAligned;
+    public GroundedPositions groundedPositions = GroundedPositions.Aligned;
+    public float angleBoundary = 40f;
 }

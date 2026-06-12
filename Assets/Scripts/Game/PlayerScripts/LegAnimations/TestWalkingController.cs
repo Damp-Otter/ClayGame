@@ -125,7 +125,7 @@ public class TestWalkingController : MonoBehaviour
         RaycastHit hit;
 
         Vector3 rayOrigin = _characterController.bounds.center;
-        rayOrigin.y = _characterController.bounds.min.y + 0.05f;
+        rayOrigin.y = _characterController.bounds.min.y - 0.5f;
 
         if (Physics.SphereCast(rayOrigin, 0.2f, -Vector3.up, out hit, rayLength, _groundedMask))
         {
