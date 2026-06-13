@@ -93,6 +93,12 @@ public class TestWalkingController : MonoBehaviour
 
         bool jumpInput = _playerControl.Player.Jump.triggered;
 
+
+        if (grounded && _verticalVelocity < 0)
+        {
+            _controller.HandleLanding();
+        }
+
         if (jumpInput && grounded)
         {
             _verticalVelocity = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
@@ -105,11 +111,6 @@ public class TestWalkingController : MonoBehaviour
         else
         {
             _verticalVelocity = 0f;
-        }
-
-        if (grounded && _controller.characterGrounded == false)
-        {
-            _controller.HandleLanding();
         }
 
         _controller.verticalVelocity = _verticalVelocity;
@@ -125,7 +126,9 @@ public class TestWalkingController : MonoBehaviour
         RaycastHit hit;
 
         Vector3 rayOrigin = _characterController.bounds.center;
-        rayOrigin.y = _characterController.bounds.min.y - 0.5f;
+        rayOrigin.y = _characterController.bounds.min.y - 0.4f;
+
+        Debug.DrawRay(rayOrigin, -Vector3.up);
 
         if (Physics.SphereCast(rayOrigin, 0.2f, -Vector3.up, out hit, rayLength, _groundedMask))
         {

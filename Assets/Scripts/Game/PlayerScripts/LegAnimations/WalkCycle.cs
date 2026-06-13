@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.PlayerSettings;
 
 
 [Serializable]
@@ -42,6 +43,8 @@ public enum LegState
     Undetermined
 }
 
+
+
 public class WalkCycle : MonoBehaviour
 {
 
@@ -59,7 +62,7 @@ public class WalkCycle : MonoBehaviour
     private float _verticalVelocity; public float verticalVelocity { get { return _verticalVelocity; } set { _verticalVelocity = value; } }
     private float _jumpHeight; public float jumpHeight { get { return _jumpHeight; } set { _jumpHeight = value; } }
     [SerializeField] private float _legSpeed;
-    private float _jumpSpeed = 0.5f;
+    private float _jumpSpeed = 0.3f;
 
     [SerializeField] private float _legMaxBoundary;
     [SerializeField] private float _legOutwardMaxBoundary;
@@ -88,7 +91,6 @@ public class WalkCycle : MonoBehaviour
 
     private void ControlLeg(JointController leg, BaseController legBase)
     {
-
         if (characterGrounded)
         {
             // Rotate the leg so that it is inline with the foot
@@ -102,12 +104,6 @@ public class WalkCycle : MonoBehaviour
 
             offsetFromDefault = Mathf.DeltaAngle(leg.defaultRotation.eulerAngles.y, leg.transform.localRotation.eulerAngles.y);
             bool snap = CheckForLegRotationSnap(leg, legBase, offsetFromDefault);
-
-            if (leg.transform.name == "Leg (3)")
-            {
-                //Debug.Log($"LegAngle: {leg.transform.localRotation.eulerAngles.y} DefaultAngle: {leg.defaultRotation.eulerAngles.y}, OffsetFromDefault: {offsetFromDefault}");
-                //Debug.Log($"Within rotation boundary?: {MathF.Abs(offsetFromDefault) < _angleBoundary}");
-            }
 
             // Moving block - I think it should be first but maybe I will move it later
 
@@ -127,22 +123,12 @@ public class WalkCycle : MonoBehaviour
 
                 Vector3 basePosition = new Vector3(legBase.transform.position.x, legBase.transform.position.y + 1.5f, legBase.transform.position.z);
 
-                leg.MoveFootToPosition(basePosition);
-
+                SafeMoveFootToPosition(leg, basePosition);
             }
-            else
-            {
-                bool baseHitGround = MoveBaseToGround(leg, legBase);
 
-                if (!baseHitGround)
-                {
-                    RotateGroundedPosition(leg, legBase);
-                }
-                else if(baseHitGround && legBase.groundedPositions != GroundedPositions.Aligned)
-                {
-                    ResetGroundedPosition(leg, legBase);
-                }
-            }
+            // Handle ledges and the grounded points
+
+            HandleGroundedPositions(leg, legBase);
 
             if (!snap)
             {
@@ -154,12 +140,7 @@ public class WalkCycle : MonoBehaviour
         }
         else
         {
-            if (_verticalVelocity < -1)
-            {
-                RotateLegToFoot(leg, legBase);
-                MoveLegsUpDown(leg, legBase);
-            }
-            else if(_verticalVelocity > 1)
+            if (Mathf.Abs(_verticalVelocity) > 2)
             {
                 RotateLegToFoot(leg, legBase);
                 MoveLegsUpDown(leg, legBase);
@@ -169,10 +150,26 @@ public class WalkCycle : MonoBehaviour
         legBase.state = legBase.tempState;
     }
 
+    private void HandleGroundedPositions(JointController leg, BaseController legBase)
+    {
+        bool trueGroundPointGrounded = TryGetGroundPoint(legBase.trueGroundedPosition.transform.position) != Vector3.zero;
+
+        if (!trueGroundPointGrounded)
+        {
+            RotateGroundedPosition(leg, legBase);
+        }
+
+        if(trueGroundPointGrounded && legBase.groundedPositions != GroundedPositions.Aligned)
+        {
+            HandleGroundPointAligned(leg, legBase);
+        }
+    }
+
 
     public void HandleLanding()
     {
-        //Debug.Log("Landing");
+        Debug.Log("Landing");
+
         characterGrounded = true;
 
         foreach (var (leg, legBase) in _legsBases)
@@ -193,7 +190,8 @@ public class WalkCycle : MonoBehaviour
 
     public void HandleJumping()
     {
-        //Debug.Log("Jumping");
+        Debug.Log("Jumping");
+
         characterGrounded = false;
 
         foreach (var (leg, legBase) in _legsBases)
@@ -211,10 +209,12 @@ public class WalkCycle : MonoBehaviour
 
     private void MoveLegsUpDown(JointController leg, BaseController legBase)
     {
-        if(legBase.transform.position.y >= legBase.lastGroundedPosition.transform.position.y)
+        //Debug.Log($"Base {legBase.transform.position.y}, Lowest {legBase.trueGroundedPosition.transform.position.y - 0.5f}");
+
+        if (legBase.transform.position.y >= legBase.trueGroundedPosition.transform.position.y - 0.5f)
         {
             legBase.transform.position = new Vector3(legBase.transform.position.x, legBase.transform.position.y + verticalVelocity * _jumpSpeed * Time.deltaTime, legBase.transform.position.z);
-            leg.MoveFootToPosition(legBase.transform.position);
+            SafeMoveFootToPosition(leg, legBase.transform.position);
         }
     }
 
@@ -365,7 +365,8 @@ public class WalkCycle : MonoBehaviour
 
         MoveBaseToGround(leg, legBase);
 
-        leg.MoveFootToPosition(legBase.transform.position);
+        SafeMoveFootToPosition(leg, legBase.transform.position);
+        //leg.MoveFootToPosition(legBase.transform.position);
 
         leg.isStuckToGround = true;
 
@@ -376,18 +377,17 @@ public class WalkCycle : MonoBehaviour
     public bool MoveBaseToGround(JointController leg, BaseController legBase)
     {
         // Actually doing the raycasting
-
         RaycastHit hit;
 
-        Vector3 raycastOrigin = new Vector3(legBase.transform.position.x, legBase.transform.position.y + 2, legBase.transform.position.z);
-        Debug.DrawRay(raycastOrigin, -Vector3.up, Color.red, 0.01f);
-
-        if (Physics.Raycast(raycastOrigin, -Vector3.up, out hit, 4f, _groundedMask))
+        if (Physics.Raycast(legBase.transform.position + Vector3.up * 0.5f, -Vector3.up, out hit, 4f, _groundedMask))
         {
             legBase.transform.position = hit.point;
         }
         else
         {
+            legBase.transform.position = new Vector3(legBase.transform.position.x,
+                legBase.trueGroundedPosition.transform.position.y,
+                legBase.transform.position.z);
             return false;
         }
         return true;
@@ -396,41 +396,13 @@ public class WalkCycle : MonoBehaviour
 
     private void RotateGroundedPosition(JointController leg, BaseController legBase)
     {
-        legBase.lastGroundedPosition.transform.position = FindGroundPoint(legBase, 0.1f, leg.centre.transform.position, legBase.trueGroundedPosition.transform.position);
-
-        leg.defaultRotation = Quaternion.Euler(new Vector3(0, CalculateDefaultRotation(leg, legBase), 0));
-    }
-
-
-    private void ResetGroundedPosition(JointController leg, BaseController legBase)
-    {
-        Vector3 hitPoint = TryGetGroundPoint(legBase.trueGroundedPosition.transform.position);
-        if(hitPoint != Vector3.zero)
-        {
-            HandleGroundPointAligned(leg, legBase);
-
-            leg.defaultRotation = leg.initialRotation;
-
-            //Debug.Log("True ground point not grounded");
-
-            return;
-        }
-        /*
-        hitPoint = TryGetGroundPoint(legBase.lastGroundedPosition.transform.position);
-        if (hitPoint == Vector3.zero)
-        {
-            //Debug.Log("Last ground point not grounded");
-
-            return;
-        }*/
-
         Vector3 groundPointPosition = FindGroundPoint(legBase, 0.1f, leg.centre.transform.position, legBase.trueGroundedPosition.transform.position);
         groundPointPosition.y = legBase.trueGroundedPosition.transform.position.y;
 
         legBase.lastGroundedPosition.transform.position = groundPointPosition;
 
         leg.defaultRotation = Quaternion.Euler(new Vector3(0, CalculateDefaultRotation(leg, legBase), 0));
-        
+
         return;
     }
 
@@ -442,7 +414,7 @@ public class WalkCycle : MonoBehaviour
         legBase.groundedPositions = GroundedPositions.Aligned;
         leg.defaultRotation = leg.initialRotation;
 
-        legBase.angleBoundary = 40f;
+        legBase.angleBoundary = 45f;
     }
 
 
@@ -456,9 +428,9 @@ public class WalkCycle : MonoBehaviour
         Vector3 hitPoint;
         Vector3 orbitPosition = Vector3.zero;
 
-        Debug.Log($"Radius: {radius}");
+        //Debug.Log($"Radius: {radius}");
 
-        while (distanceThroughOrbit < 30f)
+        while (distanceThroughOrbit < 40f)
         {
             distanceThroughOrbit += step;
 
@@ -475,7 +447,7 @@ public class WalkCycle : MonoBehaviour
                     if (hitPoint != Vector3.zero)
                     {
                         legBase.groundedPositions = GroundedPositions.Clockwise;
-                        legBase.angleBoundary = 40 - distanceThroughOrbit;
+                        legBase.angleBoundary = 50 - distanceThroughOrbit;
 
                         return hitPoint;
                     }
@@ -495,7 +467,7 @@ public class WalkCycle : MonoBehaviour
                     if (hitPoint != Vector3.zero)
                     {
                         legBase.groundedPositions = GroundedPositions.AntiClockwise;
-                        legBase.angleBoundary = 40 - distanceThroughOrbit;
+                        legBase.angleBoundary = 50 - distanceThroughOrbit;
 
                         return hitPoint;
                     }
@@ -519,7 +491,7 @@ public class WalkCycle : MonoBehaviour
 
     private Vector3 TryGetGroundPoint(Vector3 pos)
     {
-        if (Physics.Raycast(pos + Vector3.up * 2f, Vector3.down, out RaycastHit hit, 10f, _groundedMask))
+        if (Physics.Raycast(pos + Vector3.up * 0.1f, Vector3.down, out RaycastHit hit, 2.5f, _groundedMask))
         {
             Vector3 hitPoint = hit.point;
             return hit.point;
@@ -598,6 +570,17 @@ public class WalkCycle : MonoBehaviour
         }
 
         return;
+    }
+
+
+    private void SafeMoveFootToPosition(JointController leg, Vector3 position)
+    {
+        bool success = leg.MoveFootToPosition(position);
+
+        if (!success)
+        {
+            Debug.LogWarning("Caught the fail");
+        }
     }
 
 

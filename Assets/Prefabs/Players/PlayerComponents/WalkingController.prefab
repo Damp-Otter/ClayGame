@@ -1180,6 +1180,7 @@ MonoBehaviour:
   lastGroundedPosition: {fileID: 4531988335088977114}
   trueGroundedPosition: {fileID: 1596293950520713352}
   groundedPositions: 0
+  angleBoundary: 45
 --- !u!1 &1883908484949747635
 GameObject:
   m_ObjectHideFlags: 0
@@ -2123,6 +2124,7 @@ Transform:
   - {fileID: 3599988266625792103}
   - {fileID: 5085807016160366178}
   - {fileID: 4280466079579453929}
+  - {fileID: 6118029060092007582}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!143 &2579441468951373534
@@ -2887,6 +2889,62 @@ MonoBehaviour:
   lastGroundedPosition: {fileID: 5589254901038688068}
   trueGroundedPosition: {fileID: 5146454631777943766}
   groundedPositions: 0
+  angleBoundary: 45
+--- !u!1 &4273012013479706320
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6118029060092007582}
+  - component: {fileID: 7621678650255626449}
+  m_Layer: 0
+  m_Name: Floor Collider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &6118029060092007582
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4273012013479706320}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalScale: {x: 0.99999976, y: 0.2, z: 0.99999976}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 373071515367057425}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &7621678650255626449
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4273012013479706320}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 1
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 126
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.50000036
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0.00000005960467, y: 0, z: -0.00000008940701}
 --- !u!1 &4531988335088977114
 GameObject:
   m_ObjectHideFlags: 0
@@ -4057,6 +4115,7 @@ MonoBehaviour:
   lastGroundedPosition: {fileID: 7503259328323112815}
   trueGroundedPosition: {fileID: 5460226775597509820}
   groundedPositions: 0
+  angleBoundary: 45
 --- !u!1 &6103662924932202767
 GameObject:
   m_ObjectHideFlags: 0
@@ -5173,6 +5232,7 @@ MonoBehaviour:
   lastGroundedPosition: {fileID: 2617014373975419441}
   trueGroundedPosition: {fileID: 1883908484949747635}
   groundedPositions: 0
+  angleBoundary: 45
 --- !u!1 &8311198333468960830
 GameObject:
   m_ObjectHideFlags: 0

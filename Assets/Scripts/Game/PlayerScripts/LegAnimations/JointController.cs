@@ -51,19 +51,18 @@ public class JointController : MonoBehaviour
         }
         else
         {
-
-            Debug.Log("HIT EDGE");
-
             Vector3 direction = (desiredPosition - _centre.transform.position).normalized;
 
             movePosition.transform.position = _centre.transform.position + direction * _boneLength;
+            
+            throw new Exception("HIT EDGE");
         }
 
         return;
     }
 
 
-    public void MoveFootToPosition(Vector3 desiredPosition)
+    public bool MoveFootToPosition(Vector3 desiredPosition)
     {
         if (Vector3.Dot(_centre.transform.position - desiredPosition, _centre.transform.position - desiredPosition) < _boneLength * _boneLength)
         {
@@ -71,14 +70,14 @@ public class JointController : MonoBehaviour
         }
         else
         {
-            Debug.Log("HIT EDGE");
-
             Vector3 direction = (desiredPosition - _centre.transform.position).normalized;
 
             movePosition.transform.position = _centre.transform.position + direction * _boneLength;
+
+            return false;
         }
 
-        return;
+        return true;
     }
 
 
