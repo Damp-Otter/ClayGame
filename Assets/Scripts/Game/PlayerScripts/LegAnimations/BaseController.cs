@@ -18,5 +18,5 @@ public class BaseController : MonoBehaviour
     public GameObject lastGroundedPosition;
     public GameObject trueGroundedPosition;
     public GroundedPositions groundedPositions = GroundedPositions.Aligned;
-    public float angleBoundary = 45f;
+    public float angleBoundary = 50f;
 }

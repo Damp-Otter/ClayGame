@@ -12,6 +12,7 @@ public class TestWalkingController : MonoBehaviour
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private LayerMask _groundedMask;
     [SerializeField] private WalkCycle _controller;
+    [SerializeField] private Collider _movementCollider;
 
     private float _verticalVelocity;
     private float _gravity = -25f;
@@ -108,7 +109,7 @@ public class TestWalkingController : MonoBehaviour
         {
             _verticalVelocity += _gravity * Time.deltaTime;
         }
-        else
+        else if(grounded && _controller.characterGrounded)
         {
             _verticalVelocity = 0f;
         }
@@ -125,13 +126,13 @@ public class TestWalkingController : MonoBehaviour
     {
         RaycastHit hit;
 
-        Vector3 rayOrigin = _characterController.bounds.center;
-        rayOrigin.y = _characterController.bounds.min.y - 0.4f;
+        Vector3 rayOrigin = _movementCollider.bounds.center;
+        rayOrigin.y = _movementCollider.bounds.min.y;
 
-        Debug.DrawRay(rayOrigin, -Vector3.up);
-
-        if (Physics.SphereCast(rayOrigin, 0.2f, -Vector3.up, out hit, rayLength, _groundedMask))
+        if (Physics.Raycast(rayOrigin, -Vector3.up, out hit, rayLength))
         {
+            Debug.DrawLine(rayOrigin, hit.point);
+
             return true;
         }
         return false;

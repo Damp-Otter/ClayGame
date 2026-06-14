@@ -1676,7 +1676,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1573360273571714526, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
       propertyPath: _groundedMask.m_Bits
-      value: 126
+      value: 4294967295
       objectReference: {fileID: 0}
     - target: {fileID: 1596293950520713352, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
       propertyPath: m_IsActive
@@ -1712,7 +1712,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2358839339505941709, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2617014373975419441, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
       propertyPath: m_IsActive
@@ -1780,7 +1780,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4612209228713071263, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5108340522532440259, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
       propertyPath: m_Enabled
@@ -1856,11 +1856,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8275700171405724966, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
       propertyPath: _legSpeed
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 8275700171405724966, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
-      propertyPath: isTurning
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8275700171405724966, guid: dd27c4bdd3abc944a8dc204f291cb12a, type: 3}
       propertyPath: _legMaxBoundary
