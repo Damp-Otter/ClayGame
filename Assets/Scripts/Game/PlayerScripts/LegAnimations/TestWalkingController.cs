@@ -12,7 +12,6 @@ public class TestWalkingController : MonoBehaviour
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private LayerMask _groundedMask;
     [SerializeField] private WalkCycle _controller;
-    [SerializeField] private Collider _movementCollider;
 
     private float _verticalVelocity;
     private float _gravity = -25f;
@@ -90,10 +89,9 @@ public class TestWalkingController : MonoBehaviour
     private void HandleGravityAndJumping()
     {
 
-        bool grounded = grounded = CheckGrounded(0.5f);
+        bool grounded = CheckGrounded(0.2f);
 
         bool jumpInput = _playerControl.Player.Jump.triggered;
-
 
         if (grounded && _verticalVelocity < 0)
         {
@@ -126,12 +124,14 @@ public class TestWalkingController : MonoBehaviour
     {
         RaycastHit hit;
 
-        Vector3 rayOrigin = _movementCollider.bounds.center;
-        rayOrigin.y = _movementCollider.bounds.min.y;
+        Vector3 rayOrigin = _characterController.bounds.center;
+        rayOrigin.y = _characterController.bounds.min.y + 0.1f;
 
-        if (Physics.Raycast(rayOrigin, -Vector3.up, out hit, rayLength))
+        Debug.DrawLine(rayOrigin, rayOrigin + -Vector3.up * rayLength, Color.red);
+
+        if (Physics.Raycast(rayOrigin, -Vector3.up, out hit, rayLength, _groundedMask))
         {
-            Debug.DrawLine(rayOrigin, hit.point);
+            Debug.DrawLine(rayOrigin, hit.point, Color.green);
 
             return true;
         }
