@@ -14,13 +14,18 @@ public class MoveFoot : MonoBehaviour {
 
     [SerializeField] private GameObject _origin;
     [SerializeField] private GameObject _centre;
+    [SerializeField] private Transform _parentTransform;
+    private float _moveOffsetSpeed = 0.25f;
 
     private float _angle; 
     private Vector3 _rotationAxis; 
 
     void Start() { 
         _playerControl = new PlayerControl(); 
-        _playerControl.Enable(); 
+        _playerControl.Enable();
+
+        _boneLength = _boneLength * _parentTransform.localScale.x;
+        _moveOffsetSpeed *= _parentTransform.localScale.x;
     } 
 
     
@@ -105,15 +110,15 @@ public class MoveFoot : MonoBehaviour {
 
         Vector3 _desiredParentJointEnd = _parentDesiredJointEnd.transform.position;
 
-        if (squaredDistanceToEnd - 1f > _boneLength * _boneLength)
+        if (squaredDistanceToEnd - _boneLength / 4 > _boneLength * _boneLength) // this was previously squaredDistanceToEnd - 1
         {
             Vector3 currentDirection = _thisJoint.transform.forward;
-            _desiredParentJointEnd = _parentDesiredJointEnd.transform.position + currentDirection * 0.1f;
+            _desiredParentJointEnd = _parentDesiredJointEnd.transform.position + currentDirection * _moveOffsetSpeed;
         }
-        else if (squaredDistanceToEnd + 1f < _boneLength * _boneLength)
+        else if (squaredDistanceToEnd + _boneLength / 4 < _boneLength * _boneLength)
         {
             Vector3 currentDirection = -_thisJoint.transform.forward;
-            _desiredParentJointEnd = _parentDesiredJointEnd.transform.position + currentDirection * 0.1f;
+            _desiredParentJointEnd = _parentDesiredJointEnd.transform.position + currentDirection * _moveOffsetSpeed;
         }
 
         return _desiredParentJointEnd;

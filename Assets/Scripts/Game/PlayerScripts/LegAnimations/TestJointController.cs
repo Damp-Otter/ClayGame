@@ -17,6 +17,8 @@ public class TestJointController : MonoBehaviour
     {
         _playerControl = new PlayerControl();
         _playerControl.Enable();
+
+        _boneLength = _boneLength * transform.localScale.x;
     }
 
 
@@ -24,7 +26,7 @@ public class TestJointController : MonoBehaviour
     {
         _moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
 
-        Vector3 moveOffset = new Vector3(_moveInput.x, _moveInput.y, 0f) * 0.15f;
+        Vector3 moveOffset = new Vector3(_moveInput.x, _moveInput.y, 0f) * 0.05f;
 
         MoveFootToPosition(moveOffset);
 

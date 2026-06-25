@@ -9,8 +9,9 @@ public class JointController : MonoBehaviour
     [SerializeField] private GameObject _centre; public GameObject centre { get { return _centre; } }
     [SerializeField] private GameObject _origin; public GameObject origin { get { return _origin; } }
     [SerializeField] private float _boneLength = 4f;
+    [SerializeField] private Transform _parentTransform;
     private bool _isStuckToGround; public bool isStuckToGround { get { return _isStuckToGround; } set { _isStuckToGround = value; } }
-    private Vector3 _lockedGroundPosition = Vector3.zero;
+    private Vector3 _lockedGroundPosition = Vector3.zero; public Vector3 lockedGroundPosition { get { return _lockedGroundPosition; } }
 
     private Quaternion _initialRotation; public Quaternion initialRotation { get { return _initialRotation; } }
     private Quaternion _defaultRotation; public Quaternion defaultRotation { get { return _defaultRotation; } set { _defaultRotation = value; } }
@@ -23,21 +24,9 @@ public class JointController : MonoBehaviour
         _playerControl.Enable();
 
         _initialRotation = transform.localRotation;
+        _boneLength = _boneLength * _parentTransform.localScale.x;
     }
 
-
-    private void Update()
-    {
-        if (_isStuckToGround)
-        {
-            if (_lockedGroundPosition != Vector3.zero)
-            {
-                movePosition.transform.position = _lockedGroundPosition;
-            }
-
-            _lockedGroundPosition = movePosition.transform.position;
-        }
-    }
 
     public void MoveFootByOffset(Vector3 offset)
     {
@@ -90,6 +79,11 @@ public class JointController : MonoBehaviour
     public void LockCurrentPosition()
     {
         _lockedGroundPosition = movePosition.transform.position;
+    }
+
+    public void LockPosition(Vector3 position)
+    {
+        _lockedGroundPosition = position;
     }
 
 }

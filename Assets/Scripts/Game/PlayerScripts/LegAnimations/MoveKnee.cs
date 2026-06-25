@@ -11,6 +11,7 @@ public class MoveKnee : MonoBehaviour
     [SerializeField] private float _boneLength = 2f;
 
     [SerializeField] private GameObject _origin;
+    [SerializeField] private Transform _parentTransform;
 
     private float _angle;
     private Vector3 _rotationAxis;
@@ -20,6 +21,8 @@ public class MoveKnee : MonoBehaviour
     {
         _playerControl = new PlayerControl();
         _playerControl.Enable();
+
+        _boneLength = _boneLength * _parentTransform.localScale.x;
     }
 
     void Update()

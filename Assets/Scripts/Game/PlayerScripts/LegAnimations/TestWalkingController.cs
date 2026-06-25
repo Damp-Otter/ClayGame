@@ -15,10 +15,10 @@ public class TestWalkingController : MonoBehaviour
 
     private float _verticalVelocity;
     private float _gravity = -25f;
-    private float _jumpHeight = 8f;
+    [SerializeField] private float _jumpHeight;
 
-    private float _moveSpeed = 8f;
-    private float _rotationSpeed = 150f;
+    [SerializeField] private float _moveSpeed;
+    [SerializeField] private float _rotationSpeed = 150f;
 
 
     private void Start()
@@ -88,12 +88,11 @@ public class TestWalkingController : MonoBehaviour
 
     private void HandleGravityAndJumping()
     {
-
-        bool grounded = CheckGrounded(0.2f);
+        bool grounded = CheckGrounded(0.3f);
 
         bool jumpInput = _playerControl.Player.Jump.triggered;
 
-        if (grounded && _verticalVelocity < 0)
+        if (grounded && _verticalVelocity < 0 && !_controller.characterGrounded)
         {
             _controller.HandleLanding();
         }
@@ -101,18 +100,18 @@ public class TestWalkingController : MonoBehaviour
         if (jumpInput && grounded)
         {
             _verticalVelocity = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
-            _controller.HandleJumping();
         }
         else if (!grounded)
         {
             _verticalVelocity += _gravity * Time.deltaTime;
         }
-        else if(grounded && _controller.characterGrounded)
+        else if(grounded && _controller.characterGrounded && _verticalVelocity < 0)
         {
-            _verticalVelocity = 0f;
+            _verticalVelocity = -5f;
         }
 
         _controller.verticalVelocity = _verticalVelocity;
+        _controller.characterGrounded = grounded;
 
         _characterController.Move(new Vector3(0, _verticalVelocity, 0) * Time.deltaTime);
 
@@ -124,15 +123,13 @@ public class TestWalkingController : MonoBehaviour
     {
         RaycastHit hit;
 
+        float sphereRadius = 0.5f;
+
         Vector3 rayOrigin = _characterController.bounds.center;
-        rayOrigin.y = _characterController.bounds.min.y + 0.1f;
+        rayOrigin.y = _characterController.bounds.min.y + sphereRadius + 0.1f;
 
-        Debug.DrawLine(rayOrigin, rayOrigin + -Vector3.up * rayLength, Color.red);
-
-        if (Physics.Raycast(rayOrigin, -Vector3.up, out hit, rayLength, _groundedMask))
+        if (Physics.SphereCast(rayOrigin, sphereRadius, -Vector3.up, out hit, rayLength, _groundedMask))
         {
-            Debug.DrawLine(rayOrigin, hit.point, Color.green);
-
             return true;
         }
         return false;
