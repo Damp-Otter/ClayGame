@@ -19,3 +19,7 @@ MonoBehaviour:
     character: {fileID: 9022935115196233313, guid: 75d5cb93ec22a6b4abca970bbd243b5f, type: 3}
   - name: Jump
     character: {fileID: 9022935115196233313, guid: 2c6a4a1a5aa85f74b9687086bf5cbd66, type: 3}
+  - name: Legs
+    character: {fileID: 9022935115196233313, guid: 6404b81d5272ec1488927a83eacf607e, type: 3}
+  - name: Legs
+    character: {fileID: 9022935115196233313, guid: 6404b81d5272ec1488927a83eacf607e, type: 3}

@@ -66,7 +66,7 @@ public class WalkCycle : MonoBehaviour
     [SerializeField] private float _legSpeed;
     [SerializeField] private float _legRotateSpeed;
     [SerializeField] private float _speedScale;
-    private float _jumpSpeed = 0.5f;
+    private float _jumpSpeed = 0.4f;
     private float _arcHeight = 4;
     private float _arcOffset;
     private bool _jumping;
@@ -213,22 +213,8 @@ public class WalkCycle : MonoBehaviour
         {
             percentThroughBoundaries = (offsetFromDefault - _legInwardMinBoundary) / (_legMaxBoundary - _legInwardMinBoundary);
         }
-        /*
-        if (legBase.state == LegState.MovingOutwards)
-        {
-            percentThroughBoundaries = (offsetFromDefault - legBase.initialOffset) / (_legOutwardMaxBoundary - legBase.initialOffset);
-        }
-        else if (legBase.state == LegState.MovingInwards)
-        {
-            percentThroughBoundaries = (offsetFromDefault - _legInwardMinBoundary) / (legBase.initialOffset - _legInwardMinBoundary);
-        }
-        */
-        float arc = (0.5f - Mathf.Abs(percentThroughBoundaries - 0.5f)) * _arcHeight;
 
-        if (leg.transform.name == "Leg (2)")
-        {
-            //Debug.Log($"Arc: {arc}, Percent: {percentThroughBoundaries}, Initial offset: {legBase.initialOffset}");
-        }
+        float arc = (0.5f - Mathf.Abs(percentThroughBoundaries - 0.5f)) * _arcHeight;
 
         return arc;
     }
@@ -284,9 +270,6 @@ public class WalkCycle : MonoBehaviour
             legBase.state = LegState.LockedToGround;
             legBase.tempState = LegState.LockedToGround;
 
-            // Determine direction
-            DetermineLegDirectionOnJump(leg, legBase);
-
             legBase.lastGroundedPosition.transform.position = legBase.trueGroundedPosition.transform.position;
         }
 
@@ -297,6 +280,8 @@ public class WalkCycle : MonoBehaviour
 
     private void MoveLegsUpDown(JointController leg, BaseController legBase)
     {
+        float offset = legBase.transform.position.y - legBase.trueGroundedPosition.transform.position.y;
+
         // Moving legs up 
 
         if(_verticalVelocity > 0)
@@ -331,7 +316,7 @@ public class WalkCycle : MonoBehaviour
     }
 
 
-    private void DetermineLegDirectionOnJump(JointController leg, BaseController legBase)
+    private void DetermineJumpingLegDirection(JointController leg, BaseController legBase)
     {
         float offsetFromOrigin = GetOffsetFromOrigin(leg, legBase);
 
@@ -340,16 +325,10 @@ public class WalkCycle : MonoBehaviour
 
         if (offsetFromOrigin > targetOffset)
         {
-            legBase.tempState = LegState.MovingInwards;
-            legBase.state = LegState.MovingInwards;
-
             legBase.direction = 1; // Change these to 1 and -1
         }
         else
         {
-            legBase.tempState = LegState.MovingOutwards;
-            legBase.state = LegState.MovingOutwards;
-
             legBase.direction = -1;
         }
     }
@@ -399,6 +378,8 @@ public class WalkCycle : MonoBehaviour
 
         float targetOffset = new Vector2(legBase.trueGroundedPosition.transform.position.x - leg.centre.transform.position.x,
             legBase.trueGroundedPosition.transform.position.z - leg.centre.transform.position.z).magnitude;
+
+        DetermineJumpingLegDirection(leg, legBase);
 
         // Moves back and forth if far from the trueGroundedPoint
         if (Mathf.Abs(offsetFromOrigin - targetOffset) > _jumpLegBoundary && legBase.state == LegState.InAir)
@@ -453,11 +434,6 @@ public class WalkCycle : MonoBehaviour
         else if(legBase.rotationTarget == RotationTarget.AntiClockwise && angleToDestination > legBase.targetRotationOffset)
         {
             rotationComplete = true;
-        }
-
-        if(leg.transform.name == "Leg (2)")
-        {
-            Debug.Log($"Angle remaining {angleToDestination}, Target {legBase.targetRotationOffset}, rotation complete {rotationComplete}, rotation {legBase.rotationTarget}");
         }
 
         if (offset > _legOutwardMaxBoundary && legBase.state == LegState.MovingOutwards)
@@ -964,14 +940,14 @@ public class WalkCycle : MonoBehaviour
                 exceededBoundary = true;
             }
         }
-        else if(angleToLastPosition < -legBase.angleBoundary * 0.8f && legBase.rotationTarget == RotationTarget.Clockwise)
+        else if(angleToLastPosition < -legBase.angleBoundary * 0.7f && legBase.rotationTarget == RotationTarget.Clockwise)
         {
-            legBase.targetRotationOffset = -legBase.angleBoundary * 0.8f;
+            legBase.targetRotationOffset = -legBase.angleBoundary * 0.7f;
             exceededBoundary = true;
         }
-        else if(angleToLastPosition > legBase.angleBoundary * 0.8f && legBase.rotationTarget == RotationTarget.AntiClockwise)
+        else if(angleToLastPosition > legBase.angleBoundary * 0.7f && legBase.rotationTarget == RotationTarget.AntiClockwise)
         {
-            legBase.targetRotationOffset = legBase.angleBoundary * 0.8f;
+            legBase.targetRotationOffset = legBase.angleBoundary * 0.7f;
             exceededBoundary = true;
         }
 

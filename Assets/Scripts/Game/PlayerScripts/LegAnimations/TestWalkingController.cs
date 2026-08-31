@@ -3,7 +3,6 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 
-
 public class TestWalkingController : MonoBehaviour
 {
     private Vector2 _moveInput;
@@ -94,19 +93,23 @@ public class TestWalkingController : MonoBehaviour
 
         if (grounded && _verticalVelocity < 0 && !_controller.characterGrounded)
         {
+            //Debug.Log("Landing");
             _controller.HandleLanding();
         }
 
         if (jumpInput && grounded)
         {
+            //Debug.Log("Jumping");
             _verticalVelocity = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
         }
         else if (!grounded)
         {
+            //Debug.Log("Jump gravity");
             _verticalVelocity += _gravity * Time.deltaTime;
         }
         else if(grounded && _controller.characterGrounded && _verticalVelocity < 0)
         {
+            //Debug.Log("Stuck to ground");
             _verticalVelocity = -5f;
         }
 

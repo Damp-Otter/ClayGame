@@ -43,7 +43,9 @@ public class PlayerTerminal : NetworkBehaviour
         LobbyPlayerManager.singleton.clientToAuth[clientId] = authId;
 
         int characterIndex = LobbyPlayerManager.singleton.GetPlayer(authId).characterIndex;
+        Debug.Log($"Character index: {characterIndex}, prefabs max: {_characterPrefabs.Count}");
         var playerPrefab = _characterPrefabs[characterIndex];
+
 
         Transform spawnPoint = SpawnPoints.singleton.GetPointInOrder();
         var player = Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);

@@ -15,7 +15,7 @@ public class MoveFoot : MonoBehaviour {
     [SerializeField] private GameObject _origin;
     [SerializeField] private GameObject _centre;
     [SerializeField] private Transform _parentTransform;
-    private float _moveOffsetSpeed = 0.25f;
+    private float _moveOffsetSpeed = 0.2f;
 
     private float _angle; 
     private Vector3 _rotationAxis; 
