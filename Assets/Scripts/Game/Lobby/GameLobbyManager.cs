@@ -201,6 +201,9 @@ namespace Game
             try
             {
                 joinRelayCode = await RelayManager.singleton.CreateRelay(MAX_PLAYERS);
+
+                Debug.Log($"NetworkManager listening: {NetworkManager.Singleton.IsListening}");
+
                 NetworkManager.Singleton.StartHost();
                 _isTransitioning = true;
             }

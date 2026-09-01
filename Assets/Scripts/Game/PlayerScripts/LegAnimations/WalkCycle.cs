@@ -102,6 +102,8 @@ public class WalkCycle : MonoBehaviour
 
     void Update()
     {
+        Debug.Log($"Grounded: {characterGrounded}");
+
         foreach (var (leg, legBase) in _legsBases)
         {
             ControlLeg(leg, legBase);
@@ -240,6 +242,8 @@ public class WalkCycle : MonoBehaviour
     {
         characterGrounded = true;
 
+        Debug.Log("Landing");
+
         foreach (var (leg, legBase) in _legsBases)
         {
             MoveBaseToGround(leg, legBase);
@@ -260,6 +264,8 @@ public class WalkCycle : MonoBehaviour
 
     public void HandleJumpTriggered()
     {
+        Debug.Log("Jumping"); 
+
         characterGrounded = false;
 
         foreach (var (leg, legBase) in _legsBases)

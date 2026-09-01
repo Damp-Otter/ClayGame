@@ -22,12 +22,13 @@ namespace GameFramework.Networking.Movement
         [SerializeField] private Transform _cameraTransform;
         private float _cameraPitch;
 
-        [SerializeField] private MeshFilter _meshFilter;
         [SerializeField] private Color _color;
         [SerializeField] private GameObject _body;
 
         [SerializeField] private CharacterController _characterController;
         [SerializeField] private PlayerControl _playerControl;
+        [SerializeField] private WalkCycle _walkCycle;
+        [SerializeField] private SpineAnimations _spineAnimation;
         [SerializeField] private PlayerData _playerData;
 
         //-------------------------------------------------------------------------------------------
@@ -60,6 +61,13 @@ namespace GameFramework.Networking.Movement
         {
             base.OnNetworkSpawn();
             _cameraTransform = _camera.transform;
+
+            InitialiseWalkCycle();
+        }
+
+        private void InitialiseWalkCycle()
+        {
+            _walkCycle.jumpHeight = _playerData.characterData.jumpHeight;
         }
 
         private void OnServerStateChanged(TransformState previousState, TransformState serverState)
@@ -170,6 +178,8 @@ namespace GameFramework.Networking.Movement
                 RotatePlayer(lookInput);
                 MovePlayer(moveInput, jumpPressed);
 
+                _playerData.LookInput.Value = lookInput;
+
                 TransformState state = new TransformState()
                 {
                     tick = _tick,
@@ -217,26 +227,61 @@ namespace GameFramework.Networking.Movement
             return false;
         }
 
-        public void ProcessSimulatedPlayerMovement()
+        public void ProcessSimulatedPlayer()
         {
+            if (!serverTransformState.Value.hasStartedMoving)
+                return;
 
-            if (serverTransformState.Value.hasStartedMoving)
+            Vector3 previousPosition = transform.position;
+
+            transform.position = serverTransformState.Value.position;
+            transform.rotation = serverTransformState.Value.rotation;
+
+            ProcessSimulatedWalkCycle(previousPosition);
+
+            _spineAnimation.lookInput = _playerData.LookInput.Value;
+        }
+
+        private void ProcessSimulatedWalkCycle(Vector3 previousPosition)
+        {
+            _verticalVelocity = serverTransformState.Value.verticalVelocity;
+
+            _walkCycle.isMoving =
+                Vector3.Distance(previousPosition, transform.position) > 0.001f;
+
+            _walkCycle.verticalVelocity = _verticalVelocity;
+
+            bool grounded = CheckGrounded();
+
+            if (grounded && !_walkCycle.characterGrounded)
             {
-                transform.position = serverTransformState.Value.position;
-                transform.rotation = serverTransformState.Value.rotation;
-                _verticalVelocity = serverTransformState.Value.verticalVelocity;
-
-                _cameraTransform.localRotation = Quaternion.Euler(_cameraPitch, 0f, 0f);
+                _walkCycle.HandleLanding();
             }
-            
+
+            _walkCycle.characterGrounded = grounded;
+
+            _cameraTransform.localRotation =
+                Quaternion.Euler(_cameraPitch, 0f, 0f);
+
+
         }
 
 
         private void MovePlayer(Vector2 movementInput, bool jumpPressed)
         {
 
+            if (movementInput != Vector2.zero)
+            {
+                _walkCycle.isMoving = true;
+            }
+            else
+            {
+                _walkCycle.isMoving = false;
+            }
+
+
             // This is to stick to the ground
-            if(_playerData.isGrounded && _verticalVelocity < 0f)
+            if (_playerData.isGrounded && _verticalVelocity < 0f)
             {
                 _verticalVelocity = -2f;
             }
@@ -247,7 +292,14 @@ namespace GameFramework.Networking.Movement
                 _verticalVelocity = Mathf.Sqrt(_playerData.characterData.jumpHeight * -2f * _gravity);
             }
 
+            if (_playerData.isGrounded && _verticalVelocity < 0 && !_walkCycle.characterGrounded)
+            {
+                _walkCycle.HandleLanding();
+            }
+
             _verticalVelocity += _gravity * _tickRate;
+            _walkCycle.verticalVelocity = _verticalVelocity;
+            _walkCycle.characterGrounded = _playerData.isGrounded;
 
             Vector3 movement = movementInput.x * transform.right + movementInput.y * transform.forward;
             movement.Normalize();
@@ -260,6 +312,18 @@ namespace GameFramework.Networking.Movement
 
         private void RotatePlayer(Vector2 lookInput)
         {
+            if (lookInput != Vector2.zero)
+            {
+                _walkCycle.isTurning = true;
+                _walkCycle.turnDirection = Convert.ToInt32(lookInput.x < 0);
+            }
+            else
+            {
+                _walkCycle.isTurning = false;
+            }
+
+            _spineAnimation.lookInput = lookInput;
+
             transform.Rotate(Vector3.up, lookInput.x * _rotationSpeed * _playerData.senstivityMultiplier * _tickRate);
         }
 
@@ -270,6 +334,9 @@ namespace GameFramework.Networking.Movement
             _playerData.isGrounded = CheckGrounded();
             RotatePlayer(lookInput);
             MovePlayer(moveInput, jumpPressed);
+            _playerData.LookInput.Value = lookInput;
+            
+
 
             TransformState state = new TransformState()
             {

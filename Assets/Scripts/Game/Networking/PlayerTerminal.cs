@@ -14,12 +14,13 @@ public class PlayerTerminal : NetworkBehaviour
 
     private void OnEnable()
     {
-        NetworkManager.Singleton.OnClientConnectedCallback += SpawnPlayerForClient;
+        //Debug.Log("Spawning");
+        //NetworkManager.Singleton.OnClientConnectedCallback += SpawnPlayerForClient;
     }
 
     private void OnDisable()
     {
-        NetworkManager.Singleton.OnClientConnectedCallback -= SpawnPlayerForClient;
+        //NetworkManager.Singleton.OnClientConnectedCallback -= SpawnPlayerForClient;
     }
 
     protected override void OnNetworkPostSpawn()
@@ -53,18 +54,18 @@ public class PlayerTerminal : NetworkBehaviour
     }
 
 
-    private void SpawnPlayerForClient(ulong clientId)
-    {
-        Debug.Log("Trying to spawn player");
+    //private void SpawnPlayerForClient(ulong clientId)
+    //{
+    //    Debug.Log("Trying to spawn player");
 
-        string authId = LobbyPlayerManager.singleton.clientToAuth[clientId];
+    //    string authId = LobbyPlayerManager.singleton.clientToAuth[clientId];
 
-        int characterIndex = LobbyPlayerManager.singleton.GetPlayer(authId).characterIndex;
-        var playerPrefab = _characterPrefabs[characterIndex];
+    //    int characterIndex = LobbyPlayerManager.singleton.GetPlayer(authId).characterIndex;
+    //    var playerPrefab = _characterPrefabs[characterIndex];
 
-        Transform spawnPoint = SpawnPoints.singleton.GetPointInOrder();
-        var player = Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
-        player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
-    }
+    //    Transform spawnPoint = SpawnPoints.singleton.GetPointInOrder();
+    //    var player = Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
+    //    player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+    //}
 
 }

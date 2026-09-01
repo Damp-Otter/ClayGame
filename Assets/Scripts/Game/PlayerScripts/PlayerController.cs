@@ -80,14 +80,9 @@ namespace Game
 
         private void Update()
         {
-            _moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
+            HandleLookAndMove();
 
-            Vector2 frameLookInput =
-                _playerControl.Player.Look.ReadValue<Vector2>();
-
-            _lookInput += frameLookInput;
-
-            RotateCamera(frameLookInput);
+            HandleAbilities();
         }
 
 
@@ -108,6 +103,37 @@ namespace Game
             }
         }
 
+        private void HandleLookAndMove()
+        {
+            _moveInput = _playerControl.Player.Move.ReadValue<Vector2>();
+
+            Vector2 frameLookInput = _playerControl.Player.Look.ReadValue<Vector2>();
+
+            _lookInput += frameLookInput;
+
+            if (IsOwner)
+            {
+                _playerData.LookInput.Value = _lookInput;
+            }
+
+            RotateCamera(frameLookInput);
+        }
+
+        private void HandleAbilities()
+        {
+            if(_playerControl.Player.Ability1.triggered)
+            {
+                _playerData.characterData.characterAbilities.AbilityOne();
+            }
+            if (_playerControl.Player.Ability2.triggered)
+            {
+                _playerData.characterData.characterAbilities.AbilityTwo();
+            }
+            if (_playerControl.Player.Ability3.triggered)
+            {
+                _playerData.characterData.characterAbilities.AbilityThree();
+            }
+        }
 
         private void HandleDeath()
         {
@@ -154,7 +180,7 @@ namespace Game
             }
             else
             {
-                _playerMovement.ProcessSimulatedPlayerMovement();
+                _playerMovement.ProcessSimulatedPlayer();
             }
         }
 

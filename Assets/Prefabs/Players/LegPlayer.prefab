@@ -957,7 +957,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 452638786786332520}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -3161,6 +3161,7 @@ GameObject:
   - component: {fileID: 4234480627393577670}
   - component: {fileID: 2027336140294867977}
   - component: {fileID: 5564125143649970161}
+  - component: {fileID: 9080964637616107919}
   m_Layer: 6
   m_Name: WalkingController
   m_TagString: Untagged
@@ -3257,8 +3258,48 @@ MonoBehaviour:
   turnDirection: 0
   _legSpeed: 8
   _legRotateSpeed: 600
-  _speedScale: 0.8
-  _legMaxBoundary: 2.8
+  _speedScale: 1
+  _legMaxBoundary: 3
+  _legOutwardMaxBoundary: 2.4
+  _legMinBoundary: 0.5
+  _legInwardMinBoundary: 0.8
+  _offsetBeyondRotation: 0
+  _offsetBeyondRotationUnAligned: 0
+--- !u!114 &9080964637616107919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377773596914645705}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0c64259a9b3bab4ca27ee31cafb081f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WalkCycle
+  _groundedMask:
+    serializedVersion: 2
+    m_Bits: 1
+  serializedDict:
+    thisDictItems:
+    - leg: {fileID: 0}
+      legBase: {fileID: 0}
+    - leg: {fileID: 0}
+      legBase: {fileID: 0}
+    - leg: {fileID: 0}
+      legBase: {fileID: 0}
+    - leg: {fileID: 0}
+      legBase: {fileID: 0}
+  _parentTransform: {fileID: 0}
+  isMoving: 0
+  isJumping: 0
+  isTurning: 1
+  characterGrounded: 0
+  turnDirection: 0
+  _legSpeed: 8
+  _legRotateSpeed: 600
+  _speedScale: 1
+  _legMaxBoundary: 3
   _legOutwardMaxBoundary: 2.4
   _legMinBoundary: 0.5
   _legInwardMinBoundary: 0.8
@@ -4925,7 +4966,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2475833171823720103}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -5239,7 +5280,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2614967208501927215}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -5888,7 +5929,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2887923897554959109}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -10562,14 +10603,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4847879880460103130}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalRotation: {x: 0.2588191, y: 0, z: 0, w: 0.9659258}
+  m_LocalPosition: {x: 0, y: 1.46, z: -2.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9012786740653276900}
   m_Father: {fileID: 1769836936609529961}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
 --- !u!1 &4851370536502419171
 GameObject:
   m_ObjectHideFlags: 0
@@ -11861,7 +11902,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5528663299432383209}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -12512,7 +12553,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5898527819440306387}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -13697,7 +13738,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6304260114147299299}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -17237,7 +17278,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7748603979167907357}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -19624,6 +19665,7 @@ MonoBehaviour:
   _color: {r: 0.5943396, g: 0.035242666, b: 0, a: 0.8784314}
   _body: {fileID: 7092639200673906638}
   _characterController: {fileID: 4608678053767457708}
+  _walkCycle: {fileID: 5564125143649970161}
   _playerData: {fileID: 5589392225519212910}
   _tick: 0
   serverTransformState:
