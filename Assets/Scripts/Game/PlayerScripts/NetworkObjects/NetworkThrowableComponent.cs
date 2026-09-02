@@ -38,7 +38,7 @@ public class NetworkThrowableComponent : NetworkBehaviour
         }
     }
 
-    private void DestroyThrowable()
+    public void DestroyThrowable()
     {
         OnThrowableDestroyed?.Invoke(transform.position);
 

@@ -8,6 +8,7 @@ public abstract class AbilitySet : NetworkBehaviour
 
     [SerializeField] private GameObject throwablePrefab;
     private Action<Vector3> _onThrowableDestroyed;
+    protected NetworkObjectReference throwableReference;
 
     [SerializeField] private GameObject smokePrefab;
     private Action<Vector3> _onSmokeDestroyed;
@@ -26,21 +27,22 @@ public abstract class AbilitySet : NetworkBehaviour
 
     protected void Throw(Vector3 position, Vector3 direction, float gravity, float velocity, float elasticity, float lifespan, Action<Vector3> onThrowableDestroyed)
     {
-        ThrowServerRpc(position, direction, gravity, velocity, elasticity, lifespan);
-
         _onThrowableDestroyed = onThrowableDestroyed;
+
+        ThrowServerRpc(position, direction, gravity, velocity, elasticity, lifespan);
     }
 
     [ServerRpc]
-    private void ThrowServerRpc(Vector3 position, Vector3 direction, float gravity, float velocity, float elasticity, float lifespan)
+    private void ThrowServerRpc(Vector3 position, Vector3 direction, float gravity, float velocity, float elasticity, float lifespan, ServerRpcParams rpcParams = default)
     {
         var instance = Instantiate(throwablePrefab);
 
+        NetworkObject networkObject = instance.GetComponent<NetworkObject>();
         NetworkThrowableComponent throwable = instance.GetComponent<NetworkThrowableComponent>();
 
         throwable.OnThrowableDestroyed += (pos) =>
         {
-            _onThrowableDestroyed?.Invoke(pos);
+            ThrowableDestroyedClientRpc(pos, rpcParams.Receive.SenderClientId);
         };
 
         throwable.lifespan = lifespan;
@@ -52,6 +54,46 @@ public abstract class AbilitySet : NetworkBehaviour
         instance.transform.forward = direction;
 
         instance.GetComponent<NetworkObject>().Spawn();
+
+        SetThrowableClientRpc(new NetworkObjectReference(networkObject), rpcParams.Receive.SenderClientId);
+    }
+
+    [ClientRpc]
+    private void SetThrowableClientRpc(
+    NetworkObjectReference reference,
+    ulong targetClientId)
+    {
+        if (!NetworkManager.Singleton.LocalClientId.Equals(targetClientId))
+            return;
+
+        throwableReference = reference;
+    }
+
+    [ClientRpc]
+    private void ThrowableDestroyedClientRpc(
+    Vector3 position,
+    ulong targetClientId)
+    {
+        if (NetworkManager.Singleton.LocalClientId != targetClientId)
+            return;
+
+        _onThrowableDestroyed?.Invoke(position);
+    }
+
+    protected void DestroyThrowable()
+    {
+        DestroyThrowableServerRpc(throwableReference);
+    }
+
+    [ServerRpc]
+    private void DestroyThrowableServerRpc(NetworkObjectReference reference)
+    {
+        if (reference.TryGet(out NetworkObject networkObject))
+        {
+            NetworkThrowableComponent throwable = networkObject.GetComponent<NetworkThrowableComponent>();
+
+            throwable.DestroyThrowable();
+        }
     }
 
 
@@ -86,6 +128,4 @@ public abstract class AbilitySet : NetworkBehaviour
         Debug.Log("Spawn smoke");
         instance.GetComponent<NetworkObject>().Spawn();
     }
-
-
 }
