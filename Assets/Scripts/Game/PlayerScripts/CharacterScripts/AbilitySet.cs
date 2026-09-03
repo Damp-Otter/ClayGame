@@ -32,8 +32,8 @@ public abstract class AbilitySet : NetworkBehaviour
         ThrowServerRpc(position, direction, gravity, velocity, elasticity, lifespan);
     }
 
-    [ServerRpc]
-    private void ThrowServerRpc(Vector3 position, Vector3 direction, float gravity, float velocity, float elasticity, float lifespan, ServerRpcParams rpcParams = default)
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void ThrowServerRpc(Vector3 position, Vector3 direction, float gravity, float velocity, float elasticity, float lifespan, RpcParams rpcParams = default)
     {
         var instance = Instantiate(throwablePrefab);
 
@@ -59,9 +59,7 @@ public abstract class AbilitySet : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void SetThrowableClientRpc(
-    NetworkObjectReference reference,
-    ulong targetClientId)
+    private void SetThrowableClientRpc(NetworkObjectReference reference, ulong targetClientId)
     {
         if (!NetworkManager.Singleton.LocalClientId.Equals(targetClientId))
             return;
@@ -70,9 +68,7 @@ public abstract class AbilitySet : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void ThrowableDestroyedClientRpc(
-    Vector3 position,
-    ulong targetClientId)
+    private void ThrowableDestroyedClientRpc(Vector3 position, ulong targetClientId)
     {
         if (NetworkManager.Singleton.LocalClientId != targetClientId)
             return;
@@ -85,7 +81,7 @@ public abstract class AbilitySet : NetworkBehaviour
         DestroyThrowableServerRpc(throwableReference);
     }
 
-    [ServerRpc]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void DestroyThrowableServerRpc(NetworkObjectReference reference)
     {
         if (reference.TryGet(out NetworkObject networkObject))
@@ -102,14 +98,14 @@ public abstract class AbilitySet : NetworkBehaviour
     // ----------------------------------------------------------------
 
 
-    protected void Smoke(Vector3 position, float lifespan, float scale)
+    protected void Smoke(Vector3 position, float lifespan, float scale, float gravity)
     {
-        SmokeServerRpc(position, lifespan, scale);
+        SmokeServerRpc(position, lifespan, scale, gravity);
     }
 
 
-    [ServerRpc]
-    private void SmokeServerRpc(Vector3 position, float lifespan, float scale)
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void SmokeServerRpc(Vector3 position, float lifespan, float scale, float gravity, RpcParams rpcParams = default)
     {
         var instance = Instantiate(smokePrefab);
 
@@ -120,12 +116,12 @@ public abstract class AbilitySet : NetworkBehaviour
             _onSmokeDestroyed?.Invoke(pos);
         };
 
-        smoke.lifespan = lifespan;
-        smoke.scale = scale;
+        smoke.gravity.Value = gravity;
+        smoke.lifespan.Value = lifespan;
+        smoke.scale.Value = scale;
 
         instance.transform.position = position;
 
-        Debug.Log("Spawn smoke");
         instance.GetComponent<NetworkObject>().Spawn();
     }
 }

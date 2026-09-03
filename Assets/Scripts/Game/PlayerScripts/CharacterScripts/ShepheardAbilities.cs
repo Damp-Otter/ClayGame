@@ -11,10 +11,15 @@ public class ShepheardAbilities : AbilitySet
 
     public override void AbilityOne()
     {
+        if (!IsOwner)
+        {
+            return;
+        }
+
         if (!throwingSmoke)
         {
             throwingSmoke = true;
-            Throw(aimTransform.position, aimTransform.forward * 0.8f + aimTransform.up * 0.2f, -40, 50, 0.6f, 5, OnSmokeTriggered);
+            Throw(aimTransform.position, aimTransform.forward * 0.8f + aimTransform.up * 0.2f, -40, 50, 0.6f, 3, OnSmokeTriggered);
         }
         else
         {
@@ -25,7 +30,7 @@ public class ShepheardAbilities : AbilitySet
 
     public override void AbilityTwo()
     {
-        Debug.Log("Ability 2");
+        Smoke(transform.position, 10f, 15f, -40f);
     }
 
     public override void AbilityThree()
@@ -36,7 +41,6 @@ public class ShepheardAbilities : AbilitySet
     private void OnSmokeTriggered(Vector3 lastPosition)
     {
         throwingSmoke = false;
-
-        Smoke(lastPosition, 10f, 15f);
+        Smoke(lastPosition, 30f, 15f, -10f);
     }
 }

@@ -26,16 +26,19 @@ public class NetworkThrowableComponent : NetworkBehaviour
 
     void Update()
     {
-        if (IsServer)
+        if (!IsOwner)
         {
-            Move();
-
-            Bounce();
-
-            if (Time.time > _timer + _lifespan) {
-                DestroyThrowable();
-            }
+            return;
         }
+
+        MoveRpc();
+
+        BounceRpc();
+
+        if (Time.time > _timer + _lifespan) {
+            DestroyThrowable();
+        }
+        
     }
 
     public void DestroyThrowable()
@@ -45,13 +48,15 @@ public class NetworkThrowableComponent : NetworkBehaviour
         GetComponent<NetworkObject>().Despawn(true);
     }
 
-    private void Move()
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void MoveRpc()
     {
         _velocity.y += _gravity * Time.deltaTime;
         this.transform.position += _velocity * Time.deltaTime;
     }
 
-    private void Bounce()
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void BounceRpc()
     {
         float radius = _transform.localScale.x / 2;
         if (Physics.SphereCast(transform.position - _velocity.normalized * radius, radius, _velocity.normalized, out RaycastHit hit, radius))

@@ -8,8 +8,10 @@ using System.Collections.Generic;
 using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.Rendering.Universal;
 
 namespace Game
 {
@@ -23,6 +25,7 @@ namespace Game
 
         [SerializeField] private Vector2 _minMaxRotationX;
         [SerializeField] private Transform _cameraTransform;
+        [SerializeField] private Camera _camera;
         private float _pitch;
 
         [SerializeField] private NetworkMovementComponent _playerMovement;
@@ -33,6 +36,7 @@ namespace Game
         private PlayerControl _playerControl;
         [SerializeField] private DamageController _damageController;
         [SerializeField] private PlayerAnimationController _playerAnimationController;
+        [SerializeField] private PlayerVisualEffects _playerVisualEffects;
 
         private float _cameraAngle;
 
@@ -40,7 +44,6 @@ namespace Game
 
         private Vector2 _moveInput;
         private Vector2 _lookInput;
-
 
         private void Start()
         {
@@ -171,6 +174,21 @@ namespace Game
             }
         }
 
+        public void HandleCollisionEnter(Collider collider)
+        {
+            if (collider.gameObject.layer == 7)
+            {
+                _playerVisualEffects.HandleSmoked(true);
+            }
+        }
+
+        public void HandleCollisionExit(Collider collider)
+        {
+            if (collider.gameObject.layer == 7)
+            {
+                _playerVisualEffects.HandleSmoked(false);
+            }
+        }
 
         private void HandleMovement(Vector2 moveInput, Vector2 lookInput, bool jumpPressed)
         {
