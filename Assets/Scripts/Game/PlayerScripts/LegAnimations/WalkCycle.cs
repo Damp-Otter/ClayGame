@@ -102,8 +102,6 @@ public class WalkCycle : MonoBehaviour
 
     void Update()
     {
-        Debug.Log($"Grounded: {characterGrounded}");
-
         foreach (var (leg, legBase) in _legsBases)
         {
             ControlLeg(leg, legBase);
@@ -793,9 +791,6 @@ public class WalkCycle : MonoBehaviour
                 return counterClockwisePoint;
             }
         }
-
-        Debug.Log($"Failed");
-
         return legBase.lastGroundedPosition.transform.position;
     }
 

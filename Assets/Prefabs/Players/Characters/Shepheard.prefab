@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: 3515205898597871505}
   - component: {fileID: 5258928493090200944}
   - component: {fileID: 2398574356723037783}
+  - component: {fileID: 2697774758361402931}
   m_Layer: 3
   m_Name: Collider
   m_TagString: Untagged
@@ -187,6 +188,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   playerController: {fileID: 6383410974755588978}
+--- !u!114 &2697774758361402931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 194323884152724629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cae56fe901976a48909f9127a6aa8cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerVisualEffects
+  smokeFogFeature: {fileID: 250648795964569694, guid: f288ae1f4751b564a96ac7587541f7a2, type: 2}
 --- !u!1 &452638786786332520
 GameObject:
   m_ObjectHideFlags: 0
@@ -4992,7 +5006,6 @@ GameObject:
   - component: {fileID: 886516082005889161}
   - component: {fileID: 6444729762582838273}
   - component: {fileID: 4852546779209750606}
-  - component: {fileID: 7028469555589732707}
   m_Layer: 6
   m_Name: Shepheard
   m_TagString: Untagged
@@ -5088,7 +5101,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 604677333
+  GlobalObjectIdHash: 429695030
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -5124,7 +5137,7 @@ MonoBehaviour:
     m_Bits: 8
   _damageController: {fileID: 3395214499453647912}
   _playerAnimationController: {fileID: 4043723815786047568}
-  _playerVisualEffects: {fileID: 7028469555589732707}
+  _playerVisualEffects: {fileID: 2697774758361402931}
 --- !u!114 &1847520459098462107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5278,19 +5291,6 @@ MonoBehaviour:
   throwablePrefab: {fileID: 8526553461853508673, guid: e5fff88355d5b7a468583525b549eb12, type: 3}
   smokePrefab: {fileID: 4528669729667142404, guid: 2502a93077285704791b0a6aebe781e5, type: 3}
   aimTransform: {fileID: 8547045617142458059}
---- !u!114 &7028469555589732707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9022935115196233313}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2cae56fe901976a48909f9127a6aa8cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerVisualEffects
-  smokeFogFeature: {fileID: 250648795964569694, guid: f288ae1f4751b564a96ac7587541f7a2, type: 2}
 --- !u!1 &9100942281771955753
 GameObject:
   m_ObjectHideFlags: 0

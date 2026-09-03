@@ -178,7 +178,7 @@ namespace Game
         {
             if (collider.gameObject.layer == 7)
             {
-                _playerVisualEffects.HandleSmoked(true);
+                _playerVisualEffects.HandleSmokeTriggered(true, collider);
             }
         }
 
@@ -186,7 +186,7 @@ namespace Game
         {
             if (collider.gameObject.layer == 7)
             {
-                _playerVisualEffects.HandleSmoked(false);
+                _playerVisualEffects.HandleSmokeTriggered(false, collider);
             }
         }
 
