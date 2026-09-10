@@ -3,44 +3,49 @@ using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-public class ShepheardAbilities : AbilitySet
+
+namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 {
-    [SerializeField] private Transform aimTransform;
-
-    private bool throwingSmoke = false;
-
-    public override void AbilityOne()
+    public class ShepheardAbilities : AbilitySet
     {
-        if (!IsOwner)
+        [SerializeField] private Transform aimTransform;
+
+        private bool throwingSmoke = false;
+
+        public override void AbilityOne()
         {
-            return;
+            if (!IsOwner)
+            {
+                return;
+            }
+
+            if (!throwingSmoke)
+            {
+                throwingSmoke = true;
+                Throw(aimTransform.position, aimTransform.forward * 0.8f + aimTransform.up * 0.2f, -20, 30, 0.6f, 0.99f, 3, OnSmokeTriggered);
+            }
+            else
+            {
+                DestroyThrowable();
+            }
+
         }
 
-        if (!throwingSmoke)
+        public override void AbilityTwo()
         {
-            throwingSmoke = true;
-            Throw(aimTransform.position, aimTransform.forward * 0.8f + aimTransform.up * 0.2f, -40, 50, 0.6f, 3, OnSmokeTriggered);
+            Smoke(transform.position, 10f, 15f, -40f);
         }
-        else
+
+        public override void AbilityThree()
         {
-            DestroyThrowable();
+            Debug.Log("Ability 3");
         }
-       
+
+        private void OnSmokeTriggered(Vector3 lastPosition)
+        {
+            throwingSmoke = false;
+            Smoke(lastPosition, 30f, 15f, -10f);
+        }
     }
 
-    public override void AbilityTwo()
-    {
-        Smoke(transform.position, 10f, 15f, -40f);
-    }
-
-    public override void AbilityThree()
-    {
-        Debug.Log("Ability 3");
-    }
-
-    private void OnSmokeTriggered(Vector3 lastPosition)
-    {
-        throwingSmoke = false;
-        Smoke(lastPosition, 30f, 15f, -10f);
-    }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using Assets.Scripts.Game.PlayerScripts.NetworkObjects;
 
 public class CharacterData: NetworkBehaviour
 {

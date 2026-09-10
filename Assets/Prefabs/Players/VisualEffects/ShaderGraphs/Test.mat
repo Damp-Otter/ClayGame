@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: SmokeEffectMaterial
-  m_Shader: {fileID: -6465566751694194690, guid: 7d9f93ffd6ba0b7409679d0c116041f7, type: 3}
+  m_Name: Test
+  m_Shader: {fileID: -6465566751694194690, guid: 97657a82fa5033a4794ff054e74c0c11, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -36,19 +36,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
-    m_Floats:
-    - _Distance: 3
-    - _Fullscreen_AlphaBlendOperation: 0
-    - _Fullscreen_BlendMode: 1
-    - _Fullscreen_ColorBlendOperation: 0
-    - _Fullscreen_DepthTest: 8
-    - _Fullscreen_DepthWrite: 0
-    - _Fullscreen_DstAlphaBlend: 10
-    - _Fullscreen_DstColorBlend: 10
-    - _Fullscreen_SrcAlphaBlend: 1
-    - _Fullscreen_SrcColorBlend: 5
-    - _Strength: 1
-    m_Colors:
-    - _Colour: {r: 0.8113207, g: 0.8113207, b: 0.8113207, a: 1}
+    m_Floats: []
+    m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

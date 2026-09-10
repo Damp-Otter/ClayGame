@@ -17,6 +17,7 @@ namespace GameFramework.Networking.Movement
 
         private float _gravity = -25f;
         private float _verticalVelocity;
+        [SerializeField] private LayerMask _groundedMask;
 
         [SerializeField] private GameObject _camera;
         [SerializeField] private Transform _cameraTransform;
@@ -220,7 +221,12 @@ namespace GameFramework.Networking.Movement
         {
             RaycastHit hit;
 
-            if (Physics.SphereCast(_body.transform.position, 0.2f, -_body.transform.up, out hit, 1.1f))
+            float sphereRadius = 0.5f;
+
+            Vector3 rayOrigin = _characterController.bounds.center;
+            rayOrigin.y = _characterController.bounds.min.y + sphereRadius + 0.1f;
+
+            if (Physics.SphereCast(rayOrigin, sphereRadius, -Vector3.up, out hit, 0.3f, _groundedMask))
             {
                 return true;
             }
@@ -236,6 +242,7 @@ namespace GameFramework.Networking.Movement
 
             transform.position = serverTransformState.Value.position;
             transform.rotation = serverTransformState.Value.rotation;
+            _verticalVelocity = serverTransformState.Value.verticalVelocity;
 
             ProcessSimulatedWalkCycle(previousPosition);
 
@@ -244,10 +251,7 @@ namespace GameFramework.Networking.Movement
 
         private void ProcessSimulatedWalkCycle(Vector3 previousPosition)
         {
-            _verticalVelocity = serverTransformState.Value.verticalVelocity;
-
-            _walkCycle.isMoving =
-                Vector3.Distance(previousPosition, transform.position) > 0.001f;
+            _walkCycle.isMoving = Vector3.Distance(previousPosition, transform.position) > 0.001f;
 
             _walkCycle.verticalVelocity = _verticalVelocity;
 
@@ -260,10 +264,7 @@ namespace GameFramework.Networking.Movement
 
             _walkCycle.characterGrounded = grounded;
 
-            _cameraTransform.localRotation =
-                Quaternion.Euler(_cameraPitch, 0f, 0f);
-
-
+            _cameraTransform.localRotation = Quaternion.Euler(_cameraPitch, 0f, 0f);
         }
 
 
@@ -284,6 +285,11 @@ namespace GameFramework.Networking.Movement
             if (_playerData.isGrounded && _verticalVelocity < 0f)
             {
                 _verticalVelocity = -2f;
+
+                if (!_walkCycle.characterGrounded)
+                {
+                    _walkCycle.HandleLanding();
+                }
             }
 
             // Actually moving up with jump
@@ -292,10 +298,6 @@ namespace GameFramework.Networking.Movement
                 _verticalVelocity = Mathf.Sqrt(_playerData.characterData.jumpHeight * -2f * _gravity);
             }
 
-            if (_playerData.isGrounded && _verticalVelocity < 0 && !_walkCycle.characterGrounded)
-            {
-                _walkCycle.HandleLanding();
-            }
 
             _verticalVelocity += _gravity * _tickRate;
             _walkCycle.verticalVelocity = _verticalVelocity;

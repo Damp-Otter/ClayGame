@@ -200,6 +200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cae56fe901976a48909f9127a6aa8cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerVisualEffects
+  ShowTopMostFoldoutHeaderGroup: 1
   smokeFogFeature: {fileID: 250648795964569694, guid: f288ae1f4751b564a96ac7587541f7a2, type: 2}
 --- !u!1 &452638786786332520
 GameObject:
@@ -5151,6 +5152,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameFramework.Networking.Movement.NetworkMovementComponent
   ShowTopMostFoldoutHeaderGroup: 1
+  _groundedMask:
+    serializedVersion: 2
+    m_Bits: 1
   _camera: {fileID: 3257383729484510098}
   _cameraTransform: {fileID: 8547045617142458059}
   _color: {r: 0.5943396, g: 0.035242666, b: 0, a: 0.8784314}
