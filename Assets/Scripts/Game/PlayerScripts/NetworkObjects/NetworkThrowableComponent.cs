@@ -21,7 +21,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
         private float _timer;
         private bool _grounded;
         private float _lastBounceTime = -1f;
-        private float _lifespan; public float lifespan { set { _lifespan = value; } }
+        private float _lifespan = 1f; public float lifespan { set { _lifespan = value; } }
 
         [SerializeField] private Transform _transform;
 
@@ -77,13 +77,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
             if (positionError > 0.05f)
             {
-
                 Debug.Log("Correcting client position");
-
-                // Out of sync
-
-                //Reconcile(serverState);
-
             }
 
             _previousTransformState = serverState;
@@ -92,25 +86,23 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
         void Update()
         {
+            Debug.Log($"Velocity {_velocity}");
+
+            _tickDeltaTime += Time.deltaTime;
+
+            while (_tickDeltaTime >= _tickRate)
+            {
+                _tickDeltaTime -= _tickRate;
+
+                SimulateTick();
+            }
+        }
+
+        private void SimulateTick()
+        {
             int bufferIndex = _tick % BUFFER_SIZE;
 
-            if (!IsServer)
-            {
-                MoveRpc();
-                BounceRpc();
-
-                if (Time.time > _timer + _lifespan)
-                {
-                    DestroyThrowable();
-                }
-            }
-            else
-            {
-                Move();
-                Bounce();
-            }
-
-            _tick++;
+            Move();
 
             TransformState transformState = new TransformState()
             {
@@ -120,7 +112,20 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
                 velocity = _velocity
             };
 
+            if (IsServer)
+            {
+                serverTransformState.Value = transformState;
+            }
+
+
+            if (Time.time > _timer + _lifespan)
+            {
+                DestroyThrowable();
+            }
+
             _transformStates[bufferIndex] = transformState;
+
+            _tick++;
         }
 
         public void DestroyThrowable()
@@ -132,64 +137,52 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
         private void Move()
         {
-            if (!_grounded) {
-                _velocity.y += _gravity * _tickRate;
+            float radius = _transform.localScale.x / 2;
+            float distance = _velocity.magnitude * _tickRate;
+
+            if (Physics.SphereCast(_transform.position + Vector3.up * radius, radius, Vector3.down, out RaycastHit hit, radius))
+            {
+                Debug.Log("Grounded");
+                transform.position = hit.point;
+                _grounded = true;
             }
             else
             {
-                _velocity.y = 0;
+                _grounded = false;
             }
 
+            if (!_grounded)
+            {
+                _velocity.y += _gravity * _tickRate;
+            }
+
+            if (Physics.SphereCast(transform.position, radius, _velocity.normalized, out hit, distance))
+            {
+                transform.position = hit.point + hit.normal * (radius + 0.1f);
+                _velocity = Vector3.Reflect(_velocity, hit.normal) * _elasticity;
+                _lastBounceTime = Time.time;
+
+                Debug.Log($"BOUNCE tick {_tick} position {transform.position}, is server {IsServer}");
+            }
             this.transform.position += _velocity * _tickRate;
             _velocity *= _resistance;
         }
 
-        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-        private void MoveRpc()
-        {
-            Move();
-        }
+        //[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        //private void MoveRpc(int tick)
+        //{
+        //    Move();
 
+        //    TransformState transformState = new TransformState()
+        //    {
+        //        tick = tick,
+        //        position = transform.position,
+        //        rotation = transform.rotation,
+        //        velocity = _velocity
+        //    };
 
-        private void Bounce()
-        {
-            float radius = _transform.localScale.x / 2;
-            float distance = _velocity.magnitude * Time.deltaTime;
-
-            if (Physics.SphereCast(transform.position, radius, _velocity.normalized, out RaycastHit hit, distance))
-            {
-
-                if (!_grounded)
-                {
-                    _grounded = CheckGrounded();
-                }
-
-                _velocity = Vector3.Reflect(_velocity, hit.normal) * _elasticity;
-                _lastBounceTime = Time.time;
-            }
-        }
-
-        private bool CheckGrounded()
-        {
-            float radius = _transform.localScale.x / 2;
-
-            Debug.Log($"Time betweeen {Time.time - _lastBounceTime}, Time {Time.time}, last bounce {_lastBounceTime}");
-
-            if (Physics.SphereCast(transform.position, radius, Vector3.down, out RaycastHit hit, radius) && Time.time - _lastBounceTime < 0.15f)
-            {
-                Debug.Log("Throwable grounded");
-                return true;
-            }
-            return false;
-        }
-
-
-        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-        private void BounceRpc()
-        {
-            Bounce();
-        }
-
+        //    serverTransformState.Value = transformState;
+        //}
     }
 }
 

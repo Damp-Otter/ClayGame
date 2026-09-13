@@ -22,13 +22,11 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             if (!throwingSmoke)
             {
                 throwingSmoke = true;
-                Throw(aimTransform.position, aimTransform.forward * 0.8f + aimTransform.up * 0.2f, -20, 30, 0.6f, 0.99f, 3, OnSmokeTriggered);
-            }
-            else
+                Throw(aimTransform.position, aimTransform.forward, -20, 40, 0.9f, 0.99f,2, OnSmokeTriggered);
+            } else
             {
                 DestroyThrowable();
             }
-
         }
 
         public override void AbilityTwo()

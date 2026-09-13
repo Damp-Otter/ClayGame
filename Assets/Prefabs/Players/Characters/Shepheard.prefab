@@ -5292,8 +5292,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShepheardAbilities
   ShowTopMostFoldoutHeaderGroup: 1
-  throwablePrefab: {fileID: 8526553461853508673, guid: e5fff88355d5b7a468583525b549eb12, type: 3}
-  smokePrefab: {fileID: 4528669729667142404, guid: 2502a93077285704791b0a6aebe781e5, type: 3}
+  _throwablePrefab: {fileID: 8526553461853508673, guid: e5fff88355d5b7a468583525b549eb12, type: 3}
+  _smokePrefab: {fileID: 4528669729667142404, guid: 2502a93077285704791b0a6aebe781e5, type: 3}
   aimTransform: {fileID: 8547045617142458059}
 --- !u!1 &9100942281771955753
 GameObject:

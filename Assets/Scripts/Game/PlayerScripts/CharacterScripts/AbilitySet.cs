@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,11 +9,12 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
     public abstract class AbilitySet : NetworkBehaviour
     {
 
-        [SerializeField] private GameObject throwablePrefab;
+        [SerializeField] private GameObject _throwablePrefab;
+        private NetworkObject _throwableObject;
         private Action<Vector3> _onThrowableDestroyed;
-        protected NetworkObjectReference throwableReference;
+        protected NetworkObjectReference _throwableReference;
 
-        [SerializeField] private GameObject smokePrefab;
+        [SerializeField] private GameObject _smokePrefab;
         private Action<Vector3> _onSmokeDestroyed;
 
         public abstract void AbilityOne();
@@ -32,12 +34,20 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             _onThrowableDestroyed = onThrowableDestroyed;
 
             ThrowServerRpc(position, direction, gravity, velocity, elasticity, resistance, lifespan);
+
+            NetworkThrowableComponent throwable = _throwableObject.GetComponent<NetworkThrowableComponent>();
+
+            throwable.lifespan = lifespan;
+            throwable.velocity = velocity * direction;
+            throwable.gravity = gravity;
+            throwable.elasticity = elasticity;
+            throwable.resistance = resistance;
         }
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         private void ThrowServerRpc(Vector3 position, Vector3 direction, float gravity, float velocity, float elasticity, float resistance, float lifespan, RpcParams rpcParams = default)
         {
-            var instance = Instantiate(throwablePrefab);
+            var instance = Instantiate(_throwablePrefab);
 
             NetworkObject networkObject = instance.GetComponent<NetworkObject>();
             NetworkThrowableComponent throwable = instance.GetComponent<NetworkThrowableComponent>();
@@ -47,27 +57,26 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
                 ThrowableDestroyedClientRpc(pos, rpcParams.Receive.SenderClientId);
             };
 
-            throwable.lifespan = lifespan;
-            throwable.velocity = velocity * direction;
-            throwable.gravity = gravity;
-            throwable.elasticity = elasticity;
-            throwable.resistance = resistance;
-
             instance.transform.position = position + direction * 1;
             instance.transform.forward = direction;
-
             instance.GetComponent<NetworkObject>().Spawn();
 
-            SetThrowableClientRpc(new NetworkObjectReference(networkObject), rpcParams.Receive.SenderClientId);
+            SetThrowableClientRpc(new NetworkObjectReference(networkObject));
         }
 
         [ClientRpc]
-        private void SetThrowableClientRpc(NetworkObjectReference reference, ulong targetClientId)
+        private void SetThrowableClientRpc(NetworkObjectReference reference)
         {
-            if (!NetworkManager.Singleton.LocalClientId.Equals(targetClientId))
-                return;
+            Debug.Log($"Setting on the {(IsServer ? "Server" : "Client")}");
 
-            throwableReference = reference;
+            if (reference.TryGet(out NetworkObject networkObject))
+            {
+                _throwableObject = networkObject;
+            }
+            else
+            {
+                Debug.LogWarning("Failed to get Network object from reference :(");
+            }
         }
 
         [ClientRpc]
@@ -81,7 +90,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
         protected void DestroyThrowable()
         {
-            DestroyThrowableServerRpc(throwableReference);
+            DestroyThrowableServerRpc(new NetworkObjectReference(_throwableObject));
         }
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
@@ -110,7 +119,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         private void SmokeServerRpc(Vector3 position, float lifespan, float scale, float gravity, RpcParams rpcParams = default)
         {
-            var instance = Instantiate(smokePrefab);
+            var instance = Instantiate(_smokePrefab);
 
             NetworkSmokeComponent smoke = instance.GetComponent<NetworkSmokeComponent>();
 
