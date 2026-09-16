@@ -114,17 +114,23 @@ namespace Game
 
             _lookInput += frameLookInput;
 
-            if (IsOwner)
-            {
-                _playerData.LookInput.Value = _lookInput;
-            }
+            //if (IsOwner)
+            //{
+            //    SetLookInputServerRpc(_lookInput);
+            //}
 
             RotateCamera(frameLookInput);
         }
 
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        private void SetLookInputServerRpc(Vector2 lookInput)
+        {
+            _playerData.LookInput.Value = _lookInput;
+        }
+
         private void HandleAbilities()
         {
-            if(_playerControl.Player.Ability1.triggered)
+            if (_playerControl.Player.Ability1.triggered)
             {
                 _playerData.characterData.characterAbilities.AbilityOne();
             }
@@ -168,7 +174,6 @@ namespace Game
 
                 if (_playerData.cooledDown)
                 {
-                    ShootButton(_cameraTransform.position, _cameraTransform.forward);
                     ShootServerRpc(_cameraTransform.position, _cameraTransform.forward);
                 }
             }
@@ -227,31 +232,6 @@ namespace Game
         }
 
 
-        private void ShootButton(Vector3 origin, Vector3 direction)
-        {
-            if (Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit hit, _playerData.spellData.shootRange, _shootingPlayer))
-            {
-                if (hit.collider.TryGetComponent<ButtonController>(out ButtonController buttonController))
-                {
-                    UseButtonServerRpc(origin, direction);
-                }
-            }
-        }
-
-
-        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-        private void UseButtonServerRpc(Vector3 origin, Vector3 direction)
-        {
-            if (Physics.Raycast(origin, direction, out RaycastHit hit, _playerData.spellData.shootRange, _shootingPlayer))
-            {
-                if (hit.collider.TryGetComponent<ButtonController>(out ButtonController buttonController))
-                {
-                    buttonController.Activate();
-                }
-            } 
-        }
-
-
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         private void ShootServerRpc(Vector3 origin, Vector3 direction)
         {
@@ -260,12 +240,18 @@ namespace Game
 
             if (Physics.Raycast(origin, direction, out RaycastHit hit, _playerData.spellData.shootRange))
             {
-                DamageController damageController =
-                    hit.collider.GetComponentInParent<DamageController>();
+                DamageController damageController = hit.collider.GetComponentInParent<DamageController>();
 
                 if (damageController != null && damageController != _damageController)
                 {
                     damageController.TakeDamage(_playerData.spellData.damage);
+                }
+
+                ObjectDamageController objectDamageController = hit.collider.GetComponentInParent<ObjectDamageController>();
+
+                if (objectDamageController != null)
+                {
+                    objectDamageController.TakeDamage(_playerData.spellData.damage);
                 }
             }
         }

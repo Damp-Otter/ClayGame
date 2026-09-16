@@ -20,8 +20,15 @@ public class PlayerData : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        Health.Value = characterData.maxHealth;
 
+        ResetHealthServerRpc();
+
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void ResetHealthServerRpc()
+    {
+        Health.Value = characterData.maxHealth;
     }
 
 }

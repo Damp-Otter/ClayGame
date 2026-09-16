@@ -66,8 +66,6 @@ public class PlayerVisualEffects : NetworkBehaviour
             return;
         }
 
-        Debug.Log($"Collider count: {currentColliders.Count}");
-
         currentColliders.RemoveAll(collider => collider == null);
 
         if (currentColliders.Count == 0)

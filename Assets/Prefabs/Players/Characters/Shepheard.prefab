@@ -934,7 +934,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4234480627393577670}
-  - component: {fileID: 2027336140294867977}
   - component: {fileID: 5564125143649970161}
   m_Layer: 6
   m_Name: WalkingController
@@ -974,31 +973,6 @@ Transform:
   - {fileID: 327014667340043070}
   m_Father: {fileID: 1769836936609529961}
   m_LocalEulerAnglesHint: {x: 0, y: 270, z: 0}
---- !u!143 &2027336140294867977
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1377773596914645705}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 7.5
-  m_Radius: 1.7
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 4.25, z: 0}
 --- !u!114 &5564125143649970161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5102,7 +5076,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 429695030
+  GlobalObjectIdHash: 604677333
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -5292,9 +5266,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShepheardAbilities
   ShowTopMostFoldoutHeaderGroup: 1
+  aimTransform: {fileID: 8547045617142458059}
   _throwablePrefab: {fileID: 8526553461853508673, guid: e5fff88355d5b7a468583525b549eb12, type: 3}
   _smokePrefab: {fileID: 4528669729667142404, guid: 2502a93077285704791b0a6aebe781e5, type: 3}
-  aimTransform: {fileID: 8547045617142458059}
+  _objectPrefab: {fileID: 5547314095110994511, guid: 5baedcf4ad4daec40a7d535d62e1a997, type: 3}
+  _targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &9100942281771955753
 GameObject:
   m_ObjectHideFlags: 0

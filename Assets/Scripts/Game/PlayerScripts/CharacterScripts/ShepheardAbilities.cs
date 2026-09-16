@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Assets.Scripts.Game.PlayerScripts.CharacterScripts.AbilityScripts;
+using Game;
+using System;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -8,9 +10,8 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 {
     public class ShepheardAbilities : AbilitySet
     {
-        [SerializeField] private Transform aimTransform;
-
         private bool throwingSmoke = false;
+
 
         public override void AbilityOne()
         {
@@ -24,8 +25,9 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             if (!throwingSmoke)
             {
                 throwingSmoke = true;
-                Throw(aimTransform.position, aimTransform.forward, -20, 40, 0.9f, 0.99f,2, OnSmokeTriggered);
-            } else
+                Throw(aimTransform.position, aimTransform.forward, -20, 40, 0.9f, 0.99f, 2, OnSmokeTriggered);
+            }
+            else
             {
                 DestroyThrowable();
             }
@@ -38,12 +40,24 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
                 return;
             }
 
-            Smoke(transform.position, 10f, 15f, -40f);
+            CreateObject(transform.position + Vector3.down * 2f, 50f, new Vector3(2, 0.3f, 2), null);
         }
 
         public override void AbilityThree()
         {
-            Debug.Log("Ability 3");
+            if (!IsOwner)
+            {
+                return;
+            }
+
+            NetworkObject target = TargetRaycast(aimTransform.position, aimTransform.forward, 30f);
+
+            if (target == null)
+            {
+                Debug.Log("Missed target");
+            }
+
+
         }
 
         private void OnSmokeTriggered(Vector3 lastPosition)

@@ -16,13 +16,15 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
         private Vector3 _velocity; public Vector3 velocity { set { _velocity = value; } }
         private float _elasticity; public float elasticity { set { _elasticity = value; } }
         private float _resistance; public float resistance { set { _resistance = value; } }
+        private float _lifespan = 1f; public float lifespan { set { _lifespan = value; } }
 
+
+        public bool startSimulation = false;
 
         private float _timer;
         private bool _grounded;
         private float _lastBounceTime = -1f;
-        private float _lifespan = 1f; public float lifespan { set { _lifespan = value; } }
-
+        [SerializeField] private LayerMask _layerMask;
         [SerializeField] private Transform _transform;
 
         public event Action<Vector3> OnThrowableDestroyed;
@@ -62,6 +64,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
         private void OnServerStateChanged(TransformState previousState, TransformState serverState)
         {
+
             if (IsServer)
             {
                 return;
@@ -70,6 +73,11 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             int bufferIndex = serverState.tick % BUFFER_SIZE;
             TransformState calculatedState = _transformStates[bufferIndex];
 
+            if (calculatedState == null)
+            {
+                return;
+            }
+
             if (calculatedState.tick != serverState.tick)
             {
                 return;
@@ -77,10 +85,8 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
             float positionError = Vector3.Distance(calculatedState.position, serverState.position);
 
-            if (positionError > 0.05f)
+            if (positionError > 1f)
             {
-                Debug.Log("Correcting throwable client position");
-
                 Reconcile(serverState);
             }
 
@@ -94,36 +100,29 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
             TeleportObject(serverState);
 
-            //_transformStates[bufferIndex] = serverState;
+            _transformStates[bufferIndex] = serverState;
 
-            //int replayTick = serverState.tick + 1;
-            //int currentTick = _tick;
+            int replayTick = serverState.tick + 1;
+            int currentTick = _tick;
 
-            //while (replayTick < currentTick)
-            //{
-            //    bufferIndex = replayTick % BUFFER_SIZE;
+            while (replayTick < currentTick)
+            {
+                Debug.Log($"Replaying {replayTick}, until {currentTick}");
 
-            //    TransformState currentState = _transformStates[bufferIndex];
+                bufferIndex = replayTick % BUFFER_SIZE;
 
-            //    if (currentState.tick != replayTick)
-            //    {
-            //        break;
-            //    }
+                Move();
 
-            //    MoveReplayed(currentState.velocity);
+                TransformState transformState = new TransformState()
+                {
+                    tick = replayTick,
+                    position = transform.position,
+                    velocity = _velocity
+                };
+                _transformStates[bufferIndex] = transformState;
 
-            //    TransformState replayedState =
-            //        new TransformState()
-            //        {
-            //            tick = replayTick,
-            //            position = transform.position,
-            //            velocity = currentState.velocity,
-            //        };
-
-            //    _transformStates[bufferIndex] = replayedState;
-
-            //    replayTick++;
-            //}
+                replayTick++;
+            }
         }
 
 
@@ -131,16 +130,15 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
         {
             transform.position = state.position;
             _velocity = state.velocity;
-            _tick = state.tick;
-
-            // Reset state in array of states
-
-            int bufferIndex = state.tick % BUFFER_SIZE;
-            _transformStates[bufferIndex] = state;
         }
 
         void Update()
         {
+            if (!startSimulation)
+            {
+                return;
+            }
+
             _tickDeltaTime += Time.deltaTime;
 
             while (_tickDeltaTime >= _tickRate)
@@ -148,15 +146,6 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
                 _tickDeltaTime -= _tickRate;
 
                 SimulateTick();
-            }
-
-            try
-            {
-                Debug.Log($"Servertick {serverTransformState.Value.tick} | Clienttick {_tick}");
-            }
-            catch (Exception e)
-            {
-
             }
         }
 
@@ -201,7 +190,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             float radius = _transform.localScale.x / 2;
             float distance = _velocity.magnitude * _tickRate;
 
-            if (Physics.SphereCast(_transform.position + Vector3.up * radius, radius, Vector3.down, out RaycastHit hit, radius))
+            if (Physics.SphereCast(_transform.position + Vector3.up * radius, radius, Vector3.down, out RaycastHit hit, radius, _layerMask))
             {
                 transform.position = hit.point;
                 _grounded = true;
@@ -216,7 +205,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
                 _velocity.y += _gravity * _tickRate;
             }
 
-            if (Physics.SphereCast(transform.position, radius, _velocity.normalized, out hit, distance))
+            if (Physics.SphereCast(transform.position, radius, _velocity.normalized, out hit, distance, _layerMask))
             {
                 transform.position = hit.point + hit.normal * (radius + 0.1f);
                 _velocity = Vector3.Reflect(_velocity, hit.normal) * _elasticity;
@@ -224,12 +213,6 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             }
 
             this.transform.position += _velocity * _tickRate;
-            _velocity *= _resistance;
-        }
-
-        private void MoveReplayed(Vector3 velocity)
-        {
-            this.transform.position += velocity * _tickRate;
             _velocity *= _resistance;
         }
     }
