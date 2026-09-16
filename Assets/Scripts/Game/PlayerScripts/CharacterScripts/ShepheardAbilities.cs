@@ -19,6 +19,8 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
                 return;
             }
 
+            Debug.Log("triggered ability 1");
+
             if (!throwingSmoke)
             {
                 throwingSmoke = true;
@@ -31,6 +33,11 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
         public override void AbilityTwo()
         {
+            if (!IsOwner)
+            {
+                return;
+            }
+
             Smoke(transform.position, 10f, 15f, -40f);
         }
 

@@ -11,7 +11,6 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
     {
         public int tick;
         public Vector3 position;
-        public Quaternion rotation;
         public Vector3 velocity;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -22,7 +21,6 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
                 reader.ReadValueSafe(out tick);
                 reader.ReadValueSafe(out position);
-                reader.ReadValueSafe(out rotation);
                 reader.ReadValueSafe(out velocity);
             }
             else
@@ -31,7 +29,6 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
                 writer.WriteValueSafe(tick);
                 writer.WriteValueSafe(position);
-                writer.WriteValueSafe(rotation);
                 writer.WriteValueSafe(velocity);
             }
         }
@@ -40,7 +37,6 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
         {
             return tick == other.tick &&
                    position == other.position &&
-                   rotation == other.rotation &&
                    velocity == other.velocity;
         }
 
@@ -55,7 +51,6 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             return HashCode.Combine(
                 tick,
                 position,
-                rotation,
                 velocity);
         }
     }

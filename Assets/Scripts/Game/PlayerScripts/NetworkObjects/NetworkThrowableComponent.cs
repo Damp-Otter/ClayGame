@@ -32,7 +32,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
         // Networking variables
         //-------------------------------------------------------------------------------------------
 
-        [SerializeField] private int _tick = 0;
+        [SerializeField] private int _tick = 0; public int tick { get { return _tick; } set { _tick = value; } }
         private float _tickRate = 1f / 60f; // This is 60fps
         private float _tickDeltaTime = 0f;
 
@@ -42,7 +42,8 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
         // Latest transform on the server
         public NetworkVariable<TransformState> serverTransformState = new NetworkVariable<TransformState>();
-        public TransformState _previousTransformState;
+        public TransformState previousTransformState;
+
 
         public override void OnNetworkSpawn()
         {
@@ -53,6 +54,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
         {
             serverTransformState.OnValueChanged += OnServerStateChanged;
         }
+
         private void OnDisable()
         {
             serverTransformState.OnValueChanged -= OnServerStateChanged;
@@ -60,7 +62,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
         private void OnServerStateChanged(TransformState previousState, TransformState serverState)
         {
-            if (!IsLocalPlayer)
+            if (IsServer)
             {
                 return;
             }
@@ -77,17 +79,68 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
             if (positionError > 0.05f)
             {
-                Debug.Log("Correcting client position");
+                Debug.Log("Correcting throwable client position");
+
+                Reconcile(serverState);
             }
 
-            _previousTransformState = serverState;
+            previousTransformState = serverState;
         }
 
 
+        private void Reconcile(TransformState serverState)
+        {
+            int bufferIndex = serverState.tick % BUFFER_SIZE;
+
+            TeleportObject(serverState);
+
+            //_transformStates[bufferIndex] = serverState;
+
+            //int replayTick = serverState.tick + 1;
+            //int currentTick = _tick;
+
+            //while (replayTick < currentTick)
+            //{
+            //    bufferIndex = replayTick % BUFFER_SIZE;
+
+            //    TransformState currentState = _transformStates[bufferIndex];
+
+            //    if (currentState.tick != replayTick)
+            //    {
+            //        break;
+            //    }
+
+            //    MoveReplayed(currentState.velocity);
+
+            //    TransformState replayedState =
+            //        new TransformState()
+            //        {
+            //            tick = replayTick,
+            //            position = transform.position,
+            //            velocity = currentState.velocity,
+            //        };
+
+            //    _transformStates[bufferIndex] = replayedState;
+
+            //    replayTick++;
+            //}
+        }
+
+
+        private void TeleportObject(TransformState state)
+        {
+            transform.position = state.position;
+            _velocity = state.velocity;
+            _tick = state.tick;
+
+            // Reset state in array of states
+
+            int bufferIndex = state.tick % BUFFER_SIZE;
+            _transformStates[bufferIndex] = state;
+        }
+
         void Update()
         {
-            Debug.Log($"Velocity {_velocity}");
-
             _tickDeltaTime += Time.deltaTime;
 
             while (_tickDeltaTime >= _tickRate)
@@ -95,6 +148,15 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
                 _tickDeltaTime -= _tickRate;
 
                 SimulateTick();
+            }
+
+            try
+            {
+                Debug.Log($"Servertick {serverTransformState.Value.tick} | Clienttick {_tick}");
+            }
+            catch (Exception e)
+            {
+
             }
         }
 
@@ -108,7 +170,6 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             {
                 tick = _tick,
                 position = transform.position,
-                rotation = transform.rotation,
                 velocity = _velocity
             };
 
@@ -118,7 +179,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             }
 
 
-            if (Time.time > _timer + _lifespan)
+            if (Time.time > _timer + _lifespan && _timer != 0)
             {
                 DestroyThrowable();
             }
@@ -142,7 +203,6 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
             if (Physics.SphereCast(_transform.position + Vector3.up * radius, radius, Vector3.down, out RaycastHit hit, radius))
             {
-                Debug.Log("Grounded");
                 transform.position = hit.point;
                 _grounded = true;
             }
@@ -161,28 +221,17 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
                 transform.position = hit.point + hit.normal * (radius + 0.1f);
                 _velocity = Vector3.Reflect(_velocity, hit.normal) * _elasticity;
                 _lastBounceTime = Time.time;
-
-                Debug.Log($"BOUNCE tick {_tick} position {transform.position}, is server {IsServer}");
             }
+
             this.transform.position += _velocity * _tickRate;
             _velocity *= _resistance;
         }
 
-        //[Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-        //private void MoveRpc(int tick)
-        //{
-        //    Move();
-
-        //    TransformState transformState = new TransformState()
-        //    {
-        //        tick = tick,
-        //        position = transform.position,
-        //        rotation = transform.rotation,
-        //        velocity = _velocity
-        //    };
-
-        //    serverTransformState.Value = transformState;
-        //}
+        private void MoveReplayed(Vector3 velocity)
+        {
+            this.transform.position += velocity * _tickRate;
+            _velocity *= _resistance;
+        }
     }
 }
 

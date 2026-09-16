@@ -34,14 +34,6 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             _onThrowableDestroyed = onThrowableDestroyed;
 
             ThrowServerRpc(position, direction, gravity, velocity, elasticity, resistance, lifespan);
-
-            NetworkThrowableComponent throwable = _throwableObject.GetComponent<NetworkThrowableComponent>();
-
-            throwable.lifespan = lifespan;
-            throwable.velocity = velocity * direction;
-            throwable.gravity = gravity;
-            throwable.elasticity = elasticity;
-            throwable.resistance = resistance;
         }
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
@@ -61,14 +53,12 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             instance.transform.forward = direction;
             instance.GetComponent<NetworkObject>().Spawn();
 
-            SetThrowableClientRpc(new NetworkObjectReference(networkObject));
+            SetThrowableClientRpc(new NetworkObjectReference(networkObject), position, direction, gravity, velocity, elasticity, resistance, lifespan, throwable.tick);
         }
 
         [ClientRpc]
-        private void SetThrowableClientRpc(NetworkObjectReference reference)
+        private void SetThrowableClientRpc(NetworkObjectReference reference, Vector3 position, Vector3 direction, float gravity, float velocity, float elasticity, float resistance, float lifespan, int tick)
         {
-            Debug.Log($"Setting on the {(IsServer ? "Server" : "Client")}");
-
             if (reference.TryGet(out NetworkObject networkObject))
             {
                 _throwableObject = networkObject;
@@ -77,6 +67,15 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             {
                 Debug.LogWarning("Failed to get Network object from reference :(");
             }
+
+            NetworkThrowableComponent throwable = _throwableObject.GetComponent<NetworkThrowableComponent>();
+
+            throwable.lifespan = lifespan;
+            throwable.velocity = velocity * direction * (IsServer ? 1f : 2f);
+            throwable.gravity = gravity;
+            throwable.elasticity = elasticity;
+            throwable.resistance = resistance;
+            throwable.tick = tick;
         }
 
         [ClientRpc]

@@ -86,18 +86,15 @@ namespace GameFramework.Networking.Movement
                 return;
             }
 
-            float positionError =
-            Vector3.Distance(calculatedState.position, serverState.position);
+            float positionError = Vector3.Distance(calculatedState.position, serverState.position);
 
             if (positionError > 0.05f)
             {
-
                 Debug.Log("Correcting client position");
 
                 // Out of sync
 
                 Reconcile(serverState);
-
             }
 
             _previousTransformState = serverState;
