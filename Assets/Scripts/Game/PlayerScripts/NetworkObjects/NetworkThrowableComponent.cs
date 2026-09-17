@@ -12,20 +12,20 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
         //-------------------------------------------------------------------------------------------
         // In game variables
         //-------------------------------------------------------------------------------------------
-        private float _gravity; public float gravity { set { _gravity = value; } }
-        private Vector3 _velocity; public Vector3 velocity { set { _velocity = value; } }
-        private float _elasticity; public float elasticity { set { _elasticity = value; } }
-        private float _resistance; public float resistance { set { _resistance = value; } }
-        private float _lifespan = 1f; public float lifespan { set { _lifespan = value; } }
+        protected float _gravity; public float gravity { set { _gravity = value; } }
+        protected Vector3 _velocity; public Vector3 velocity { set { _velocity = value; } }
+        protected float _elasticity; public float elasticity { set { _elasticity = value; } }
+        protected float _resistance; public float resistance { set { _resistance = value; } }
+        protected float _lifespan = 1f; public float lifespan { set { _lifespan = value; } }
 
 
         public bool startSimulation = false;
 
-        private float _timer;
-        private bool _grounded;
-        private float _lastBounceTime = -1f;
-        [SerializeField] private LayerMask _layerMask;
-        [SerializeField] private Transform _transform;
+        protected float _timer;
+        protected bool _grounded;
+        protected float _lastBounceTime = -1f;
+        [SerializeField] protected LayerMask _layerMask;
+        [SerializeField] public Transform meshTransform;
 
         public event Action<Vector3> OnThrowableDestroyed;
 
@@ -34,13 +34,13 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
         // Networking variables
         //-------------------------------------------------------------------------------------------
 
-        [SerializeField] private int _tick = 0; public int tick { get { return _tick; } set { _tick = value; } }
-        private float _tickRate = 1f / 60f; // This is 60fps
-        private float _tickDeltaTime = 0f;
+        [SerializeField] protected int _tick = 0; public int tick { get { return _tick; } set { _tick = value; } }
+        protected float _tickRate = 1f / 60f; // This is 60fps
+        protected float _tickDeltaTime = 0f;
 
 
-        private const int BUFFER_SIZE = 1024;
-        private TransformState[] _transformStates = new TransformState[BUFFER_SIZE];
+        protected const int BUFFER_SIZE = 1024;
+        protected TransformState[] _transformStates = new TransformState[BUFFER_SIZE];
 
         // Latest transform on the server
         public NetworkVariable<TransformState> serverTransformState = new NetworkVariable<TransformState>();
@@ -149,7 +149,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             }
         }
 
-        private void SimulateTick()
+        protected virtual void SimulateTick()
         {
             int bufferIndex = _tick % BUFFER_SIZE;
 
@@ -168,7 +168,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
             }
 
 
-            if (Time.time > _timer + _lifespan && _timer != 0)
+            if (Time.time > _timer + _lifespan && _timer != 0 && IsServer)
             {
                 DestroyThrowable();
             }
@@ -187,10 +187,10 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
         private void Move()
         {
-            float radius = _transform.localScale.x / 2;
+            float radius = meshTransform.localScale.x / 2;
             float distance = _velocity.magnitude * _tickRate;
 
-            if (Physics.SphereCast(_transform.position + Vector3.up * radius, radius, Vector3.down, out RaycastHit hit, radius, _layerMask))
+            if (Physics.SphereCast(meshTransform.position + Vector3.up * radius, radius, Vector3.down, out RaycastHit hit, radius, _layerMask))
             {
                 transform.position = hit.point;
                 _grounded = true;

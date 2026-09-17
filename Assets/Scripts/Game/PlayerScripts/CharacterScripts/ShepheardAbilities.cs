@@ -40,7 +40,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
                 return;
             }
 
-            CreateObject(transform.position + Vector3.down * 2f, 50f, new Vector3(2, 0.3f, 2), null);
+            CreateObject(transform.position + Vector3.down * 1.7f, 50f, new Vector3(2, 0.3f, 2), null);
         }
 
         public override void AbilityThree()
@@ -50,14 +50,29 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
                 return;
             }
 
-            NetworkObject target = TargetRaycast(aimTransform.position, aimTransform.forward, 30f);
+            TargetRaycast(aimTransform.position, aimTransform.forward, 500f);
+        }
 
-            if (target == null)
+        protected override void OnTargetSet(NetworkObject target)
+        {
+            if (target != null)
             {
-                Debug.Log("Missed target");
+                for (int i = 0; i < 5; i++)
+                {
+                    float angle = (2 * Mathf.PI / 5 * i);
+                    float step = 2f;
+                    Vector3 startOffset = new Vector3(Mathf.Cos(angle) * step, Mathf.Sin(angle) * step, 0);
+
+                    Vector3 position = aimTransform.position + startOffset;
+
+                    Homing(position, aimTransform.forward, target, 0.4f, 20, 0.1f, i * 45, 1, 1, 6, 10, OnHomingTriggered);
+                }
             }
+        }
 
-
+        private void OnHomingTriggered(NetworkObjectReference reference)
+        {
+            Debug.Log("Triggered");
         }
 
         private void OnSmokeTriggered(Vector3 lastPosition)

@@ -32,13 +32,11 @@ namespace Assets.Scripts.Game.PlayerScripts.CharacterScripts.AbilityScripts
 
 
         [SerializeField] protected LayerMask _targetLayerMask;
-        private NetworkObject _lastTargeted;
 
 
 
         [SerializeField] protected GameObject _homingPrefab;
-        private NetworkObject[] _homingObjects;
-        private Action<Vector3> _onHomingDestroyed;
+        private Action<NetworkObjectReference> _onHomingTriggered;
         protected NetworkObjectReference _homingReference;
 
 
@@ -210,31 +208,23 @@ namespace Assets.Scripts.Game.PlayerScripts.CharacterScripts.AbilityScripts
         // TargetRaycast
         // ----------------------------------------------------------------
 
-        protected NetworkObject TargetRaycast(Vector3 position, Vector3 direction, float range)
+        protected void TargetRaycast(Vector3 position, Vector3 direction, float range)
         {
             TargetRaycastServerRpc(position, direction, range);
-
-            return _lastTargeted;
         }
 
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         private void TargetRaycastServerRpc(Vector3 origin, Vector3 direction, float range, RpcParams rpcParams = default)
         {
-            Debug.Log($"LayerMask {_targetLayerMask}");
-
             Debug.DrawLine(origin, origin + direction * range, Color.red, 50f);
 
             if (Physics.Raycast(origin, direction, out RaycastHit hit, range, _targetLayerMask))
             {
-                Debug.Log("Hit");
-
                 SetTargetClientRpc(rpcParams.Receive.SenderClientId, new NetworkObjectReference(hit.collider.gameObject));
             }
             else
             {
-                Debug.Log("Miss");
-
                 SetTargetClientRpc(rpcParams.Receive.SenderClientId);
             }
         }
@@ -251,116 +241,102 @@ namespace Assets.Scripts.Game.PlayerScripts.CharacterScripts.AbilityScripts
 
             if (reference.TryGet(out NetworkObject networkObject))
             {
-                _lastTargeted = networkObject;
+                OnTargetSet(networkObject);
             }
             else
             {
-                _lastTargeted = null;
+                OnTargetSet(networkObject);
             }
         }
+
+
+        protected abstract void OnTargetSet(NetworkObject target);
 
 
         // ----------------------------------------------------------------
         // Homing
         // ----------------------------------------------------------------
 
-        protected void Homing(Vector3 position, Vector3 direction, int projectiles, float velocity, float elasticity, float resistance, float lifespan, Action<Vector3> onHomingDestroyed)
+        protected void Homing(Vector3 position, Vector3 direction, NetworkObject target, float scale, float velocity, float wobble, float wobbleOffset, float elasticity, float resistance, float correction, float lifespan, Action<NetworkObjectReference> onHomingDestroyed)
         {
-            _onHomingDestroyed = onHomingDestroyed;
+            _onHomingTriggered = onHomingDestroyed;
 
-            HomingServerRpc(position, direction, velocity, elasticity, resistance, lifespan);
+            HomingServerRpc(new NetworkObjectReference(target), position, direction, scale, velocity, wobble, wobbleOffset, elasticity, resistance, correction, lifespan);
         }
 
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-        private void HomingServerRpc(Vector3 position, Vector3 direction, int projectiles, float velocity, float elasticity, float resistance, float lifespan, RpcParams rpcParams = default)
+        private void HomingServerRpc(NetworkObjectReference targetReference, Vector3 position, Vector3 direction, float scale, float velocity, float wobble, float wobbleOffset, float elasticity, float resistance, float correction, float lifespan, RpcParams rpcParams = default)
         {
-            NetworkObjectReference[] references = new NetworkObjectReference[projectiles];
+            var instance = Instantiate(_homingPrefab);
 
-            for (int i = 0; i < projectiles; i++)
+            NetworkObject networkObject = instance.GetComponent<NetworkObject>();
+            NetworkHomingComponent homing = instance.GetComponent<NetworkHomingComponent>();
+
+            homing.OnHomingTriggered += (reference) =>
             {
-                var instance = Instantiate(_homingPrefab);
+                HomingTriggeredClientRpc(reference);
+            };
 
-                NetworkObject networkObject = instance.GetComponent<NetworkObject>();
-                NetworkHomingComponent homing = instance.GetComponent<NetworkHomingComponent>();
+            instance.transform.position = position + direction * 1;
+            instance.transform.forward = direction;
+            instance.GetComponent<NetworkObject>().Spawn();
 
-                homing.OnHomingDestroyed += (pos) =>
-                {
-                    HomingDestroyedClientRpc(pos);
-                };
+            NetworkObjectReference reference = new NetworkObjectReference(networkObject);
 
-                instance.transform.position = position + direction * 1;
-                instance.transform.forward = direction;
-                instance.GetComponent<NetworkObject>().Spawn();
-
-                references[i] = new NetworkObjectReference(networkObject);
-            }
-
-            SetHomingClientRpc(references, position, direction, velocity, elasticity, resistance, lifespan);
+            SetHomingClientRpc(reference, targetReference, position, direction, scale, velocity, wobble, wobbleOffset, elasticity, resistance, correction, lifespan);
         }
 
 
         [ClientRpc]
-        private void SetHomingClientRpc(NetworkObjectReference[] references, Vector3 position, Vector3 direction, float velocity, float elasticity, float resistance, float lifespan)
+        private void SetHomingClientRpc(NetworkObjectReference reference, NetworkObjectReference targetReference, Vector3 position, Vector3 direction, float scale, float velocity, float wobble, float wobbleOffset, float elasticity, float resistance, float correction, float lifespan)
         {
-            for (int i = 0; i < references.Length; i++)
-            {
-                if (references[i].TryGet(out NetworkObject networkObject))
-                {
-                    _homingObjects[i] = networkObject;
-                }
 
-                NetworkThrowableComponent homing = _homingObjects[i].GetComponent<NetworkThrowableComponent>();
+            reference.TryGet(out NetworkObject networkObject);
 
-                homing.lifespan = lifespan;
-                homing.velocity = velocity * direction;
-                homing.elasticity = elasticity;
-                homing.resistance = resistance;
-                homing.startSimulation = true;
-            }
+            NetworkHomingComponent homing = networkObject.GetComponent<NetworkHomingComponent>();
+
+            targetReference.TryGet(out NetworkObject targetNetworkObject);
+
+            homing.lifespan = lifespan;
+            homing.velocity = velocity * direction;
+            homing.wobble = wobble;
+            homing.wobbleOffest = wobbleOffset;
+            homing.elasticity = elasticity;
+            homing.resistance = resistance;
+            homing.startSimulation = true;
+            homing.correction = correction;
+            homing.meshTransform.localScale *= scale;
+            homing.target = targetNetworkObject.transform;
         }
 
 
         [ClientRpc]
-        private void HomingDestroyedClientRpc(Vector3 position)
+        private void HomingTriggeredClientRpc(NetworkObjectReference reference)
         {
             if (IsServer)
             {
                 return;
             }
 
-            _onThrowableDestroyed?.Invoke(position);
-
-            bool homingObjectsEmpty = true;
-            foreach (NetworkObject homing in _homingObjects)
-            {
-                if (homing != null)
-                {
-                    homingObjectsEmpty = true;
-                }
-            }
-
-            if (homingObjectsEmpty)
-            {
-                Debug.Log("All destroyed");
-            }
+            _onHomingTriggered?.Invoke(reference);
         }
 
 
-        protected void DestroyHoming()
+        protected void TriggerHoming()
         {
-            DestroyHomingServerRpc(new NetworkObjectReference(_throwableObject));
+            TriggerHomingServerRpc(new NetworkObjectReference(_throwableObject));
         }
 
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-        private void DestroyHomingServerRpc(NetworkObjectReference reference)
+        private void TriggerHomingServerRpc(NetworkObjectReference reference)
         {
             if (reference.TryGet(out NetworkObject networkObject))
             {
-                NetworkThrowableComponent throwable = networkObject.GetComponent<NetworkThrowableComponent>();
+                NetworkHomingComponent homing = networkObject.GetComponent<NetworkHomingComponent>();
 
-                throwable.DestroyHoming();
+                homing.TriggerHoming();
             }
         }
     }

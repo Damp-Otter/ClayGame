@@ -166,7 +166,7 @@ MonoBehaviour:
   _layerMask:
     serializedVersion: 2
     m_Bits: 1
-  _transform: {fileID: 5075016817629165717}
+  meshTransform: {fileID: 5075016817629165717}
   _tick: 0
   serverTransformState:
     UpdateTraits:

@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using ParrelSync;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -30,7 +31,10 @@ public static class RendererFeatureReset
             }
         }
 
-        AssetDatabase.SaveAssets();
+        if (!ClonesManager.IsClone())
+        {
+            AssetDatabase.SaveAssets();
+        }
     }
 }
 #endif
