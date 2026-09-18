@@ -35,9 +35,9 @@ public class PlayerData : NetworkBehaviour
     {
         Debug.Log($"HEALING {transform.position}");
 
-        if (exceedMax && characterData.maxHealth + amount <= Health.Value + amount)
+        if (exceedMax)
         {
-            Health.Value += amount;
+            Health.Value = Mathf.Clamp(Health.Value + amount, 0, characterData.maxHealth + 50);
         }
         else
         {

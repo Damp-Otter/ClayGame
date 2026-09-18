@@ -5189,7 +5189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 429695030
+  GlobalObjectIdHash: 604677333
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -5329,7 +5329,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.Scripts.Game.PlayerScripts.CharacterData
   ShowTopMostFoldoutHeaderGroup: 1
-  _maxHealth: 140
+  _maxHealth: 100
   _jumpHeight: 2
   _speed: 8
   characterAbilities: {fileID: 4852546779209750606}
@@ -5347,9 +5347,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Assets.Scripts.Game.PlayerScripts.SpellData
   ShowTopMostFoldoutHeaderGroup: 1
   _lastShotTime: 0
-  _shotCooldown: 0.3
+  _shotCooldown: 0.1
   _shootRange: 1000
-  _damage: 25
+  _damage: 10
   _spellName: Basic attack
 --- !u!114 &6444729762582838273
 MonoBehaviour:

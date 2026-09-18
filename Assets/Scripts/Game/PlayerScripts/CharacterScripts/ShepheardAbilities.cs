@@ -65,7 +65,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
                     Vector3 position = aimTransform.position + startOffset;
 
-                    Homing(position, aimTransform.forward, target, 0.4f, 20, 0.1f, i * 45, 1, 1, 6, 10, OnHomingTriggered);
+                    Homing(position, aimTransform.forward, target, 0.4f, 20, 0.1f, i * 45, 1, 1, 8, 10, OnHomingTriggered);
                 }
             }
         }

@@ -41,14 +41,16 @@ public class PlayerAnimationController : NetworkBehaviour
     public void UpdateHealthBar()
     {
         float healthPercent = _playerData.Health.Value / _playerData.characterData.maxHealth;
-        float tempHealth = 0f;
+        float tempHealthPercent = 0f;
 
         if (healthPercent > 1)
         {
-            tempHealth = healthPercent - 1;
+            tempHealthPercent = healthPercent - 1;
         }
 
         Debug.Log($"Health: {healthPercent * 100}%");
+
+        healthPercent = Mathf.Clamp(healthPercent, 0, 1);
 
         // Update health bar scale
         Vector3 healthScale = _healthBar.transform.localScale;
@@ -70,16 +72,16 @@ public class PlayerAnimationController : NetworkBehaviour
         damagePos.x = healthPercent * _barSize * 0.5f;
         _damageBar.transform.localPosition = damagePos;
 
-        if (tempHealth > 0)
+        if (tempHealthPercent > 0)
         {
             _tempHealthBar.SetActive(true);
 
             Vector3 tempHealthScale = _tempHealthBar.transform.localScale;
-            tempHealthScale.x = healthPercent * _barSize;
+            tempHealthScale.x = tempHealthPercent * _barSize;
             _tempHealthBar.transform.localScale = tempHealthScale;
 
             Vector3 tempHealthPos = _tempHealthBar.transform.localPosition;
-            tempHealthPos.x = (1f - healthPercent) * _barSize;
+            tempHealthPos.x = -(1f - healthPercent) * _barSize * 0.5f;
             _tempHealthBar.transform.localPosition = tempHealthPos;
         }
         else
