@@ -73,6 +73,14 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
         private void OnHomingTriggered(NetworkObjectReference reference)
         {
             Debug.Log("Triggered");
+
+            if (!reference.TryGet(out NetworkObject networkObject))
+            {
+                Debug.LogError("Didn't hit a network object, you hit something else or the reference couldnt find one.");
+                return;
+            }
+
+            Heal(reference, 10, true);
         }
 
         private void OnSmokeTriggered(Vector3 lastPosition)

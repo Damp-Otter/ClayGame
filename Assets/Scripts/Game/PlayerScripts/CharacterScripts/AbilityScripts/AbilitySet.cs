@@ -280,6 +280,7 @@ namespace Assets.Scripts.Game.PlayerScripts.CharacterScripts.AbilityScripts
 
             instance.transform.position = position + direction * 1;
             instance.transform.forward = direction;
+            homing.targetLayerMask = _targetLayerMask;
             instance.GetComponent<NetworkObject>().Spawn();
 
             NetworkObjectReference reference = new NetworkObjectReference(networkObject);
@@ -307,6 +308,7 @@ namespace Assets.Scripts.Game.PlayerScripts.CharacterScripts.AbilityScripts
             homing.startSimulation = true;
             homing.correction = correction;
             homing.meshTransform.localScale *= scale;
+            homing.targetLayerMask = _targetLayerMask;
             homing.target = targetNetworkObject.transform;
         }
 
@@ -314,31 +316,31 @@ namespace Assets.Scripts.Game.PlayerScripts.CharacterScripts.AbilityScripts
         [ClientRpc]
         private void HomingTriggeredClientRpc(NetworkObjectReference reference)
         {
-            if (IsServer)
-            {
-                return;
-            }
-
             _onHomingTriggered?.Invoke(reference);
         }
 
+        // ----------------------------------------------------------------
+        // Healing
+        // ----------------------------------------------------------------
 
-        protected void TriggerHoming()
+
+        protected void Heal(NetworkObjectReference reference, float amount, bool exceedMax)
         {
-            TriggerHomingServerRpc(new NetworkObjectReference(_throwableObject));
-        }
-
-
-        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-        private void TriggerHomingServerRpc(NetworkObjectReference reference)
-        {
-            if (reference.TryGet(out NetworkObject networkObject))
+            if (!reference.TryGet(out NetworkObject networkObject))
             {
-                NetworkHomingComponent homing = networkObject.GetComponent<NetworkHomingComponent>();
-
-                homing.TriggerHoming();
+                Debug.LogError("Didn't hit a network object, you hit something else or the reference couldnt find one.");
+                return;
             }
+
+            PlayerData playerData = networkObject.transform.GetComponent<PlayerData>();
+
+            Debug.Log($"Object: {networkObject.name}");
+            Debug.Log($"Transform: {networkObject.transform.name}");
+            Debug.Log($"PlayerData: {networkObject.GetComponent<PlayerData>()}");
+
+            playerData.HealServerRpc(amount, exceedMax);
         }
+
     }
 
 }

@@ -1,12 +1,15 @@
 using Assets.Scripts.Game.PlayerScripts.NetworkObjects;
 using System;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class NetworkHomingComponent : NetworkThrowableComponent
 {
     public event Action<NetworkObjectReference> OnHomingTriggered;
     protected Transform _target; public Transform target { set { _target = value; } }
+    protected LayerMask _targetLayerMask; public LayerMask targetLayerMask { set { _targetLayerMask = value; } }
+
     protected float _correction; public float correction { set { _correction = value; } }
     protected float _wobble; public float wobble { set { _wobble = value; } }
     protected float _wobbleOffset; public float wobbleOffest { set { _wobbleOffset = value; } }
@@ -18,6 +21,8 @@ public class NetworkHomingComponent : NetworkThrowableComponent
         int bufferIndex = _tick % BUFFER_SIZE;
 
         Move();
+
+        Trigger();
 
         TransformState transformState = new TransformState()
         {
@@ -43,16 +48,21 @@ public class NetworkHomingComponent : NetworkThrowableComponent
     }
 
 
-    public void TriggerHoming()
+    public void TriggerHoming(NetworkObject networkObject)
     {
-        OnHomingTriggered?.Invoke(new NetworkObjectReference(GetComponent<NetworkObject>()));
+        OnHomingTriggered?.Invoke(new NetworkObjectReference(networkObject));
 
-        GetComponent<NetworkObject>().Despawn(true);
+        SilentDestroyHoming();
     }
 
 
     public void SilentDestroyHoming()
     {
+        if (!IsServer)
+        {
+            return;
+        }
+
         GetComponent<NetworkObject>().Despawn(true);
     }
 
@@ -104,5 +114,24 @@ public class NetworkHomingComponent : NetworkThrowableComponent
 
         this.transform.position += positonIncrement + wobbleIncrement;
         _velocity *= _resistance;
+    }
+
+    private void Trigger()
+    {
+        float radius = meshTransform.localScale.x / 2;
+        float distance = _velocity.magnitude * _tickRate;
+
+        if (Physics.SphereCast(transform.position, radius, _velocity.normalized, out RaycastHit hit, distance, _targetLayerMask))
+        {
+            try
+            {
+                NetworkObject hitNetworkObject = hit.transform.GetComponent<NetworkObject>();
+                TriggerHoming(hitNetworkObject);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Target had no NetworkObject");
+            }
+        }
     }
 }

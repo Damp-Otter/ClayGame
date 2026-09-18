@@ -22,7 +22,6 @@ public class PlayerData : NetworkBehaviour
         base.OnNetworkSpawn();
 
         ResetHealthServerRpc();
-
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
@@ -31,4 +30,18 @@ public class PlayerData : NetworkBehaviour
         Health.Value = characterData.maxHealth;
     }
 
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void HealServerRpc(float amount, bool exceedMax)
+    {
+        Debug.Log($"HEALING {transform.position}");
+
+        if (exceedMax && characterData.maxHealth + amount <= Health.Value + amount)
+        {
+            Health.Value += amount;
+        }
+        else
+        {
+            Health.Value = Mathf.Clamp(Health.Value + amount, 0, characterData.maxHealth);
+        }
+    }
 }
