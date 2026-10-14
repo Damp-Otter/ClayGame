@@ -24,6 +24,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
             if (!throwingSmoke)
             {
+                Debug.Log("Throwing smoke false");
                 throwingSmoke = true;
                 Throw(aimTransform.position, aimTransform.forward, -20, 40, 0.9f, 0.99f, 2, OnSmokeTriggered);
             }
@@ -85,6 +86,7 @@ namespace Assets.Scripts.Game.PlayerScripts.NetworkObjects
 
         private void OnSmokeTriggered(Vector3 lastPosition)
         {
+            Debug.Log("Finished throwing");
             throwingSmoke = false;
             Smoke(lastPosition, 30f, 15f, -10f);
         }
