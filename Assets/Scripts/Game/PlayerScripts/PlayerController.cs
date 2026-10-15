@@ -18,6 +18,7 @@ namespace Game
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : NetworkBehaviour
     {
+        public event Action<Vector3> OnShoot;
 
         private float _lookSensitivity = 0.1f;
 
@@ -165,20 +166,6 @@ namespace Game
             _isRespawning = false;
         }
 
-
-        private void HandleShoot()
-        {
-            if (IsLocalPlayer && _playerControl.Player.Shoot.inProgress)
-            {
-                _playerData.cooledDown = _playerData.spellData.CheckCooldown();
-
-                if (_playerData.cooledDown)
-                {
-                    ShootServerRpc(_cameraTransform.position, _cameraTransform.forward);
-                }
-            }
-        }
-
         public void HandleCollisionEnter(Collider collider)
         {
             if (collider.gameObject.layer == 7)
@@ -231,12 +218,38 @@ namespace Game
                 Quaternion.Euler(_pitch, 0f, 0f);
         }
 
+        private void HandleShoot()
+        {
+            if (IsLocalPlayer && _playerControl.Player.Shoot.inProgress)
+            {
+                _playerData.cooledDown = _playerData.spellData.CheckCooldown();
+
+                if (_playerData.cooledDown)
+                {
+                    OnShoot?.Invoke(FindDestination(_cameraTransform.position, _cameraTransform.forward));
+
+                    ShootServerRpc(_cameraTransform.position, _cameraTransform.forward);
+                }
+            }
+        }
+
+        private Vector3 FindDestination(Vector3 origin, Vector3 direction)
+        {
+            if (Physics.Raycast(origin, direction, out RaycastHit hit, _playerData.spellData.shootRange))
+            {
+                return hit.point;
+            }
+
+            return origin + direction * _playerData.spellData.shootRange;
+        }
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-        private void ShootServerRpc(Vector3 origin, Vector3 direction)
+        private void ShootServerRpc(Vector3 origin, Vector3 direction, RpcParams rpcParams = default)
         {
             if (!_playerData.cooledDown)
                 return;
+
+            ShootAnimationClientRpc(origin, direction, rpcParams.Receive.SenderClientId);
 
             if (Physics.Raycast(origin, direction, out RaycastHit hit, _playerData.spellData.shootRange))
             {
@@ -255,5 +268,18 @@ namespace Game
                 }
             }
         }
+
+        [ClientRpc]
+        private void ShootAnimationClientRpc(Vector3 origin, Vector3 direction, ulong clientId)
+        {
+            if (clientId == NetworkManager.LocalClientId)
+            {
+                Debug.Log("I fired");
+                return;
+            }
+
+            OnShoot?.Invoke(FindDestination(origin, direction));
+        }
+
     }
 }

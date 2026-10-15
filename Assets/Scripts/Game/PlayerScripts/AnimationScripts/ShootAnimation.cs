@@ -1,16 +1,42 @@
+using Game;
+using System.Collections;
 using UnityEngine;
+using System;
 
 public class ShootAnimation : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] TracerAnimation tracerPrefab;
+    [SerializeField] SigilAnimation sigilPrefab;
+
+    [SerializeField] Transform[] origins;
+
+    [SerializeField] private PlayerController playerController;
+
+    private void OnEnable()
     {
-        
+        playerController.OnShoot += PlayShootAnimation;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnDisable()
     {
-        
+        playerController.OnShoot -= PlayShootAnimation;
+    }
+
+    private void PlayShootAnimation(Vector3 destination)
+    {
+        Transform origin = RandomizeOrigin();
+
+        TracerAnimation tracer = Instantiate(tracerPrefab);
+        tracer.Play(origin, destination);
+
+        SigilAnimation sigil = Instantiate(sigilPrefab);
+        sigil.Play(origin);
+    }
+
+    private Transform RandomizeOrigin()
+    {
+        System.Random rnd = new System.Random();
+
+        return origins[rnd.Next(0, origins.Length)];
     }
 }

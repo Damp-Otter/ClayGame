@@ -43,7 +43,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Dissolve: 0
-    - _DissolveSoftness: 0.7
+    - _DissolveSoftness: 0.4
     - _QueueControl: 0
     - _QueueOffset: 0
     m_Colors:

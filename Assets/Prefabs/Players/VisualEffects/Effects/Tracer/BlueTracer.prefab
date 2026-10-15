@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5173771186508054634}
   - component: {fileID: 2668941455765709074}
+  - component: {fileID: 3515107417319746974}
   m_Layer: 0
   m_Name: BlueTracer
   m_TagString: Untagged
@@ -26,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 3975924171686570724}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 68.43614, y: 9.5935, z: -54.00493}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -82,11 +83,11 @@ LineRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Positions:
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 15}
+  - {x: 55.02237, y: 13.4869995, z: -31.275343}
+  - {x: 65.3978, y: 13.4869995, z: -48.373604}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 0.1
+    widthMultiplier: 0.2
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -145,9 +146,23 @@ LineRenderer:
     numCapVertices: 0
     alignment: 0
     textureMode: 1
-    textureScale: {x: 0.5, y: 1}
+    textureScale: {x: 1, y: 1}
     shadowBias: 0.5
     generateLightingData: 0
-  m_UseWorldSpace: 0
+  m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
+--- !u!114 &3515107417319746974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3975924171686570724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2451c6733ad64e34baf5e74302e03fa7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  tracer: {fileID: 2668941455765709074}
+  duration: 0.2
