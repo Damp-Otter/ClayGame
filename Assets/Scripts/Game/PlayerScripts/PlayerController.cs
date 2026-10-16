@@ -38,6 +38,7 @@ namespace Game
         [SerializeField] private DamageController _damageController;
         [SerializeField] private PlayerAnimationController _playerAnimationController;
         [SerializeField] private PlayerVisualEffects _playerVisualEffects;
+        [SerializeField] private LayerMask _defaultLayerMask;
 
         private float _cameraAngle;
 
@@ -235,7 +236,7 @@ namespace Game
 
         private Vector3 FindDestination(Vector3 origin, Vector3 direction)
         {
-            if (Physics.Raycast(origin, direction, out RaycastHit hit, _playerData.spellData.shootRange))
+            if (Physics.Raycast(origin, direction, out RaycastHit hit, _playerData.spellData.shootRange, _defaultLayerMask))
             {
                 return hit.point;
             }

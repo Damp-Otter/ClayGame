@@ -29,7 +29,7 @@ public class ShootAnimation : MonoBehaviour
         TracerAnimation tracer = Instantiate(tracerPrefab);
         tracer.Play(origin, destination);
 
-        SigilAnimation sigil = Instantiate(sigilPrefab);
+        SigilAnimation sigil = Instantiate(sigilPrefab, this.transform);
         sigil.Play(origin);
     }
 
